@@ -45,10 +45,23 @@ function HeaderComponent() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="fixed"
+      sx={{
+        top: 0, // Đảm bảo sticky hoạt động
+        zIndex: 1100, // Đặt z-index cao để header luôn nằm trên các phần tử khác
+      }}
+    >
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          <Link href="/" style={{ display: "flex", alignItems: "center" }}>
+          <Link
+            href="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              textDecoration: "none",
+            }}
+          >
             <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
             <Typography
               variant="h6"
@@ -59,7 +72,7 @@ function HeaderComponent() {
                 fontFamily: "monospace",
                 fontWeight: 700,
                 letterSpacing: ".3rem",
-                color: "inherit",
+                color: "black",
                 textDecoration: "none",
               }}
             >

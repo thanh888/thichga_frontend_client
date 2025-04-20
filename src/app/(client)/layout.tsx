@@ -1,3 +1,5 @@
+"use client";
+import FooterComponent from "@/components/footer/footer";
 import HeaderComponent from "@/components/header/header";
 
 export default function ClientLayout({
@@ -9,6 +11,7 @@ export default function ClientLayout({
     <>
       <HeaderComponent />
       <main>{children}</main>
+      <FooterComponent />
     </>
   );
 }

@@ -1,107 +1,66 @@
-// components/FlowbiteCarousel.tsx
-"use client"; // nếu bạn đang dùng app router
+"use client";
+import { useState } from "react";
+import { Carousel } from "react-bootstrap";
 
-import { useEffect } from "react";
+const items = [
+  {
+    id: 1,
+    title: "Photography",
+    body: "Bootstrap Carousel Example",
+    imageUrl:
+      "https://thichga.com/public-static-file-uploaded/images/09a2bfc6-2d59-4542-9ad1-6353f8b711ad.png",
+  },
+  {
+    id: 2,
+    title: "City Views",
+    body: "Bootstrap Carousel Example",
+    imageUrl:
+      "https://thichga.com/public-static-file-uploaded/images/949a53c5-9957-41c0-a764-baf39148c1e9.png",
+  },
+];
 
-export default function FlowbiteCarousel() {
-  useEffect(() => {
-    import("flowbite");
-  }, []);
+export default function BannerComponent() {
+  const [index, setIndex] = useState(0);
+  const handleSelect = (selectedIndex: number) => setIndex(selectedIndex);
 
   return (
-    <div
-      id="default-carousel"
-      className="relative w-full"
-      data-carousel="slide"
+    <Carousel
+      activeIndex={index}
+      onSelect={handleSelect}
+      className="w-full overflow-hidden my-8"
+      style={{
+        borderRadius: "10px",
+        boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
+        height: "500px",
+        margin: "20px 0",
+      }}
     >
-      {/* Carousel wrapper */}
-      <div className="relative h-56 overflow-hidden rounded-lg md:h-96">
-        {/* Item 1 */}
-        <div className="hidden duration-700 ease-in-out" data-carousel-item>
-          <img
-            src="/images/banner_1.jpg"
-            className="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
-            alt="..."
-          />
-        </div>
-        {/* Item 2 */}
-        <div className="hidden duration-700 ease-in-out" data-carousel-item>
-          <img
-            src="/images/banner_2.jpg"
-            className="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
-            alt="..."
-          />
-        </div>
-        {/* Add more items... */}
-      </div>
-
-      {/* Slider indicators */}
-      <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
-        <button
-          type="button"
-          className="w-3 h-3 rounded-full"
-          aria-current="true"
-          aria-label="Slide 1"
-          data-carousel-slide-to="0"
-        ></button>
-        <button
-          type="button"
-          className="w-3 h-3 rounded-full"
-          aria-current="false"
-          aria-label="Slide 2"
-          data-carousel-slide-to="1"
-        ></button>
-      </div>
-
-      {/* Slider controls */}
-      <button
-        type="button"
-        className="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
-        data-carousel-prev
-      >
-        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 group-hover:bg-white/50 group-focus:ring-4 group-focus:ring-white">
-          <svg
-            className="w-4 h-4 text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 6 10"
+      {items.map((item) => (
+        <Carousel.Item key={item.id} interval={4000}>
+          <div
+            style={{
+              width: "100%",
+              height: "500px",
+              overflow: "hidden",
+              position: "relative",
+            }}
           >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 1 1 5l4 4"
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center",
+                position: "absolute",
+                top: 0,
+                left: 0,
+              }}
             />
-          </svg>
-          <span className="sr-only">Previous</span>
-        </span>
-      </button>
-      <button
-        type="button"
-        className="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
-        data-carousel-next
-      >
-        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 group-hover:bg-white/50 group-focus:ring-4 group-focus:ring-white">
-          <svg
-            className="w-4 h-4 text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 6 10"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="m1 9 4-4-4-4"
-            />
-          </svg>
-          <span className="sr-only">Next</span>
-        </span>
-      </button>
-    </div>
+          </div>
+        </Carousel.Item>
+      ))}
+    </Carousel>
   );
 }
