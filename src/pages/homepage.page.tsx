@@ -105,6 +105,7 @@ export default function Homepage() {
               height={28}
               style={{ objectFit: "cover" }}
             />
+            {""}
             Đá Gà
           </Typography>
           <Typography
@@ -125,7 +126,7 @@ export default function Homepage() {
           gutterBottom
           sx={{ fontWeight: "bold", textAlign: "center", color: "#1E90FF" }}
         >
-          SẢN CHƠI CHUYÊN NGHIỆP – ĐẲNG CẤP DÂN CHƠI NGUỘI CHÓI THỨC THỲ
+          Sân Chơi Chuyên Nghiệp – Đẳng Cấp Dành Cho Người Chơi Thực Thụ
         </Typography>
 
         {/* Mô tả chính */}
@@ -133,15 +134,15 @@ export default function Homepage() {
           variant="body1"
           sx={{ mb: 3, textAlign: "justify", color: "text.secondary" }}
         >
-          Tại Đầu Trường Gà Đòn, mọi trận đầu đểu được tổ chức một cách chuyên
+          Tại Đấu Trường Gà Đòn, mọi trận đấu đều được tổ chức một cách chuyên
           nghiệp, minh bạch và công bằng. Với hệ thống hiện đại, chúng tôi cam
-          kết mang đến trải nghiệm tốt nhất cho những nguội chơi đam mê gà đòn.
+          kết mang đến trải nghiệm tốt nhất cho những người chơi đam mê gà đòn.
         </Typography>
 
         {/* Danh sách các mục */}
         <List>
           {items.map((item, index) => (
-            <ListItem key={index} sx={{ alignItems: "flex-start" }}>
+            <ListItem key={+index} sx={{ alignItems: "flex-start" }}>
               <ListItemIcon>
                 <CircleIcon sx={{ fontSize: 10, color: "#1E90FF", mt: 1 }} />
               </ListItemIcon>
