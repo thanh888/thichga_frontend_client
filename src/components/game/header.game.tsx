@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Toolbar, Button, Box, Stack, Typography } from "@mui/material";
+import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import {
   ListAltOutlined,
   MonetizationOnOutlined,
@@ -7,24 +7,43 @@ import {
   MarkUnreadChatAltOutlined,
 } from "@mui/icons-material";
 
-// 👉 Component riêng cho các nút icon
+interface GameHeaderProps {
+  isCommentOpen: boolean;
+  setIsCommentOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isBetOpen: boolean;
+  setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const GameHeader: React.FC = () => {
+export default function GameHeader({
+  isCommentOpen,
+  setIsCommentOpen,
+  isBetOpen,
+  setIsBetOpen,
+}: Readonly<GameHeaderProps>) {
+  const scrollButtonList = [
+    "MỞC HÔ ĐỘ 6E",
+    "MỞC HÔ ĐỘ 77",
+    "MỞC HÔ ĐỘ 4",
+    "ĐAKPUER ĐỘ 1",
+  ];
+
   const HeaderIconButton = ({
     icon: Icon,
     label,
+    onClick,
   }: {
     icon: any;
     label: string;
+    onClick?: () => void;
   }) => (
     <Button
       variant="text"
+      onClick={onClick}
       sx={{
         color: "white",
         fontSize: 12,
         flexDirection: "column",
         whiteSpace: "nowrap",
-
         ":hover": { backgroundColor: "transparent" },
       }}
     >
@@ -40,24 +59,34 @@ const GameHeader: React.FC = () => {
       {label}
     </Button>
   );
-  const scrollButtonList = [
-    "MỞC HÔ ĐỘ 6E",
-    "MỞC HÔ ĐỘ 77",
-    "MỞC HÔ ĐỘ 4",
-    "ĐAKPUER ĐỘ 1",
-  ];
 
   return (
-    <AppBar position="static" sx={{ bgcolor: "#333" }}>
+    <AppBar
+      position="fixed"
+      sx={{
+        bgcolor: "#333",
+        position: "fixed",
+        zIndex: 100,
+        height: "80px",
+      }}
+    >
       <Toolbar sx={{ px: 2, justifyContent: "space-between" }}>
-        {/* Khu vực trái */}
+        {/* Trái */}
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           <HeaderIconButton icon={ListAltOutlined} label="Trang chủ" />
-          <HeaderIconButton icon={ListAltOutlined} label="DS Cược" />
-          <HeaderIconButton icon={MonetizationOnOutlined} label="Cược" />
+          <HeaderIconButton
+            icon={ListAltOutlined}
+            label="DS Cược"
+            onClick={() => setIsBetOpen(!isBetOpen)}
+          />
+          <HeaderIconButton
+            icon={MonetizationOnOutlined}
+            label="Cược"
+            onClick={() => setIsCommentOpen(!isCommentOpen)}
+          />
         </Box>
 
-        {/* Khu vực scroll ngang giữa */}
+        {/* Giữa */}
         <Box
           sx={{
             flexGrow: 1,
@@ -83,7 +112,7 @@ const GameHeader: React.FC = () => {
           >
             {scrollButtonList.map((label, index) => (
               <Button
-                key={index}
+                key={+index}
                 variant="contained"
                 color="warning"
                 sx={{
@@ -100,11 +129,12 @@ const GameHeader: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Khu vực phải */}
+        {/* Phải */}
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           <HeaderIconButton
             icon={MarkUnreadChatAltOutlined}
             label="Bình luận"
+            onClick={() => setIsCommentOpen(!isCommentOpen)}
           />
           <HeaderIconButton icon={ListAltOutlined} label="LS Cược" />
           <HeaderIconButton icon={SupportAgentOutlined} label="Hỗ trợ" />
@@ -112,6 +142,4 @@ const GameHeader: React.FC = () => {
       </Toolbar>
     </AppBar>
   );
-};
-
-export default GameHeader;
+}

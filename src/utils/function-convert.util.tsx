@@ -1,6 +1,7 @@
 export const ConvertMoneyVND = (value: number): string => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(1000);
+  return value.toLocaleString("it-IT", { style: "currency", currency: "VND" });
+};
+
+export const numberThousand = (value: string) => {
+  return Number(value).toLocaleString("de-DE");
 };
