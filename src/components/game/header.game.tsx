@@ -1,282 +1,113 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box, Stack } from "@mui/material";
-import { AccountCircle } from "@mui/icons-material";
-import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
-import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
-import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
-import MarkUnreadChatAltOutlinedIcon from "@mui/icons-material/MarkUnreadChatAltOutlined";
+import { AppBar, Toolbar, Button, Box, Stack, Typography } from "@mui/material";
+import {
+  ListAltOutlined,
+  MonetizationOnOutlined,
+  SupportAgentOutlined,
+  MarkUnreadChatAltOutlined,
+} from "@mui/icons-material";
+
+// 👉 Component riêng cho các nút icon
 
 const GameHeader: React.FC = () => {
+  const HeaderIconButton = ({
+    icon: Icon,
+    label,
+  }: {
+    icon: any;
+    label: string;
+  }) => (
+    <Button
+      variant="text"
+      sx={{
+        color: "white",
+        fontSize: 12,
+        flexDirection: "column",
+        whiteSpace: "nowrap",
+
+        ":hover": { backgroundColor: "transparent" },
+      }}
+    >
+      <Icon
+        sx={{
+          color: "white",
+          p: 1,
+          fontSize: 40,
+          backgroundColor: "#ed6c02",
+          borderRadius: "50%",
+        }}
+      />
+      {label}
+    </Button>
+  );
+  const scrollButtonList = [
+    "MỞC HÔ ĐỘ 6E",
+    "MỞC HÔ ĐỘ 77",
+    "MỞC HÔ ĐỘ 4",
+    "ĐAKPUER ĐỘ 1",
+  ];
+
   return (
     <AppBar position="static" sx={{ bgcolor: "#333" }}>
-      <Toolbar>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 0,
-            alignItems: "center",
-          }}
-        >
-          <Button
-            variant="text"
-            sx={{
-              color: "white",
-              fontSize: 12,
-              flexDirection: "column",
-              ":hover": {
-                backgroundColor: "none",
-              },
-              ":active": {
-                backgroundColor: "none",
-              },
-              ":focus": {
-                backgroundColor: "none",
-              },
-            }}
-          >
-            <ListAltOutlinedIcon
-              sx={{
-                color: "white",
-                p: "4px",
-                fontSize: 40,
-                backgroundColor: "#ed6c02",
-                borderRadius: "50%",
-              }}
-            />
-            DS Cược
-          </Button>
-          <Button
-            variant="text"
-            sx={{
-              color: "white",
-              fontSize: 12,
-              flexDirection: "column",
-              ":hover": {
-                backgroundColor: "none",
-              },
-              ":active": {
-                backgroundColor: "none",
-              },
-              ":focus": {
-                backgroundColor: "none",
-              },
-            }}
-          >
-            <MonetizationOnOutlinedIcon
-              sx={{
-                color: "white",
-                p: "4px",
-                fontSize: 40,
-                backgroundColor: "#ed6c02",
-                borderRadius: "50%",
-              }}
-            />
-            Cược
-          </Button>
-          <Button
-            variant="text"
-            sx={{
-              color: "white",
-              fontSize: 12,
-              flexDirection: "column",
-              ":hover": {
-                backgroundColor: "none",
-              },
-              ":active": {
-                backgroundColor: "none",
-              },
-              ":focus": {
-                backgroundColor: "none",
-              },
-            }}
-          >
-            <SupportAgentOutlinedIcon
-              sx={{
-                color: "white",
-                p: "4px",
-                fontSize: 40,
-                backgroundColor: "#ed6c02",
-                borderRadius: "50%",
-              }}
-            />
-            Hỗ trợ
-          </Button>
-          <Button
-            variant="text"
-            sx={{
-              color: "white",
-              fontSize: 12,
-              flexDirection: "column",
-              ":hover": {
-                backgroundColor: "none",
-              },
-              ":active": {
-                backgroundColor: "none",
-              },
-              ":focus": {
-                backgroundColor: "none",
-              },
-            }}
-          >
-            <ListAltOutlinedIcon
-              sx={{
-                color: "white",
-                p: "4px",
-                fontSize: 40,
-                backgroundColor: "#ed6c02",
-                borderRadius: "50%",
-              }}
-            />
-            DS Cược
-          </Button>
+      <Toolbar sx={{ px: 2, justifyContent: "space-between" }}>
+        {/* Khu vực trái */}
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <HeaderIconButton icon={ListAltOutlined} label="Trang chủ" />
+          <HeaderIconButton icon={ListAltOutlined} label="DS Cược" />
+          <HeaderIconButton icon={MonetizationOnOutlined} label="Cược" />
         </Box>
 
+        {/* Khu vực scroll ngang giữa */}
         <Box
           sx={{
             flexGrow: 1,
+            overflow: "hidden",
             display: "flex",
-            gap: 1,
             justifyContent: "center",
-            width: "800px",
-            overflowX: "auto",
+            px: 2,
           }}
         >
-          <Button variant="contained" color="warning" sx={{ width: "auto" }}>
-            ĐAKPUER ĐỘ 1
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 6E
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 77
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 4
-          </Button>
-          <Button variant="contained" color="warning">
-            ĐAKPUER ĐỘ 1
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 6E
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 77
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 4
-          </Button>
-          <Button variant="contained" color="warning">
-            ĐAKPUER ĐỘ 1
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 6E
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 77
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 4
-          </Button>
-          <Button variant="contained" color="warning">
-            ĐAKPUER ĐỘ 1
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 6E
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 77
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 4
-          </Button>
-          <Button variant="contained" color="warning">
-            ĐAKPUER ĐỘ 1
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 6E
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 77
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 4
-          </Button>
-          <Button variant="contained" color="warning">
-            ĐAKPUER ĐỘ 1
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 6E
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 77
-          </Button>
-          <Button variant="contained" color="warning">
-            MỞC HÔ ĐỘ 4
-          </Button>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              alignItems: "center",
+              overflowX: "auto",
+              whiteSpace: "nowrap",
+              scrollBehavior: "smooth",
+              px: 1,
+              "&::-webkit-scrollbar": {
+                display: "none",
+              },
+            }}
+          >
+            {scrollButtonList.map((label, index) => (
+              <Button
+                key={index}
+                variant="contained"
+                color="warning"
+                sx={{
+                  color: "white",
+                  fontSize: 16,
+                  borderRadius: 2,
+                  flexShrink: 0,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {label}
+              </Button>
+            ))}
+          </Box>
         </Box>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 0,
-            alignItems: "center",
-          }}
-        >
-          <Button
-            variant="text"
-            sx={{
-              color: "white",
-              fontSize: 12,
-              flexDirection: "column",
-              ":hover": {
-                backgroundColor: "none",
-              },
-              ":active": {
-                backgroundColor: "none",
-              },
-              ":focus": {
-                backgroundColor: "none",
-              },
-            }}
-          >
-            <MarkUnreadChatAltOutlinedIcon
-              sx={{
-                color: "white",
-                p: "4px",
-                fontSize: 40,
-                backgroundColor: "#ed6c02",
-                borderRadius: "50%",
-              }}
-            />
-            BÌnh luận
-          </Button>
-          <Button
-            variant="text"
-            sx={{
-              color: "white",
-              fontSize: 12,
-              flexDirection: "column",
-              ":hover": {
-                backgroundColor: "none",
-              },
-              ":active": {
-                backgroundColor: "none",
-              },
-              ":focus": {
-                backgroundColor: "none",
-              },
-            }}
-          >
-            <ListAltOutlinedIcon
-              sx={{
-                color: "white",
-                p: "4px",
-                fontSize: 40,
-                backgroundColor: "#ed6c02",
-                borderRadius: "50%",
-              }}
-            />
-            LS Cược
-          </Button>
+
+        {/* Khu vực phải */}
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <HeaderIconButton
+            icon={MarkUnreadChatAltOutlined}
+            label="Bình luận"
+          />
+          <HeaderIconButton icon={ListAltOutlined} label="LS Cược" />
+          <HeaderIconButton icon={SupportAgentOutlined} label="Hỗ trợ" />
         </Box>
       </Toolbar>
     </AppBar>

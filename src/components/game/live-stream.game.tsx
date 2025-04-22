@@ -8,32 +8,27 @@ const LiveStream: React.FC = () => {
         bgcolor: "#000",
         border: "2px solid #ffeb3b",
         borderRadius: 2,
-        p: 1,
+        height: "h-screen",
         position: "relative",
       }}
     >
       <Box
         sx={{
-          width: "100%",
-          height: "300px",
-          bgcolor: "#424242",
           display: "flex",
+          justifyContent: "space-between",
+          opacity: 0.2,
           alignItems: "center",
-          justifyContent: "center",
+          color: "black",
+          px: 1,
+          py: 1,
+          position: "absolute",
+          top: 0,
+          width: "100%",
         }}
       >
-        <Typography variant="h6" color="white">
-          [Placeholder: Video Stream]
+        <Typography variant="body2" color="white">
+          TELE TRƯỜNG: t.me/tgmchoa8888 - ANH HO TRONG GAI
         </Typography>
-      </Box>
-      <Typography
-        variant="body2"
-        color="white"
-        sx={{ mt: 1, textAlign: "center" }}
-      >
-        TELE TRƯỜNG: t.me/tgmchoa8888 - ANH HO TRONG GAI
-      </Typography>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
         <Typography variant="body2" color="white">
           21/04/25 16:15:31
         </Typography>
@@ -41,6 +36,16 @@ const LiveStream: React.FC = () => {
           1990 KG
         </Typography>
       </Box>
+      <iframe
+        width="100%"
+        height="h-screen"
+        src="https://www.youtube.com/embed/hmqYNvNqA-o?si=OxUpobQmTI0dMJWN"
+        title="YouTube video player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
+      ></iframe>
     </Box>
   );
 };

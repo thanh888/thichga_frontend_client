@@ -12,6 +12,7 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const pages = [
   { name: "ĐÁ GÀ", path: "/game" },
@@ -20,6 +21,7 @@ const pages = [
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function HeaderComponent() {
+  const router = useRouter();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
@@ -80,15 +82,12 @@ function HeaderComponent() {
           </Box>
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}></Box>
           <Box sx={{ flexGrow: 0, gap: { xs: 1, md: 2 }, display: "flex" }}>
-            <Button
-              variant="contained"
-              sx={{
-                width: "auto",
-              }}
-            >
+            <Button variant="contained" onClick={() => router.push("/login")}>
               Đăng nhập
             </Button>
-            <Button variant="outlined">Đăng ký</Button>
+            <Button variant="outlined" onClick={() => router.push("/register")}>
+              Đăng ký
+            </Button>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar
