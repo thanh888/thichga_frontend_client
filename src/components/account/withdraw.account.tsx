@@ -1,25 +1,57 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { NumericFormat } from "react-number-format";
 
 export default function WithdrawComponent() {
   const [money, setMoney] = useState<string>("");
   const [pin, setPin] = useState<string>("");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const changeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMoney(e.target.value);
   };
+
   return (
     <Box
-      sx={{ backgroundColor: "white", p: 2, borderRadius: "8px", boxShadow: 1 }}
+      sx={{
+        backgroundColor: "white",
+        p: { xs: 1, sm: 2 },
+        borderRadius: "8px",
+        boxShadow: {
+          xs: "0 1px 5px rgba(0,0,0,0.1)",
+          sm: "0 2px 10px rgba(0,0,0,0.1)",
+        },
+      }}
     >
-      <Typography variant="h5" mb={2} fontWeight={500}>
+      <Typography
+        variant="h5"
+        mb={{ xs: 1, sm: 2 }}
+        fontWeight={500}
+        fontSize={{ xs: "1.25rem", sm: "1.5rem" }}
+      >
         Rút tiền
       </Typography>
 
-      <Box textAlign={"center"} borderBottom={"1px solid #a19d9d"} mb={2}>
-        <Typography variant="body1" mb={1}>
+      <Box
+        textAlign="center"
+        borderBottom="1px solid #a19d9d"
+        mb={{ xs: 1, sm: 2 }}
+        pb={{ xs: 1, sm: 2 }}
+      >
+        <Typography
+          variant="body1"
+          mb={1}
+          fontSize={{ xs: "0.875rem", sm: "1rem" }}
+        >
           Nhập số tiền
         </Typography>
         <NumericFormat
@@ -33,24 +65,25 @@ export default function WithdrawComponent() {
           value={money}
           name="money"
           InputProps={{
-            disableUnderline: true, // Loại bỏ underline (outline)
+            disableUnderline: true,
             sx: {
-              textAlign: "center", // Căn giữa văn bản
+              textAlign: "center",
+              fontSize: { xs: "0.875rem", sm: "1rem" },
               "&:focus": {
-                outline: "none", // Loại bỏ outline khi focus
+                outline: "none",
               },
             },
           }}
           sx={{
             fontWeight: 600,
-            mb: 2,
+            mb: { xs: 1, sm: 2 },
             "& .MuiInputBase-root": {
-              border: "none", // Loại bỏ border
+              border: "none",
             },
             "& .MuiInputBase-input": {
-              textAlign: "center", // Căn giữa văn bản
+              textAlign: "center",
               "&:focus": {
-                outline: "none", // Loại bỏ outline khi focus
+                outline: "none",
               },
             },
           }}
@@ -58,36 +91,44 @@ export default function WithdrawComponent() {
         <Typography
           variant="body1"
           mb={1}
-          sx={{ color: "blue", fontWeight: 600 }}
+          sx={{
+            color: "blue",
+            fontWeight: 600,
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+          }}
         >
           = {Number(money) === 0 ? 0 : money + ",000"} VND
         </Typography>
         <Box
-          flexDirection={"row"}
-          gap={2}
-          mb={2}
-          justifyContent={"center"}
-          sx={{ display: "flex", gap: 1 }}
+          display="flex"
+          flexWrap="wrap"
+          gap={{ xs: 0.5, sm: 1 }}
+          mb={{ xs: 1, sm: 2 }}
+          justifyContent="center"
         >
-          <Button variant="outlined" onClick={() => setMoney("200")}>
-            200
-          </Button>
-          <Button variant="outlined" onClick={() => setMoney("500")}>
-            500
-          </Button>
-          <Button variant="outlined" onClick={() => setMoney("1,000")}>
-            1,000
-          </Button>
-          <Button variant="outlined" onClick={() => setMoney("5,000")}>
-            5,000
-          </Button>
-          <Button variant="outlined" onClick={() => setMoney("10,000")}>
-            10,000
-          </Button>
+          {["200", "500", "1,000", "5,000", "10,000"].map((amount) => (
+            <Button
+              key={amount}
+              variant="outlined"
+              onClick={() => setMoney(amount)}
+              sx={{
+                fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                px: { xs: 1, sm: 2 },
+                py: { xs: 0.5, sm: 1 },
+                minWidth: { xs: "60px", sm: "80px" },
+              }}
+            >
+              {amount}
+            </Button>
+          ))}
         </Box>
       </Box>
       <Box textAlign="center">
-        <Typography variant="body1" mb={1}>
+        <Typography
+          variant="body1"
+          mb={1}
+          fontSize={{ xs: "0.875rem", sm: "1rem" }}
+        >
           Nhập mã pin
         </Typography>
         <TextField
@@ -98,8 +139,8 @@ export default function WithdrawComponent() {
             disableUnderline: true,
             sx: {
               "& input": {
-                textAlign: "center", // Căn giữa văn bản trong input
-                fontSize: "24px", // Tăng kích thước font
+                textAlign: "center",
+                fontSize: { xs: "18px", sm: "24px" },
               },
             },
           }}
@@ -109,11 +150,18 @@ export default function WithdrawComponent() {
           name="pin"
           onChange={(e) => setPin(e.target.value)}
           value={pin}
+          sx={{ mb: { xs: 1, sm: 2 } }}
         />
       </Box>
 
-      <Button variant="contained" sx={{ width: "100%" }}>
-        {" "}
+      <Button
+        variant="contained"
+        sx={{
+          width: "100%",
+          fontSize: { xs: "0.75rem", sm: "0.875rem" },
+          py: { xs: 0.75, sm: 1 },
+        }}
+      >
         Xác nhận
       </Button>
     </Box>

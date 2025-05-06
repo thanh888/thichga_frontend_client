@@ -10,7 +10,7 @@ export default function ClientLayout({
   return (
     <>
       <HeaderComponent />
-      <main>{children}</main>
+      <main style={{ marginTop: "60px" }}>{children}</main>
       <FooterComponent />
     </>
   );

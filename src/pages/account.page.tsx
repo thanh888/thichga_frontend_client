@@ -1,6 +1,15 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Tabs, Tab, Typography, Avatar, Divider } from "@mui/material";
+import {
+  Box,
+  Tabs,
+  Tab,
+  Typography,
+  Avatar,
+  Divider,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import AddCardOutlinedIcon from "@mui/icons-material/AddCardOutlined";
 import CurrencyExchangeOutlinedIcon from "@mui/icons-material/CurrencyExchangeOutlined";
@@ -25,27 +34,52 @@ function TabPanel(props: Readonly<TabPanelProps>) {
       role="tabpanel"
       className="w-full"
       hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
+      id={`horizontal-tabpanel-${index}`}
+      aria-labelledby={`horizontal-tab-${index}`}
       {...other}
     >
-      {value === index && <Box>{children}</Box>}
+      {value === index && <Box sx={{ p: { xs: 1, sm: 2 } }}>{children}</Box>}
     </div>
   );
 }
 
 function a11yProps(index: number) {
   return {
-    id: `vertical-tab-${index}`,
-    "aria-controls": `vertical-tabpanel-${index}`,
+    id: `horizontal-tab-${index}`,
+    "aria-controls": `horizontal-tabpanel-${index}`,
   };
 }
 
 const AccountPage: React.FC = () => {
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+  };
+
+  const tabStyles = {
+    "& .MuiTab-root": {
+      textTransform: "none",
+      fontSize: { xs: "12px", sm: "14px", md: "15px" },
+      color: "#4a5568",
+      py: { xs: 1, sm: 1.5 },
+      px: { xs: 1, sm: 2 },
+      minHeight: { xs: "40px", sm: "48px" },
+      "&:hover": {
+        bgcolor: "#e3f2fd",
+        color: "#1e88e5",
+      },
+    },
+    "& .Mui-selected": {
+      bgcolor: "#e3f2fd",
+      color: "#1e88e5",
+      fontWeight: 600,
+    },
+    "& .MuiTabs-indicator": {
+      backgroundColor: "#1e88e5",
+    },
   };
 
   return (
@@ -53,36 +87,40 @@ const AccountPage: React.FC = () => {
       sx={{
         flexGrow: 1,
         display: "flex",
+        flexDirection: "column",
         minHeight: "100vh",
-        px: 2,
-        py: 3,
+        px: { xs: 1, sm: 2, md: 3 },
+        py: { xs: 2, sm: 3 },
       }}
     >
-      {/* Sidebar */}
+      {/* User Info */}
       <Box
         sx={{
-          width: "280px",
           bgcolor: "white",
           borderRadius: "12px",
           boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-          overflow: "hidden",
+          p: { xs: 1.5, sm: 2 },
+          mb: 2,
         }}
       >
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            p: 2,
-            bgcolor: "white",
           }}
         >
           <Avatar
             alt="User"
             src="https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375_1280.png"
-            sx={{ width: 48, height: 48 }}
+            sx={{ width: { xs: 36, sm: 48 }, height: { xs: 36, sm: 48 } }}
           />
-          <Box ml={2}>
-            <Typography variant="h6" fontWeight={600} color="#1a202c">
+          <Box ml={1.5}>
+            <Typography
+              variant="h6"
+              fontWeight={600}
+              color="#1a202c"
+              fontSize={{ xs: "1rem", sm: "1.25rem" }}
+            >
               thanhnest
             </Typography>
             <Typography
@@ -90,6 +128,7 @@ const AccountPage: React.FC = () => {
               color="#4a5568"
               display="flex"
               alignItems="center"
+              fontSize={{ xs: "0.75rem", sm: "0.875rem" }}
             >
               <img
                 src="https://cdn.pixabay.com/photo/2016/03/31/15/03/phoenix-1292958_1280.png"
@@ -102,74 +141,53 @@ const AccountPage: React.FC = () => {
             </Typography>
           </Box>
         </Box>
-
-        <Divider />
-
-        <Tabs
-          orientation="vertical"
-          variant="scrollable"
-          value={value}
-          onChange={handleChange}
-          aria-label="Vertical tabs example"
-          sx={{
-            "& .MuiTab-root": {
-              alignItems: "center",
-              justifyContent: "start",
-              textTransform: "none",
-              fontSize: "15px",
-              color: "#4a5568",
-              py: 1.5,
-              px: 2,
-              borderRadius: "8px",
-              mx: 1,
-              my: 0.5,
-              "&:hover": {
-                bgcolor: "#e3f2fd",
-                color: "#1e88e5",
-              },
-            },
-            "& .Mui-selected": {
-              bgcolor: "#e3f2fd",
-              color: "#1e88e5",
-              fontWeight: 600,
-            },
-          }}
-        >
-          <Tab
-            label="Tài khoản"
-            iconPosition="start"
-            icon={<AccountCircleOutlinedIcon />}
-            {...a11yProps(0)}
-          />
-          <Tab
-            label="Nạp tiền tự động"
-            iconPosition="start"
-            icon={<AddCardOutlinedIcon />}
-            {...a11yProps(1)}
-          />
-          <Tab
-            label="Rút tiền"
-            iconPosition="start"
-            icon={<CurrencyExchangeOutlinedIcon />}
-            {...a11yProps(2)}
-          />
-          <Tab
-            label="Lịch sử nạp tiền"
-            iconPosition="start"
-            icon={<ChecklistOutlinedIcon />}
-            {...a11yProps(3)}
-          />
-          <Tab
-            label="Lịch sử rút tiền"
-            iconPosition="start"
-            icon={<ChecklistOutlinedIcon />}
-            {...a11yProps(4)}
-          />
-        </Tabs>
       </Box>
 
+      {/* Tabs */}
+      <Tabs
+        orientation="horizontal"
+        variant="scrollable"
+        value={value}
+        onChange={handleChange}
+        aria-label="Account tabs"
+        sx={tabStyles}
+        scrollButtons="auto"
+        allowScrollButtonsMobile
+      >
+        <Tab
+          label="Tài khoản"
+          iconPosition="start"
+          icon={<AccountCircleOutlinedIcon />}
+          {...a11yProps(0)}
+        />
+        <Tab
+          label="Nạp tiền tự động"
+          iconPosition="start"
+          icon={<AddCardOutlinedIcon />}
+          {...a11yProps(1)}
+        />
+        <Tab
+          label="Rút tiền"
+          iconPosition="start"
+          icon={<CurrencyExchangeOutlinedIcon />}
+          {...a11yProps(2)}
+        />
+        <Tab
+          label="Lịch sử nạp tiền"
+          iconPosition="start"
+          icon={<ChecklistOutlinedIcon />}
+          {...a11yProps(3)}
+        />
+        <Tab
+          label="Lịch sử rút tiền"
+          iconPosition="start"
+          icon={<ChecklistOutlinedIcon />}
+          {...a11yProps(4)}
+        />
+      </Tabs>
+
       {/* Tab Panels */}
-      <Box sx={{ flex: 1, ml: 3 }}>
+      <Box sx={{ flex: 1 }}>
         <TabPanel value={value} index={0}>
           <UserAccount />
         </TabPanel>

@@ -13,6 +13,7 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/use-user";
 
 const pages = [
   { name: "ĐÁ GÀ", path: "/game" },
@@ -26,6 +27,8 @@ function HeaderComponent() {
     null
   );
 
+  const { user } = useUser();
+
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -37,7 +40,7 @@ function HeaderComponent() {
   return (
     <AppBar
       sx={{
-        position: "sticky", // Đặt vị trí sticky cho header
+        position: "fixed", // Đặt vị trí sticky cho header
         top: 0, // Đảm bảo sticky hoạt động
         zIndex: 1100, // Đặt z-index cao để header luôn nằm trên các phần tử khác
         backgroundColor: "white", // Màu nền trắng cho header
@@ -81,46 +84,61 @@ function HeaderComponent() {
             ))}
           </Box>
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}></Box>
-          <Box sx={{ flexGrow: 0, gap: { xs: 1, md: 2 }, display: "flex" }}>
-            <Button variant="contained" onClick={() => router.push("/login")}>
-              Đăng nhập
-            </Button>
-            <Button variant="outlined" onClick={() => router.push("/register")}>
-              Đăng ký
-            </Button>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar
-                  alt="Remy Sharp"
-                  src="https://cdn.pixabay.com/photo/2016/11/01/21/11/avatar-1789663_640.png"
-                />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
+          {user ? (
+            <Box
+              sx={{
+                flexGrow: 0,
+                gap: { xs: 1, md: 2 },
+                display: "flex",
+                position: "relative",
               }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    {setting}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar
+                    alt="Remy Sharp"
+                    src="https://cdn.pixabay.com/photo/2016/11/01/21/11/avatar-1789663_640.png"
+                  />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {settings.map((setting) => (
+                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <Typography sx={{ textAlign: "center" }}>
+                      {setting}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+          ) : (
+            <Box sx={{ flexGrow: 0, gap: { xs: 1, md: 2 }, display: "flex" }}>
+              <Button variant="contained" onClick={() => router.push("/login")}>
+                Đăng nhập
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => router.push("/register")}
+              >
+                Đăng ký
+              </Button>
+            </Box>
+          )}
         </Toolbar>
       </Container>
     </AppBar>

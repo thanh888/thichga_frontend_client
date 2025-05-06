@@ -1,164 +1,160 @@
+"use client";
 import BannerComponent from "@/components/banner/banner";
-import { CampaignOutlined, Circle as CircleIcon } from "@mui/icons-material";
+import { SettingContext } from "@/contexts/setting-context";
+import { getRoomIsOpenedApi } from "@/services/room.api";
+import { CampaignOutlined } from "@mui/icons-material";
 import {
   Box,
   Container,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React from "react";
 import Marquee from "react-fast-marquee";
+import { toast } from "react-toastify";
 
 export default function Homepage() {
-  const items = [
-    {
-      title: "Trần Đầu Hấp Dẫn, Nảy Lửa",
-      description:
-        "Những chiếc kỹ xức sắc nổi sẽ đổi trọng trong những trận chiến kích tính, nội tùng cụ của đầu mang tính quyết định.",
-    },
-    {
-      title: "Giao Diện Hiện Đại, Trải Nghiệm Mượt Mà",
-      description:
-        "Hệ thống được tìu hóa để nguội chơi có thể theo dõi và tham gia để đang.",
-    },
-    {
-      title: "Kết Quả Minh Bạch – Công Bằng Tuyệt Đối",
-      description:
-        "Tất cả các trận đầu đểu được ra đối sử giam sát chặt chẽ, đảm bảo tính trung thực và chính xác.",
-    },
-    {
-      title: "Cộng Đồng Đam Mê – Hội Tụ Cao Thủ",
-      description:
-        "Một sàn chơi chuyên nghiệp không thể thiếu những nguội chơi đẳng cấp, nơi bạn có thể giao lưu, học hỏi và thể hiện bản lĩnh.",
-    },
-  ];
+  const router = useRouter();
+  const settingContext = React.useContext(SettingContext);
+  const setting = settingContext?.setting;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const handleRedirectGame = async () => {
+    try {
+      const respone = await getRoomIsOpenedApi();
+      if (respone.status === 200 || respone.status === 2001) {
+        console.log(respone.data);
+
+        router.push(`/game/${respone.data._id}`);
+      } else {
+        toast.warning("Không có phòng được mở");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <Container maxWidth="xl">
-      Hello Homepage
+    <Container
+      maxWidth="xl"
+      sx={{ px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 } }}
+    >
       <BannerComponent />
       <Stack
-        // spacing={{ xs: 1, sm: 1 }}
         direction="row"
         useFlexGap
         alignItems="center"
-        sx={{ marginBottom: 2 }}
+        sx={{ marginBottom: { xs: 1, sm: 2 } }}
       >
-        <CampaignOutlined sx={{ fontSize: 20, color: "red" }} />
+        <CampaignOutlined sx={{ fontSize: { xs: 16, sm: 20 }, color: "red" }} />
         <Marquee style={{ whiteSpace: "nowrap", flex: 1 }}>
-          I can be a React component, multiple React components, or just some
-          text.
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: { xs: "0.7rem", sm: "0.875rem" },
+              color: "text.primary",
+            }}
+          >
+            I can be a React component, multiple React components, or just some
+            text.
+          </Typography>
         </Marquee>
       </Stack>
-      <Box
-        sx={{
-          width: "100%",
-          height: "400px",
-          position: "relative", // enable absolute child
-          borderRadius: 2,
-          overflow: "hidden", // to clip rounded corners
-          "&::before": {
-            content: "''",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundImage: "url('/images/backgound_section.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            opacity: 0.2,
-            transition: "opacity 0.3s",
-            zIndex: 0,
-          },
-          "&:hover::before": {
-            opacity: 0.5,
-          },
-        }}
-      >
-        <Stack
-          direction="column"
-          spacing={2}
-          justifyContent="center"
-          alignItems="center"
+      <Link href="#" onClick={handleRedirectGame} passHref>
+        <Box
           sx={{
-            height: "100%",
+            width: "100%",
+            height: { xs: "250px", sm: "300px", md: "400px" },
             position: "relative",
-            zIndex: 1, // make sure it appears above the background
+            borderRadius: { xs: 1, sm: 2 },
+            overflow: "hidden",
+            "&::before": {
+              content: "''",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundImage: "url('/images/bg-home-menu.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              opacity: 0.3,
+              transition: "opacity 0.3s",
+              zIndex: 0,
+            },
+            "&:hover::before": {
+              opacity: 0.5,
+            },
+            cursor: "pointer",
           }}
         >
-          <img alt="logo" src="/images/game.png" width={200} height={200} />
-          <Typography
-            variant="h6"
-            color="primary"
-            fontWeight={600}
-            align="center"
-            display="flex"
+          <Stack
+            direction="column"
+            spacing={{ xs: 1, sm: 2 }}
+            justifyContent="center"
+            alignItems="center"
+            sx={{
+              height: "100%",
+              position: "relative",
+              zIndex: 1,
+            }}
           >
             <img
               alt="logo"
               src="/images/game.png"
-              width={28}
-              height={28}
-              style={{ objectFit: "cover" }}
+              width={isMobile ? 150 : 200}
+              height={isMobile ? 150 : 200}
             />
-            {""}
-            Đá Gà
-          </Typography>
-          <Typography
-            variant="h6"
-            color="textSecondary"
-            fontWeight={200}
-            align="center"
-          >
-            Tên phòng
-          </Typography>
-        </Stack>
-      </Box>
-      <Box sx={{ maxWidth: "100%", mx: "auto", my: 5, p: 3 }}>
-        {/* Tiêu đề */}
-        <Typography
-          variant="h4"
-          component="h1"
-          gutterBottom
-          sx={{ fontWeight: "bold", textAlign: "center", color: "#1E90FF" }}
-        >
-          Sân Chơi Chuyên Nghiệp – Đẳng Cấp Dành Cho Người Chơi Thực Thụ
-        </Typography>
-
-        {/* Mô tả chính */}
-        <Typography
-          variant="body1"
-          sx={{ mb: 3, textAlign: "justify", color: "text.secondary" }}
-        >
-          Tại Đấu Trường Gà Đòn, mọi trận đấu đều được tổ chức một cách chuyên
-          nghiệp, minh bạch và công bằng. Với hệ thống hiện đại, chúng tôi cam
-          kết mang đến trải nghiệm tốt nhất cho những người chơi đam mê gà đòn.
-        </Typography>
-
-        {/* Danh sách các mục */}
-        <List>
-          {items.map((item, index) => (
-            <ListItem key={+index} sx={{ alignItems: "flex-start" }}>
-              <ListItemIcon>
-                <CircleIcon sx={{ fontSize: 10, color: "#1E90FF", mt: 1 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: "bold", color: "text.primary" }}
-                  >
-                    {item.title}
-                  </Typography>
-                }
+            <Typography
+              variant="h6"
+              color="primary"
+              fontWeight={600}
+              align="center"
+              display="flex"
+              sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
+            >
+              <img
+                alt="logo"
+                src="/images/game.png"
+                width={isMobile ? 20 : 28}
+                height={isMobile ? 20 : 28}
+                style={{ objectFit: "cover" }}
               />
-            </ListItem>
-          ))}
-        </List>
+              Đá Gà
+            </Typography>
+            <Typography
+              variant="h6"
+              color="textSecondary"
+              fontWeight={200}
+              align="center"
+              sx={{ fontSize: { xs: "0.875rem", sm: "1.25rem" } }}
+            >
+              Tên phòng
+            </Typography>
+          </Stack>
+        </Box>
+      </Link>
+      <Box
+        sx={{
+          maxWidth: "100%",
+          mx: "auto",
+          my: { xs: 2, sm: 5 },
+          p: { xs: 1, sm: 3 },
+          "& > div": {
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+            lineHeight: 1.5,
+            overflowWrap: "break-word",
+          },
+        }}
+      >
+        <div
+          dangerouslySetInnerHTML={{ __html: setting?.post?.content || "" }}
+        ></div>
       </Box>
     </Container>
   );

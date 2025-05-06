@@ -1,15 +1,18 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 
 interface Data {
@@ -97,6 +100,7 @@ const rows = [
     "2025-04-17 08:05:30"
   ),
 ];
+
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -190,6 +194,9 @@ interface EnhancedTableProps {
 
 function EnhancedTableHead(props: Readonly<EnhancedTableProps>) {
   const { order, orderBy, onRequestSort } = props;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const createSortHandler =
     (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
@@ -204,12 +211,22 @@ function EnhancedTableHead(props: Readonly<EnhancedTableProps>) {
             align={headCell.numeric ? "right" : "left"}
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
+            sx={{
+              fontSize: { xs: "0.7rem", sm: "0.875rem" },
+              fontWeight: 600,
+              color: "black",
+              px: { xs: 1, sm: 2 },
+              py: { xs: 0.5, sm: 1 },
+            }}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : "asc"}
               onClick={createSortHandler(headCell.id)}
-              sx={{ color: "black", fontWeight: 600 }}
+              sx={{
+                fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                fontWeight: 600,
+              }}
             >
               {headCell.label}
               {orderBy === headCell.id ? (
@@ -230,6 +247,8 @@ export default function HistoryTable() {
   const [orderBy, setOrderBy] = React.useState<keyof Data>("created_at");
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -264,11 +283,11 @@ export default function HistoryTable() {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <TableContainer>
+      <TableContainer sx={{ maxWidth: "100%", overflowX: "auto" }}>
         <Table
-          sx={{ minWidth: 750 }}
+          sx={{ minWidth: isMobile ? 600 : 750 }}
           aria-labelledby="tableTitle"
-          size={"medium"}
+          size={isMobile ? "small" : "medium"}
         >
           <EnhancedTableHead
             order={order}
@@ -291,40 +310,98 @@ export default function HistoryTable() {
                     id={labelId}
                     scope="row"
                     padding="none"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                      px: { xs: 1, sm: 2 },
+                    }}
                   >
                     {row.code}
                   </TableCell>
-                  <TableCell align="left">{row.money}</TableCell>
-                  <TableCell align="left">{row.bank}</TableCell>
-                  <TableCell align="left">{row.account_name}</TableCell>
-                  <TableCell align="left">{row.account_number}</TableCell>
-                  <TableCell align="left">{row.content}</TableCell>
-                  <TableCell align="left">
-                    {(() => {
-                      const statusColor =
+                  <TableCell
+                    align="left"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                      px: { xs: 1, sm: 2 },
+                    }}
+                  >
+                    {row.money}
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                      px: { xs: 1, sm: 2 },
+                    }}
+                  >
+                    {row.bank}
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                      px: { xs: 1, sm: 2 },
+                    }}
+                  >
+                    {row.account_name}
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                      px: { xs: 1, sm: 2 },
+                    }}
+                  >
+                    {row.account_number}
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                      px: { xs: 1, sm: 2 },
+                    }}
+                  >
+                    {row.content}
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                      px: { xs: 1, sm: 2 },
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      color={
                         row.status === "Thành công"
                           ? "green"
                           : row.status === "Chờ xử lý"
                           ? "orange"
-                          : "red";
-                      return (
-                        <Typography variant="body2" color={statusColor}>
-                          {row.status}
-                        </Typography>
-                      );
-                    })()}
+                          : "red"
+                      }
+                      sx={{ fontSize: { xs: "0.7rem", sm: "0.875rem" } }}
+                    >
+                      {row.status}
+                    </Typography>
                   </TableCell>
-                  <TableCell align="left">{row.created_at}</TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                      px: { xs: 1, sm: 2 },
+                    }}
+                  >
+                    {row.created_at}
+                  </TableCell>
                 </TableRow>
               );
             })}
             {emptyRows > 0 && (
               <TableRow
                 style={{
-                  height: 53 * emptyRows,
+                  height: (isMobile ? 33 : 53) * emptyRows,
                 }}
               >
-                <TableCell colSpan={6} />
+                <TableCell colSpan={8} />
               </TableRow>
             )}
           </TableBody>
@@ -338,6 +415,18 @@ export default function HistoryTable() {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        sx={{
+          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+            {
+              fontSize: { xs: "0.7rem", sm: "0.875rem" },
+            },
+          "& .MuiTablePagination-select": {
+            fontSize: { xs: "0.7rem", sm: "0.875rem" },
+          },
+          "& .MuiTablePagination-actions button": {
+            p: { xs: 0.5, sm: 1 },
+          },
+        }}
       />
     </Box>
   );

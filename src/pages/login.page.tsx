@@ -12,13 +12,22 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Link from "next/link";
+import { signInApi } from "@/services/auth/auth.api";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/use-user";
+import { toast } from "react-toastify";
 
 const LoginPage: React.FC = () => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+
+  const { user } = useUser(); // Kiểm tra trạng thái đăng nhập
+  const { checkSession } = useUser(); // Access checkSession from UserContext
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,9 +38,30 @@ const LoginPage: React.FC = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = () => {
-    console.log("Form submitted:", formData);
-    // Thêm logic gửi API để đăng nhập tại đây
+  React.useEffect(() => {
+    if (user) {
+      router.push("/"); // Redirect đến dashboard nếu đã đăng nhập
+    }
+  }, [user, router]);
+
+  const handleSubmit = async () => {
+    if (!formData.username || !formData.password) {
+      toast.error("Tài khoản hoặc mật khẩu không được bỏ trống");
+      return;
+    }
+    try {
+      const res = await signInApi(formData);
+      if (res.status === 200 || res.status === 201) {
+        localStorage.setItem("account", res.data.accessToken);
+        if (checkSession) {
+          await checkSession(); // Call checkSession to update user state
+        }
+        toast.success("Đăng nhập thành công");
+        router.push("/");
+      }
+    } catch (error: any) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (

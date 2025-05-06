@@ -1,67 +1,105 @@
+"use client";
 import React from "react";
-import { Toolbar, Button, Box, Avatar, Typography } from "@mui/material";
-import { ListAltOutlined, SupportAgentOutlined } from "@mui/icons-material";
+import {
+  Toolbar,
+  Box,
+  Avatar,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { numberThousand } from "@/utils/function-convert.util";
 import Link from "next/link";
 
 export default function GameFooter() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <Box
       position="fixed"
       sx={{
         bgcolor: "#333",
-        position: "fixed",
         zIndex: 100,
-        height: "70px",
+        height: { xs: "60px", sm: "70px" },
         bottom: 0,
         width: "100%",
-        alignItems: "center",
-        px: 5,
+        px: { xs: 1, sm: 5 },
       }}
     >
       <Toolbar
-        sx={{ px: 2, justifyContent: "space-between", alignItems: "center" }}
+        sx={{
+          px: { xs: 1, sm: 2 },
+          justifyContent: "space-between",
+          alignItems: "center",
+          minHeight: { xs: "60px", sm: "70px" },
+        }}
       >
+        {/* Left: User Info */}
         <Box
           sx={{
             display: "flex",
-            gap: 1,
+            gap: { xs: 0.5, sm: 1 },
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "black",
-            py: 1,
-            px: 2,
+            py: { xs: 0.5, sm: 1 },
+            px: { xs: 1, sm: 2 },
             borderRadius: 2,
           }}
         >
-          <Avatar alt="Remy Sharp" src="/images/game.png" />
-          <Box flexDirection={"column"}>
-            <Typography variant="body2" color="white">
+          <Avatar
+            alt="Remy Sharp"
+            src="/images/game.png"
+            sx={{ width: { xs: 30, sm: 40 }, height: { xs: 30, sm: 40 } }}
+          />
+          <Box flexDirection="column">
+            <Typography
+              variant="body2"
+              color="white"
+              fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
+            >
               Name user
             </Typography>
-            <Typography variant="body2" color="white">
+            <Typography
+              variant="body2"
+              color="white"
+              fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
+            >
               {numberThousand("1201920")}{" "}
-              <Link href="/" style={{ marginRight: "8px" }}>
+              <Link
+                href="/"
+                style={{
+                  marginRight: "8px",
+                  color: "#ffeb3b",
+                  textDecoration: "none",
+                  fontSize: isMobile ? "0.7rem" : "0.875rem",
+                }}
+              >
                 Nạp tiền
               </Link>
             </Typography>
           </Box>
         </Box>
 
-        {/* Phải */}
+        {/* Right: Bet Info */}
         <Box
           sx={{
             display: "flex",
-            gap: 1,
+            gap: { xs: 0.5, sm: 1 },
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "black",
-            py: 1,
-            px: 2,
+            py: { xs: 0.5, sm: 1 },
+            px: { xs: 1, sm: 2 },
             borderRadius: 2,
           }}
         >
-          <Typography variant="body2" color="white" fontSize={18}>
+          <Typography
+            variant="body2"
+            color="white"
+            fontSize={{ xs: 14, sm: 18 }}
+          >
             Cược: 100
           </Typography>
         </Box>

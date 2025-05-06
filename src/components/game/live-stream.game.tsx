@@ -1,15 +1,28 @@
 import React from "react";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+// import HlsPlayer from "react-hls-player";
 
-const LiveStream: React.FC = () => {
+interface LiveStreamProps {
+  sourceType?: "iframe" | "m3u8";
+  sourceUrl?: string;
+}
+
+const LiveStream: React.FC<LiveStreamProps> = ({
+  sourceType = "iframe",
+  sourceUrl = "https://www.youtube.com/embed/hmqYNvNqA-o?si=OxUpobQmTI0dMJWN",
+}) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <Box
       sx={{
         bgcolor: "#000",
         border: "2px solid #ffeb3b",
-        borderRadius: 2,
-        height: "h-screen",
+        borderRadius: { xs: 1, sm: 2 },
         position: "relative",
+        width: "100%",
+        overflow: "hidden",
       }}
     >
       <Box
@@ -17,57 +30,85 @@ const LiveStream: React.FC = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          color: "black",
-          px: 1,
-          py: 0.5,
+          color: "white",
+          px: { xs: 0.5, sm: 1 },
+          py: { xs: 0.25, sm: 0.5 },
           position: "absolute",
           top: 0,
           width: "100%",
           backgroundColor: "rgba(100, 100, 100, 0.5)",
+          zIndex: 10,
         }}
       >
         <Typography
           variant="body2"
           color="white"
-          whiteSpace={"nowrap"}
-          textAlign={"left"}
+          whiteSpace="nowrap"
+          textAlign="left"
+          fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
         >
           21/04/25 16:15:31
         </Typography>
         <Typography
           variant="body2"
           color="white"
-          // width={"100%"}
-          textAlign={"center"}
+          textAlign="center"
           flexGrow={1}
+          fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
+          sx={{ mx: 1, overflow: "hidden", textOverflow: "ellipsis" }}
         >
           TELE TRƯỜNG: t.me/tgmchoa8888 - ANH HO TRONG GAI
         </Typography>
         <Typography
           variant="body2"
           color="white"
-          whiteSpace={"nowrap"}
-          textAlign={"right"}
+          whiteSpace="nowrap"
+          textAlign="right"
+          fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
         >
           1990 KG
         </Typography>
       </Box>
-      <Grid container spacing={2}>
-        <Box sx={{}}>
+      <Box
+        sx={{
+          position: "relative",
+          paddingTop: "56.25%", // 16:9 aspect ratio
+          width: "100%",
+          height: 0,
+        }}
+      >
+        {sourceType === "iframe" ? (
           <iframe
-            src="https://www.youtube.com/embed/hmqYNvNqA-o?si=OxUpobQmTI0dMJWN"
-            title="YouTube video player"
+            src={sourceUrl}
+            title="Video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
             style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
               width: "100%",
               height: "100%",
             }}
           ></iframe>
-        </Box>
-      </Grid>
+        ) : (
+          // <HlsPlayer
+          //   src={sourceUrl}
+          //   autoPlay={false}
+          //   controls
+          //   width="100%"
+          //   height="100%"
+          //   style={{
+          //     position: "absolute",
+          //     top: 0,
+          //     left: 0,
+          //   }}
+          // />
+          <></>
+        )}
+      </Box>
     </Box>
   );
 };

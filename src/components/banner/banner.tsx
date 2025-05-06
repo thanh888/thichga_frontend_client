@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Carousel } from "react-bootstrap";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 const items = [
   {
@@ -21,18 +22,23 @@ const items = [
 
 export default function BannerComponent() {
   const [index, setIndex] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
   const handleSelect = (selectedIndex: number) => setIndex(selectedIndex);
 
   return (
     <Carousel
       activeIndex={index}
       onSelect={handleSelect}
-      className="w-full overflow-hidden my-8"
+      className="w-full overflow-hidden"
       style={{
-        borderRadius: "10px",
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
-        height: "500px",
-        margin: "20px 0",
+        borderRadius: isMobile ? "8px" : "10px",
+        boxShadow: isMobile
+          ? "0 0 5px rgba(0, 0, 0, 0.3)"
+          : "0 0 10px rgba(0, 0, 0, 0.5)",
+        margin: isMobile ? "10px 0" : isTablet ? "15px 0" : "20px 0",
       }}
     >
       {items.map((item) => (
@@ -40,7 +46,7 @@ export default function BannerComponent() {
           <div
             style={{
               width: "100%",
-              height: "500px",
+              height: isMobile ? "124px" : isTablet ? "300px" : "500px",
               overflow: "hidden",
               position: "relative",
             }}

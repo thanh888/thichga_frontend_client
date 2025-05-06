@@ -8,13 +8,14 @@ import {
   Container,
 } from "@mui/material";
 import CottageIcon from "@mui/icons-material/Cottage";
-import HelpCenterIcon from "@mui/icons-material/HelpCenter";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import PermPhoneMsgIcon from "@mui/icons-material/PermPhoneMsg";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import path from "path";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/use-user";
 export default function FooterComponent() {
+  const user = useUser();
+
   const router = useRouter();
   const [value, setValue] = React.useState(0);
 
@@ -35,10 +36,6 @@ export default function FooterComponent() {
       path: "/account",
     },
   ];
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
 
   return (
     <Box
@@ -76,7 +73,7 @@ export default function FooterComponent() {
         >
           {menuItems.map((item: any, index: number) => (
             <BottomNavigationAction
-              key={index}
+              key={+index}
               label={item.label}
               icon={item.icon}
               sx={{
@@ -85,7 +82,9 @@ export default function FooterComponent() {
                   color: "#1976d2",
                 },
               }}
-              onClick={() => router.push(item.path)}
+              onClick={() =>
+                user ? router.push(item.path) : router.push("/login")
+              }
             />
           ))}
         </BottomNavigation>

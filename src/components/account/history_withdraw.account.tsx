@@ -3,9 +3,25 @@ import HistoryTable from "./table_history.account";
 
 export default function WithdrawHistoryComponent() {
   return (
-    <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2, p: 2 }}>
-        <Typography variant="h5" fontWeight={500}>
+    <Box sx={{ width: "100%", px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 } }}>
+      <Paper
+        sx={{
+          width: "100%",
+          mb: { xs: 1, sm: 2 },
+          p: { xs: 1, sm: 2 },
+          boxShadow: {
+            xs: "0 1px 5px rgba(0,0,0,0.1)",
+            sm: "0 2px 10px rgba(0,0,0,0.1)",
+          },
+          borderRadius: "8px",
+        }}
+      >
+        <Typography
+          variant="h5"
+          fontWeight={500}
+          fontSize={{ xs: "1.25rem", sm: "1.5rem" }}
+          mb={{ xs: 1, sm: 2 }}
+        >
           Lịch sử rút tiền
         </Typography>
         <HistoryTable />
