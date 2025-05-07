@@ -4,6 +4,7 @@ import { TeamEnum } from "../enum/team.enum";
 
 // Interface for the BettingHistory document
 export interface BettingHistoryInterface {
+  _id: string;
   // ID of the betting session associated with this history
   betSessionID?: string;
 
@@ -27,6 +28,12 @@ export interface BettingHistoryInterface {
 
   // Odds for the blue team
   blue_odds?: number;
+
+  // Odds for the red team
+  win?: number;
+
+  // Odds for the blue team
+  lost?: number;
 
   // ID of the user matched with this bet
   matchedUserId?: string;

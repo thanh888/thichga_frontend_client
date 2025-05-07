@@ -1,4 +1,4 @@
-import axiosCustomize from '@/utils/axios/axios.customize';
+import axiosCustomize from "@/utils/axios/axios.customize";
 
 export const signInApi = async (formData: any) => {
   try {
@@ -6,7 +6,7 @@ export const signInApi = async (formData: any) => {
 
     return res;
   } catch (error: any) {
-    throw new Error(error?.response?.data?.message || 'Lỗi kết nối đến server');
+    return error;
   }
 };
 
@@ -17,9 +17,9 @@ export const getAccoutUserApi = async () => {
     return res;
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
-      throw new Error('Người dùng chưa đăng nhập');
+      throw new Error("Người dùng chưa đăng nhập");
     }
-    throw new Error(error?.response?.data?.error || 'Lỗi kết nối đến server');
+    throw new Error(error?.response?.data?.error || "Lỗi kết nối đến server");
   }
 };
 
@@ -42,4 +42,9 @@ export const getAllUser = async () => {
   } catch (error) {
     return error;
   }
+};
+
+export const signUpApi = async (formData: any) => {
+  const res = await axiosCustomize.post(`/auth/sign-up`, formData);
+  return res;
 };

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -13,11 +13,20 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { AnimatePresence, motion } from "framer-motion";
-import { getHistoriesBySession } from "@/services/auth/bet-history.api";
+import {
+  createBetHistoryApi,
+  deleteBetHistoryApi,
+  getHistoriesBySession,
+  updateMatchedBetHistoryApi,
+} from "@/services/auth/bet-history.api";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { useUser } from "@/hooks/use-user";
+import { toast } from "react-toastify";
+import AcceptBetDialog from "./confirm-matched";
+import { calculateMoneyBet } from "@/utils/function-convert.util";
+import { Prev } from "react-bootstrap/esm/PageItem";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -43,20 +52,39 @@ const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
 const BetList: React.FC<{
   title: string;
   color: string;
-  betHistories: any;
-}> = ({ title, color, betHistories }) => {
+  betHistories: any[];
+  setIsReload: Dispatch<SetStateAction<boolean>>;
+  sessionID: string;
+  setAcceptDialogOpen: Dispatch<SetStateAction<boolean>>;
+  setSelectedBet: Dispatch<SetStateAction<BettingHistoryInterface | null>>;
+  betRoom: any;
+}> = ({
+  title,
+  color,
+  betHistories,
+  setIsReload,
+  sessionID,
+  setAcceptDialogOpen,
+  setSelectedBet,
+  betRoom,
+}) => {
   const { user } = useUser();
 
-  const handleCancelBet = (bet: BettingHistoryInterface) => {
-    alert(
-      `Bạn đã hủy cược của ${bet.creatorID.username} với số tiền ${bet.money}.`
-    );
+  const handleCancelBet = async (bet: BettingHistoryInterface) => {
+    try {
+      const response = await deleteBetHistoryApi(bet?._id);
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Hủy thành công");
+      }
+      setIsReload(true);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleAcceptBet = (bet: BettingHistoryInterface) => {
-    alert(
-      `Bạn đã chấp nhận cược của ${bet.creatorID.username} với số tiền ${bet.money}.`
-    );
+  const handleOpenAcceptDialog = (bet: BettingHistoryInterface) => {
+    setSelectedBet(bet);
+    setAcceptDialogOpen(true);
   };
 
   return (
@@ -86,13 +114,15 @@ const BetList: React.FC<{
           fontWeight={600}
           fontSize={{ xs: 10, sm: 11 }}
         >
-          100,00
+          {betHistories
+            ?.map((item) => item.money)
+            .reduce((prev, next) => prev + next, 0)}
         </Typography>
       </Typography>
       <ScrollContainer>
         {betHistories?.map((bet: BettingHistoryInterface, index: number) => (
           <Box
-            key={index}
+            key={+index}
             sx={{
               display: "flex",
               justifyContent: "space-between",
@@ -119,7 +149,7 @@ const BetList: React.FC<{
                 textAlign: "center",
               }}
             >
-              {bet.red_odds}
+              {bet?.win}:{bet?.lost}
             </Typography>
             <Typography
               sx={{
@@ -129,20 +159,20 @@ const BetList: React.FC<{
                 textAlign: "center",
               }}
             >
-              {bet.blue_odds}
+              {bet?.money}
             </Typography>
             <Typography
               sx={{
                 fontSize: { xs: 10, sm: 11 },
                 width: "100%",
-                color: "#fff",
+                color: bet?.selectedTeam === TeamEnum.RED ? "red" : "#0265ff",
                 textAlign: "center",
               }}
             >
-              {bet.money}
+              {bet?.selectedTeam === TeamEnum.RED ? "Gà đỏ" : "Gà xanh"}
             </Typography>
-            {user._id === bet.creatorID._id &&
-            bet.status === BetHistoryStatusEnum.NOT_MATCHED ? (
+            {user._id === bet?.creatorID._id &&
+            bet?.status === BetHistoryStatusEnum.NOT_MATCHED ? (
               <Button
                 variant="contained"
                 size="small"
@@ -153,16 +183,16 @@ const BetList: React.FC<{
                   px: 0,
                   py: { xs: 0.05, sm: 0.1 },
                   fontWeight: 600,
-                  backgroundColor: "#ff4242", // Red for Cancel
+                  backgroundColor: "#ff4242",
                   color: "#fff",
                   "&:hover": {
-                    backgroundColor: "#d32f2f", // Darker red on hover
+                    backgroundColor: "#d32f2f",
                   },
                 }}
               >
                 Hủy
               </Button>
-            ) : bet.status === BetHistoryStatusEnum.MATCHED ? (
+            ) : bet?.status === BetHistoryStatusEnum.MATCHED ? (
               <Button
                 variant="contained"
                 size="small"
@@ -173,10 +203,10 @@ const BetList: React.FC<{
                   px: 0,
                   py: { xs: 0.05, sm: 0.1 },
                   fontWeight: 600,
-                  backgroundColor: "#4caf50", // Green for Matched
+                  backgroundColor: "#4caf50",
                   color: "#fff",
                   "&.Mui-disabled": {
-                    backgroundColor: "#81c784", // Lighter green for disabled
+                    backgroundColor: "#81c784",
                     color: "#fff",
                   },
                 }}
@@ -187,17 +217,17 @@ const BetList: React.FC<{
               <Button
                 variant="contained"
                 size="small"
-                onClick={() => handleAcceptBet(bet)}
+                onClick={() => handleOpenAcceptDialog(bet)}
                 sx={{
                   fontSize: { xs: 9, sm: 10 },
                   width: { xs: "40px", sm: "50px" },
                   px: 0,
                   py: { xs: 0.05, sm: 0.1 },
                   fontWeight: 600,
-                  backgroundColor: "#0288d1", // Blue for Accept
+                  backgroundColor: "#0288d1",
                   color: "#fff",
                   "&:hover": {
-                    backgroundColor: "#01579b", // Darker blue on hover
+                    backgroundColor: "#01579b",
                   },
                 }}
               >
@@ -215,6 +245,9 @@ interface BetInfoProps {
   sessionID: string;
   isBetOpen: boolean;
   setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isReload: boolean;
+  setIsReload: React.Dispatch<React.SetStateAction<boolean>>;
+  betRoom: any;
 }
 
 const slideVariants = {
@@ -227,10 +260,19 @@ const BetInfo: React.FC<BetInfoProps> = ({
   sessionID,
   isBetOpen,
   setIsBetOpen,
+  isReload,
+  setIsReload,
+  betRoom,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [betHistories, setBetHistories] = useState<BettingHistoryInterface[]>();
+  const [betHistories, setBetHistories] = useState<BettingHistoryInterface[]>(
+    []
+  );
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
+  const [selectedBet, setSelectedBet] =
+    useState<BettingHistoryInterface | null>(null);
+  const { user } = useUser();
 
   const getBetHistories = async (session_id: string) => {
     try {
@@ -238,8 +280,56 @@ const BetInfo: React.FC<BetInfoProps> = ({
       if (response.status === 200 || response.status === 201) {
         setBetHistories(response.data);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const handleAcceptBet = async () => {
+    if (!selectedBet) return;
+
+    const newData = {
+      betSessionID: sessionID,
+      creatorID: user._id,
+      money: calculateMoneyBet(
+        selectedBet?.win ?? 0,
+        selectedBet?.lost ?? 0,
+        selectedBet?.money ?? 0
+      ),
+      selectedTeam:
+        selectedBet?.selectedTeam === TeamEnum.BLUE
+          ? TeamEnum.RED
+          : TeamEnum.BLUE,
+      status: BetHistoryStatusEnum.MATCHED,
+      win: selectedBet?.lost,
+      lost: selectedBet?.win,
+      matchedUserId: selectedBet?.creatorID._id,
+      betOptionID: "",
+    };
+
+    try {
+      const response = await updateMatchedBetHistoryApi(
+        selectedBet?._id,
+        newData
+      );
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Khớp kèo thành công");
+        setAcceptDialogOpen(false);
+        setSelectedBet(null);
+        setIsReload(true);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Lỗi khi khớp kèo");
+    }
+  };
+
+  useEffect(() => {
+    if (isReload) {
+      getBetHistories(sessionID);
+      setIsReload(false);
+    }
+  }, [sessionID, isReload]);
 
   useEffect(() => {
     getBetHistories(sessionID);
@@ -284,6 +374,11 @@ const BetInfo: React.FC<BetInfoProps> = ({
                   betHistories={betHistories?.filter(
                     (item) => item.selectedTeam === TeamEnum.RED && item
                   )}
+                  setIsReload={setIsReload}
+                  sessionID={sessionID}
+                  setAcceptDialogOpen={setAcceptDialogOpen}
+                  setSelectedBet={setSelectedBet}
+                  betRoom={betRoom}
                 />
                 <Box sx={{ height: "5px", mx: 2 }} />
                 <BetList
@@ -292,6 +387,11 @@ const BetInfo: React.FC<BetInfoProps> = ({
                   betHistories={betHistories?.filter(
                     (item) => item.selectedTeam === TeamEnum.BLUE && item
                   )}
+                  setIsReload={setIsReload}
+                  sessionID={sessionID}
+                  setAcceptDialogOpen={setAcceptDialogOpen}
+                  setSelectedBet={setSelectedBet}
+                  betRoom={betRoom}
                 />
               </Box>
             </motion.div>
@@ -338,6 +438,11 @@ const BetInfo: React.FC<BetInfoProps> = ({
               betHistories={betHistories?.filter(
                 (item) => item.selectedTeam === TeamEnum.RED && item
               )}
+              setIsReload={setIsReload}
+              sessionID={sessionID}
+              setAcceptDialogOpen={setAcceptDialogOpen}
+              setSelectedBet={setSelectedBet}
+              betRoom={betRoom}
             />
             <Box sx={{ height: "5px", mx: 2 }} />
             <BetList
@@ -346,10 +451,28 @@ const BetInfo: React.FC<BetInfoProps> = ({
               betHistories={betHistories?.filter(
                 (item) => item.selectedTeam === TeamEnum.BLUE && item
               )}
+              setIsReload={setIsReload}
+              sessionID={sessionID}
+              setAcceptDialogOpen={setAcceptDialogOpen}
+              setSelectedBet={setSelectedBet}
+              betRoom={betRoom}
             />
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Accept Bet Dialog */}
+      <AcceptBetDialog
+        open={acceptDialogOpen}
+        onClose={() => {
+          setAcceptDialogOpen(false);
+          setSelectedBet(null);
+        }}
+        selectedBet={selectedBet}
+        betRoom={betRoom}
+        handleAcceptBet={handleAcceptBet}
+        user={user}
+      />
     </>
   );
 };

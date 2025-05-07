@@ -14,12 +14,13 @@ import MenuItem from "@mui/material/MenuItem";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
+import { toast } from "react-toastify";
 
 const pages = [
   { name: "ĐÁ GÀ", path: "/game" },
   { name: "HƯỚNG DẪN", path: "/support" },
 ];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Đăng xuất"];
 
 function HeaderComponent() {
   const router = useRouter();
@@ -28,6 +29,7 @@ function HeaderComponent() {
   );
 
   const { user } = useUser();
+  const { checkSession } = useUser();
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -35,6 +37,17 @@ function HeaderComponent() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("account");
+
+    if (checkSession) {
+      checkSession();
+    }
+
+    toast.success("Đăng xuất thành công");
   };
 
   return (
@@ -117,13 +130,11 @@ function HeaderComponent() {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography sx={{ textAlign: "center" }}>
-                      {setting}
-                    </Typography>
-                  </MenuItem>
-                ))}
+                <MenuItem onClick={handleLogout}>
+                  <Typography sx={{ textAlign: "center" }}>
+                    Đăng xuất
+                  </Typography>
+                </MenuItem>
               </Menu>
             </Box>
           ) : (

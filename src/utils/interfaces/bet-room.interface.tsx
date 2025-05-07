@@ -1,8 +1,9 @@
-import { TypeBetRoomEnum } from '../enum/type-bet-room.enum';
-import { UrlTypeEnum } from '../enum/url-type.enum';
+import { TypeBetRoomEnum } from "../enum/type-bet-room.enum";
+import { UrlTypeEnum } from "../enum/url-type.enum";
 
 // Interface for the BettingRoom document
 export interface BettingRoomInterface {
+  _id?: string;
   // Name of the betting room
   roomName?: string;
 
@@ -39,13 +40,10 @@ export interface BettingRoomInterface {
   // Text displayed on the right
   rightText?: string;
 
-  // Odds percentage for the red team (0-100%)
   redOdds?: number;
 
-  // Odds percentage for the blue team (0-100%)
   blueOdds?: number;
 
-  // Type of betting room (e.g., SOLO, TEAM)
   typeRoom?: TypeBetRoomEnum;
 
   // Whether the room is open
@@ -53,6 +51,8 @@ export interface BettingRoomInterface {
 
   // Whether betting is accepted
   isAcceptBetting?: boolean;
+
+  latestSessionID?: string;
 
   // Timestamp when the betting room was created
   createdAt?: Date | string;

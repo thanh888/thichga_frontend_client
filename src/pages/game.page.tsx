@@ -5,6 +5,8 @@ import GameFooter from "@/components/game/footer.game";
 import GameHeader from "@/components/game/header.game";
 import LiveStream from "@/components/game/live-stream.game";
 import { getSessionIsOpenedApi } from "@/services/bet-session.api";
+import { getRoomById } from "@/services/room.api";
+import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { BettingSessionInterface } from "@/utils/interfaces/bet-sesion.interface";
 import { Box, Grid, useMediaQuery, useTheme } from "@mui/material";
 import { useParams } from "next/navigation";
@@ -17,6 +19,7 @@ export default function GamePage() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [betSession, setBetSession] = useState<BettingSessionInterface>();
+  const [betRoom, setBetRoom] = useState<BettingRoomInterface>();
   const [isReload, setIsReload] = useState<boolean>(true);
 
   const params = useParams();
@@ -34,9 +37,21 @@ export default function GamePage() {
     }
   };
 
+  const getBetRoomInfo = async (room_id: string) => {
+    try {
+      const response = await getRoomById(room_id);
+      if (response.status === 200 || response.status === 201) {
+        setBetRoom(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (roomID) {
       getSessionIsOpened(roomID);
+      getBetRoomInfo(roomID);
     }
   }, [roomID]);
 
@@ -74,6 +89,9 @@ export default function GamePage() {
                 sessionID={betSession._id}
                 isBetOpen={isBetOpen}
                 setIsBetOpen={setIsBetOpen}
+                isReload={isReload}
+                setIsReload={setIsReload}
+                betRoom={betRoom}
               />
             )}
           </Grid>
@@ -86,10 +104,15 @@ export default function GamePage() {
               display: { xs: isCommentOpen ? "block" : "none", md: "block" },
             }}
           >
-            <BetControls
-              isCommentOpen={isCommentOpen}
-              setIsCommentOpen={setIsCommentOpen}
-            />
+            {betSession && betRoom && (
+              <BetControls
+                isCommentOpen={isCommentOpen}
+                setIsCommentOpen={setIsCommentOpen}
+                setIsReload={setIsReload}
+                sessionID={betSession._id}
+                betRoom={betRoom}
+              />
+            )}
           </Grid>
         </Grid>
       </Box>

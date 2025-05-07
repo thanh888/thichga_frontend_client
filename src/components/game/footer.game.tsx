@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { use } from "react";
 import {
   Toolbar,
   Box,
@@ -10,10 +10,12 @@ import {
 } from "@mui/material";
 import { numberThousand } from "@/utils/function-convert.util";
 import Link from "next/link";
+import { useUser } from "@/hooks/use-user";
 
 export default function GameFooter() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { user } = useUser();
 
   return (
     <Box
@@ -59,14 +61,14 @@ export default function GameFooter() {
               color="white"
               fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
             >
-              Name user
+              {user?.username}
             </Typography>
             <Typography
               variant="body2"
               color="white"
               fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
             >
-              {numberThousand("1201920")}{" "}
+              {numberThousand(user?.money?.toString() || "0")}{" "}
               <Link
                 href="/"
                 style={{

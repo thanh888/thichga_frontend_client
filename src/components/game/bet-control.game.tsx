@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { AnimatePresence, motion } from "framer-motion";
-
 import {
   CardContent,
   Grid,
@@ -14,17 +13,23 @@ import {
   SelectChangeEvent,
   TextField,
   Button,
-  ListItem,
-  List,
-  Divider,
-  ListItemText,
-  Avatar,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { DefaultMoney, rates } from "@/utils/constans";
+import { useUser } from "@/hooks/use-user";
+import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
+import { TeamEnum } from "@/utils/enum/team.enum";
+import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
+import { toast } from "react-toastify";
+import { createBetHistoryApi } from "@/services/auth/bet-history.api";
 
 interface GameHeaderProps {
   isCommentOpen: boolean;
   setIsCommentOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsReload: React.Dispatch<React.SetStateAction<boolean>>;
+  sessionID: string;
+  betRoom: BettingRoomInterface;
 }
 
 const slideVariants = {
@@ -36,11 +41,18 @@ const slideVariants = {
 export default function BetControls({
   isCommentOpen,
   setIsCommentOpen,
+  setIsReload,
+  sessionID,
+  betRoom,
 }: Readonly<GameHeaderProps>) {
+  const { user } = useUser();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [formData, setFormData] = useState({
     win: "10",
     lost: "10",
     money: "100",
+    selectedTeam: null as TeamEnum | null,
   });
 
   const handleSelect = (event: SelectChangeEvent) => {
@@ -51,7 +63,46 @@ export default function BetControls({
     }));
   };
 
-  // Removed duplicate state declaration for isCommentOpen and setIsCommentOpen
+  const handleTeamSelect = (team: TeamEnum) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      selectedTeam: team,
+    }));
+  };
+
+  const handleCreateBetHistory = async () => {
+    if (!formData.selectedTeam) {
+      toast.warning("Vui lòng chọn đội");
+      return;
+    }
+    if (Number(formData.money) <= 0) {
+      toast.warning("Vui lòng điền số tiền cược lớn hơn 0");
+      return;
+    }
+
+    const newData = {
+      betSessionID: sessionID,
+      creatorID: user._id,
+      money: formData.money,
+      selectedTeam: formData.selectedTeam,
+      status: BetHistoryStatusEnum.NOT_MATCHED,
+      win: formData.win,
+      lost: formData.lost,
+    };
+
+    try {
+      const response = await createBetHistoryApi(newData);
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Đặt cược thành công");
+      }
+      setIsReload(true);
+    } catch (error) {
+      console.log(error);
+    }
+
+    // Trigger reload to refresh bet history
+    setIsReload(true);
+  };
 
   return (
     <Box sx={{ backgroundColor: "#101828" }}>
@@ -87,13 +138,13 @@ export default function BetControls({
                     bgcolor: "white",
                     color: "black",
                     "& .MuiSelect-select": {
-                      py: 1, // padding top-bottom nhỏ lại
+                      py: 1,
                     },
                   }}
                   onChange={handleSelect}
                 >
                   {rates.map((item, index) => (
-                    <MenuItem key={+index} value={item}>
+                    <MenuItem key={index} value={item}>
                       {item}
                     </MenuItem>
                   ))}
@@ -131,13 +182,13 @@ export default function BetControls({
                     bgcolor: "white",
                     color: "black",
                     "& .MuiSelect-select": {
-                      py: 1, // padding top-bottom nhỏ lại
+                      py: 1,
                     },
                   }}
                   onChange={handleSelect}
                 >
                   {rates.map((item, index) => (
-                    <MenuItem key={+index} value={item}>
+                    <MenuItem key={index} value={item}>
                       {item}
                     </MenuItem>
                   ))}
@@ -175,7 +226,10 @@ export default function BetControls({
                   type="number"
                   value={formData.money}
                   onChange={(e) =>
-                    setFormData({ ...formData, money: e.target.value })
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      money: e.target.value,
+                    }))
                   }
                   variant="outlined"
                   size="small"
@@ -194,21 +248,21 @@ export default function BetControls({
                       border: "none",
                     },
                     "& input": {
-                      textAlign: "center", // Căn giữa văn bản trong input
+                      textAlign: "center",
                       border: "none",
                       outline: "none",
                       "&:focus": {
-                        outline: "none", // Loại bỏ outline khi focus
+                        outline: "none",
                       },
                     },
                     "& .MuiInputBase-root": {
-                      border: "none", // Loại bỏ border
+                      border: "none",
                     },
                   }}
                   InputProps={{
                     sx: {
                       "& input": {
-                        textAlign: "center", // Căn giữa văn bản trong input
+                        textAlign: "center",
                       },
                     },
                   }}
@@ -222,14 +276,14 @@ export default function BetControls({
                     m: 0,
                     p: 0,
                     "& .MuiSelect-select": {
-                      py: 1, // padding top-bottom nhỏ lại
+                      py: 1,
                     },
                   }}
                   onChange={handleSelect}
                   value={" "}
                 >
                   {DefaultMoney.map((item, index) => (
-                    <MenuItem key={+index} value={item}>
+                    <MenuItem key={index} value={item}>
                       {item}
                     </MenuItem>
                   ))}
@@ -269,7 +323,7 @@ export default function BetControls({
                 width={"100%"}
                 fontSize={14}
               >
-                {formData?.win} : {formData?.lost}
+                {betRoom?.redOdds} : {betRoom?.blueOdds}
               </Typography>
               <Typography
                 variant="body2"
@@ -288,18 +342,58 @@ export default function BetControls({
             sx={{ display: "flex", justifyContent: "center", gap: 1 }}
           >
             <Button
-              variant="outlined"
+              variant={
+                formData.selectedTeam === TeamEnum.RED
+                  ? "contained"
+                  : "outlined"
+              }
               color="error"
-              sx={{ width: "100%", py: 1, fontWeight: 500 }}
+              sx={{
+                width: "100%",
+                py: 1,
+                fontWeight: 500,
+                backgroundColor:
+                  formData.selectedTeam === TeamEnum.RED
+                    ? "#d32f2f"
+                    : undefined,
+                "&:hover": {
+                  backgroundColor:
+                    formData.selectedTeam === TeamEnum.RED
+                      ? "#b71c1c"
+                      : undefined,
+                },
+              }}
+              onClick={() => handleTeamSelect(TeamEnum.RED)}
             >
-              Name Red
+              {betRoom?.redName}
             </Button>
             <Button
-              variant="contained"
-              color="primary"
-              sx={{ width: "100%", py: 1, fontWeight: 500 }}
+              variant={
+                formData.selectedTeam === TeamEnum.BLUE
+                  ? "contained"
+                  : "outlined"
+              }
+              color={
+                formData.selectedTeam === TeamEnum.BLUE ? "primary" : "info"
+              }
+              sx={{
+                width: "100%",
+                py: 1,
+                fontWeight: 500,
+                backgroundColor:
+                  formData.selectedTeam === TeamEnum.BLUE
+                    ? "#0288d1"
+                    : undefined,
+                "&:hover": {
+                  backgroundColor:
+                    formData.selectedTeam === TeamEnum.BLUE
+                      ? "#01579b"
+                      : undefined,
+                },
+              }}
+              onClick={() => handleTeamSelect(TeamEnum.BLUE)}
             >
-              Name Blue
+              {betRoom?.blueName}
             </Button>
           </Grid>
         </Grid>
@@ -315,6 +409,7 @@ export default function BetControls({
           variant="contained"
           color="primary"
           size="large"
+          onClick={handleCreateBetHistory}
           sx={{
             width: "60%",
             textAlign: "center",
@@ -356,7 +451,7 @@ export default function BetControls({
               sx={{
                 backgroundColor: "#212121",
                 borderRadius: 2,
-                height: "400px",
+                height: { xs: "300px", sm: "400px" },
                 position: "relative",
               }}
             >
@@ -387,39 +482,27 @@ export default function BetControls({
                   py: 1,
                   color: "white",
                   borderBottom: "1px solid white",
+                  fontSize: { xs: "1rem", sm: "1.25rem" },
                 }}
               >
                 Bình luận trực tuyến
               </Typography>
               <Box
                 sx={{
-                  overflowY: "auto",
+                  paddingTop: "54px",
                   height: "100%",
+                  overflow: "hidden",
                 }}
               >
-                <List sx={{ paddingTop: "54px" }}>
-                  {fakeComments.map((cmt) => (
-                    <React.Fragment key={cmt.id}>
-                      <ListItem
-                        alignItems="flex-start"
-                        sx={{ alignItems: "center" }}
-                      >
-                        <Avatar sx={{ mr: 2 }}>{cmt.name[0]}</Avatar>
-                        <ListItemText
-                          color="white"
-                          primary={cmt.name}
-                          sx={{ color: "white" }}
-                          secondary={
-                            <Typography variant="body2" color="white">
-                              {cmt.comment}
-                            </Typography>
-                          }
-                        />
-                      </ListItem>
-                      <Divider sx={{ bgcolor: "#444" }} />
-                    </React.Fragment>
-                  ))}
-                </List>
+                <iframe
+                  src="https://www5.cbox.ws/box/?boxid=956695&boxtag=rGgaf5"
+                  width="100%"
+                  height={isMobile ? "246px" : "346px"}
+                  allow="autoplay"
+                  frameBorder="0"
+                  scrolling="auto"
+                  title="Live Comments"
+                />
               </Box>
             </Box>
           </motion.div>
@@ -428,15 +511,3 @@ export default function BetControls({
     </Box>
   );
 }
-
-const fakeComments = [
-  { id: 1, name: "Tuấn", comment: "Trận này căng lắm nha anh em!" },
-  { id: 2, name: "Linh", comment: "Tôi đặt cửa trên!" },
-  { id: 3, name: "Hùng", comment: "Xem kèo hơi rén đấy 😅" },
-  { id: 4, name: "Mai", comment: "Có ai hóng highlight không?" },
-  { id: 5, name: "Long", comment: "Đặt 500k cửa dưới luôn!" },
-  { id: 6, name: "Duy", comment: "Ngon, win rồi ae!" },
-  { id: 7, name: "Thảo", comment: "Bắt kèo phút 80 vẫn kịp!" },
-  { id: 8, name: "Nam", comment: "Vãi cả plot twist 😮" },
-  { id: 9, name: "Bình", comment: "GG anh em, mai chơi tiếp!" },
-];

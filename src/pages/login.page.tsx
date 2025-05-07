@@ -61,6 +61,11 @@ const LoginPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Login failed:", error);
+      if (
+        error?.response?.data?.message === "Username or password is incorrect"
+      ) {
+        toast.error("Tài khoản hoặc mật khẩu không đúng");
+      }
     }
   };
 

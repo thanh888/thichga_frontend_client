@@ -10,12 +10,16 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { toast } from "react-toastify";
+import { signUpApi } from "@/services/auth/auth.api";
+import { useRouter } from "next/navigation";
 
 const RegisterPage: React.FC = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-    phoneNumber: "",
+    phone: "",
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -28,7 +32,27 @@ const RegisterPage: React.FC = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!formData.username || !formData.password || !formData.phone) {
+      toast.warning("Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
+    try {
+      const response = await signUpApi(formData);
+      if (response.status === 200 || response.status === 201) {
+        router.push("/login");
+        toast.success("Đăng ký thành công");
+      }
+    } catch (error: any) {
+      console.log(error);
+
+      if (error.response?.data?.message === "Username or Email is existed") {
+        toast.error("Tên người dùng đã tồn tại");
+      } else {
+        toast.error("Đã xảy ra lỗi, vui lòng thử lại");
+      }
+    }
+
     console.log("Form submitted:", formData);
     // Thêm logic gửi API để đăng ký tại đây
   };
@@ -69,7 +93,7 @@ const RegisterPage: React.FC = () => {
         {/* Form đăng ký */}
         <TextField
           fullWidth
-          label="Tên đăng nhập (không quá 9 ký tự)"
+          label="Tên đăng nhập"
           name="username"
           value={formData.username}
           onChange={handleChange}
@@ -100,8 +124,8 @@ const RegisterPage: React.FC = () => {
         <TextField
           fullWidth
           label="Số điện thoại"
-          name="phoneNumber"
-          value={formData.phoneNumber}
+          name="phone"
+          value={formData.phone}
           onChange={handleChange}
           variant="outlined"
           sx={{ mb: 3 }}

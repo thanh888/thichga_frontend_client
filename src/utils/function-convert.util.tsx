@@ -5,3 +5,9 @@ export const ConvertMoneyVND = (value: number): string => {
 export const numberThousand = (value: string) => {
   return Number(value).toLocaleString("de-DE");
 };
+
+export const calculateMoneyBet = (win: number, lost: number, money: number) => {
+  const result = ((Number(money) * Number(win)) / Number(lost)).toFixed(2);
+
+  return Number(result).toLocaleString("de-DE");
+};
