@@ -1,18 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { UrlTypeEnum } from "@/utils/enum/url-type.enum";
 // import HlsPlayer from "react-hls-player";
 
 interface LiveStreamProps {
-  sourceType?: "iframe" | "m3u8";
+  sourceType?: UrlTypeEnum | string;
   sourceUrl?: string;
 }
 
-const LiveStream: React.FC<LiveStreamProps> = ({
-  sourceType = "iframe",
-  sourceUrl = "https://www.youtube.com/embed/hmqYNvNqA-o?si=OxUpobQmTI0dMJWN",
-}) => {
+const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [url, setUrl] = useState<string>("");
+
+  // useEffect(() => {
+  //   if (sourceUrl) {
+  //     // console.log(sourceUrl.split(" ")[3].split('"')[1]);
+  //     setUrl(sourceUrl.split(" ")[3].split('"')[1]);
+  //   }
+  // }, [sourceUrl]);
 
   return (
     <Box
@@ -79,7 +86,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({
       >
         {sourceType === "iframe" ? (
           <iframe
-            src={sourceUrl}
+            src={sourceUrl ?? ""}
             title="Video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

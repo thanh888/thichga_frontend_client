@@ -4,44 +4,36 @@ import BetInfo from "@/components/game/bet-info.game";
 import GameFooter from "@/components/game/footer.game";
 import GameHeader from "@/components/game/header.game";
 import LiveStream from "@/components/game/live-stream.game";
-import { getSessionIsOpenedApi } from "@/services/bet-session.api";
 import { getRoomById } from "@/services/room.api";
+import { useSocket } from "@/socket";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
-import { BettingSessionInterface } from "@/utils/interfaces/bet-sesion.interface";
 import { Box, Grid, useMediaQuery, useTheme } from "@mui/material";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function GamePage() {
-  const [isCommentOpen, setIsCommentOpen] = useState<boolean>(true);
-  const [isBetOpen, setIsBetOpen] = useState<boolean>(true);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const [betSession, setBetSession] = useState<BettingSessionInterface>();
-  const [betRoom, setBetRoom] = useState<BettingRoomInterface>();
-  const [isReload, setIsReload] = useState<boolean>(true);
-
   const params = useParams();
 
   const roomID = params?.id.toString();
 
-  const getSessionIsOpened = async (room_id: string) => {
-    try {
-      const response = await getSessionIsOpenedApi(room_id);
-      if (response.status === 200 || response.status === 201) {
-        setBetSession(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [isCommentOpen, setIsCommentOpen] = useState<boolean>(true);
+  const [isBetOpen, setIsBetOpen] = useState<boolean>(true);
+
+  const [betRoom, setBetRoom] = useState<BettingRoomInterface>();
+  const [isReload, setIsReload] = useState<boolean>(true);
+  const [isClosed, setIsClosed] = useState<boolean>(false);
+
+  const [roomsOpening, setRoomsOpening] = useState<string[]>([]);
 
   const getBetRoomInfo = async (room_id: string) => {
     try {
       const response = await getRoomById(room_id);
       if (response.status === 200 || response.status === 201) {
         setBetRoom(response.data);
+        // const sessionData = await getSessionIsOpenedApi(room_id)
       }
     } catch (error) {
       console.log(error);
@@ -50,10 +42,44 @@ export default function GamePage() {
 
   useEffect(() => {
     if (roomID) {
-      getSessionIsOpened(roomID);
       getBetRoomInfo(roomID);
     }
   }, [roomID]);
+
+  useEffect(() => {
+    if (isClosed) {
+      alert(123);
+      setIsClosed(false);
+    }
+  }, [isClosed]);
+
+  const socket = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("update-room", (msg) => {
+      console.log("💰 Received update room:", msg);
+      if (msg.roomsOpening.length > 0) {
+        setRoomsOpening(msg.roomsOpening);
+        console.log("werewr: ", !msg.roomsOpening.includes(roomID));
+
+        if (!msg.roomsOpening.includes(roomID)) {
+          console.log("rewrwer");
+
+          setIsClosed(true);
+        }
+      }
+    });
+
+    socket.on("deposit-money", (msg) => {
+      console.log("💰 Received deposit:", msg);
+    });
+
+    return () => {
+      socket.off("deposit-money");
+    };
+  }, [socket]);
 
   return (
     <div
@@ -84,9 +110,9 @@ export default function GamePage() {
             size={{ xs: 12, md: 3.5, lg: 3, xl: 2.5 }}
             sx={{ display: { xs: "none", md: "block" } }}
           >
-            {betSession && (
+            {betRoom?.latestSessionID && (
               <BetInfo
-                sessionID={betSession._id}
+                sessionID={betRoom.latestSessionID}
                 isBetOpen={isBetOpen}
                 setIsBetOpen={setIsBetOpen}
                 isReload={isReload}
@@ -96,7 +122,12 @@ export default function GamePage() {
             )}
           </Grid>
           <Grid size={{ xs: 12, md: 5, lg: 6, xl: 7 }}>
-            <LiveStream />
+            {betRoom?.urlType && betRoom?.urlLive && (
+              <LiveStream
+                sourceType={betRoom?.urlType}
+                sourceUrl={betRoom?.urlLive}
+              />
+            )}
           </Grid>
           <Grid
             size={{ xs: 12, md: 3.5, lg: 3, xl: 2.5 }}
@@ -104,12 +135,12 @@ export default function GamePage() {
               display: { xs: isCommentOpen ? "block" : "none", md: "block" },
             }}
           >
-            {betSession && betRoom && (
+            {betRoom?.latestSessionID && betRoom && (
               <BetControls
                 isCommentOpen={isCommentOpen}
                 setIsCommentOpen={setIsCommentOpen}
                 setIsReload={setIsReload}
-                sessionID={betSession._id}
+                sessionID={betRoom.latestSessionID}
                 betRoom={betRoom}
               />
             )}

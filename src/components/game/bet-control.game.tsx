@@ -495,7 +495,7 @@ export default function BetControls({
                 }}
               >
                 <iframe
-                  src="https://www5.cbox.ws/box/?boxid=956695&boxtag=rGgaf5"
+                  src={betRoom.chattingJframe}
                   width="100%"
                   height={isMobile ? "246px" : "346px"}
                   allow="autoplay"
