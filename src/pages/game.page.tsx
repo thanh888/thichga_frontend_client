@@ -57,18 +57,17 @@ export default function GamePage() {
 
   useEffect(() => {
     if (!socket) return;
+    if (!roomID) return;
 
     socket.on("update-room", (msg) => {
       console.log("💰 Received update room:", msg);
-      if (msg.roomsOpening.length > 0) {
-        setRoomsOpening(msg.roomsOpening);
-        console.log("werewr: ", !msg.roomsOpening.includes(roomID));
+      // setRoomsOpening(msg.roomsOpening);
+      console.log("werewr: ", !!msg.roomsOpening.includes(roomID));
 
-        if (!msg.roomsOpening.includes(roomID)) {
-          console.log("rewrwer");
+      if (!msg.roomsOpening.includes(roomID)) {
+        console.log("rewrwer");
 
-          setIsClosed(true);
-        }
+        setIsClosed(true);
       }
     });
 
@@ -79,7 +78,7 @@ export default function GamePage() {
     return () => {
       socket.off("deposit-money");
     };
-  }, [socket]);
+  }, [socket, roomID]);
 
   return (
     <div
