@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState, useContext } from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,6 +12,7 @@ import {
   DialogActions,
   IconButton,
   Typography,
+  Grid,
 } from "@mui/material";
 import {
   ListAltOutlined,
@@ -19,13 +21,19 @@ import {
   MarkUnreadChatAltOutlined,
   ViewListOutlined,
 } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import TelegramIcon from "@mui/icons-material/Telegram";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import ChatIcon from "@mui/icons-material/Chat";
+import { useParams, useRouter } from "next/navigation";
+import { getListRoomsOpening } from "@/services/room.api";
+import { SettingContext } from "@/contexts/setting-context";
 
 interface GameHeaderProps {
   isCommentOpen: boolean;
   setIsCommentOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isBetOpen: boolean;
   setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isReload: boolean;
 }
 
 export default function GameHeader({
@@ -33,11 +41,19 @@ export default function GameHeader({
   setIsCommentOpen,
   isBetOpen,
   setIsBetOpen,
+  isReload,
 }: Readonly<GameHeaderProps>) {
   const router = useRouter();
+  const param = useParams();
+  const id = param?.id;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [roomDialogOpen, setRoomDialogOpen] = useState(false);
+  const [supportDialogOpen, setSupportDialogOpen] = useState(false); // New state for support dialog
+  const [listRooms, setListRooms] = useState<any[]>([]);
+
+  const settingContext = useContext(SettingContext);
+  const setting = settingContext?.setting;
 
   const scrollButtonList = [
     "MỞC HÔ ĐỘ 6E",
@@ -81,12 +97,41 @@ export default function GameHeader({
     </Button>
   );
 
+  const getListRooms = async () => {
+    try {
+      const response = await getListRoomsOpening();
+      if (response.status === 200 || response.status === 201) {
+        setListRooms(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (isReload) {
+      getListRooms();
+    }
+  }, [isReload]);
+
   const handleOpenRoomDialog = () => {
     setRoomDialogOpen(true);
   };
 
   const handleCloseRoomDialog = () => {
     setRoomDialogOpen(false);
+  };
+
+  const handleOpenSupportDialog = () => {
+    setSupportDialogOpen(true);
+  };
+
+  const handleCloseSupportDialog = () => {
+    setSupportDialogOpen(false);
+  };
+
+  const handleLinkClick = (url: string) => {
+    window.open(url, "_blank");
   };
 
   return (
@@ -158,11 +203,12 @@ export default function GameHeader({
                   },
                 }}
               >
-                {scrollButtonList.map((label, index) => (
+                {listRooms?.map((room, index) => (
                   <Button
-                    key={index}
-                    variant="contained"
+                    key={+index}
+                    variant={room._id === id ? "contained" : "outlined"}
                     color="warning"
+                    onClick={() => router.push(`/game/${room._id}`)}
                     sx={{
                       color: "white",
                       fontSize: { xs: "12px", sm: "16px" },
@@ -174,7 +220,7 @@ export default function GameHeader({
                       minWidth: { xs: "100px", sm: "120px" },
                     }}
                   >
-                    {label}
+                    {room?.roomName}
                   </Button>
                 ))}
               </Box>
@@ -196,7 +242,11 @@ export default function GameHeader({
               onClick={() => setIsCommentOpen(!isCommentOpen)}
             />
             <HeaderIconButton icon={ListAltOutlined} label="LS Cược" />
-            <HeaderIconButton icon={SupportAgentOutlined} label="Hỗ trợ" />
+            <HeaderIconButton
+              icon={SupportAgentOutlined}
+              label="Hỗ trợ"
+              onClick={handleOpenSupportDialog} // Open support dialog
+            />
           </Box>
         </Toolbar>
       </AppBar>
@@ -253,6 +303,161 @@ export default function GameHeader({
             sx={{
               color: "white",
               borderColor: "white",
+              fontSize: { xs: "12px", sm: "14px" },
+              px: { xs: 2, sm: 3 },
+            }}
+          >
+            Đóng
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog for Support */}
+      <Dialog
+        open={supportDialogOpen}
+        onClose={handleCloseSupportDialog}
+        fullScreen={isMobile}
+        sx={{
+          "& .MuiDialog-paper": {
+            bgcolor: "#fff",
+            color: "#000",
+            borderRadius: { xs: 0, sm: "8px" },
+            maxWidth: { sm: "800px" },
+            width: "100%",
+          },
+        }}
+      >
+        <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <Box sx={{ maxWidth: "800px", mx: "auto", my: 2 }}>
+            {/* Hình ảnh minh họa */}
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+              <Box
+                component="img"
+                src="https://thichga.com/User/assets/photos/support-photo.png"
+                alt="Support 24/7"
+                sx={{ maxWidth: "100%", height: "auto" }}
+              />
+            </Box>
+            <Grid container spacing={2}>
+              {setting?.support_contact?.phone && (
+                <Grid
+                  size={12}
+                  sx={{ textAlign: "center" }}
+                  bgcolor={"#f0f0f0"}
+                >
+                  <Button
+                    variant="contained"
+                    startIcon={<SupportAgentOutlined />}
+                    sx={{
+                      backgroundColor: "#1E90FF",
+                      "&:hover": { backgroundColor: "#1565C0" },
+                      textTransform: "none",
+                      fontSize: "1rem",
+                      py: 1.5,
+                      width: "100%",
+                    }}
+                    onClick={() =>
+                      handleLinkClick(setting?.support_contact?.phone ?? "")
+                    }
+                  >
+                    Chăm sóc 24/7
+                  </Button>
+                </Grid>
+              )}
+              {setting?.support_contact?.telegram && (
+                <Grid size={6}>
+                  <Button
+                    variant="contained"
+                    startIcon={<TelegramIcon />}
+                    sx={{
+                      backgroundColor: "#1E90FF",
+                      "&:hover": { backgroundColor: "#1565C0" },
+                      textTransform: "none",
+                      fontSize: "1rem",
+                      py: 1.5,
+                      width: "100%",
+                    }}
+                    onClick={() =>
+                      handleLinkClick(setting?.support_contact?.telegram ?? "")
+                    }
+                  >
+                    Telegram
+                  </Button>
+                </Grid>
+              )}
+              {setting?.support_contact?.messenger && (
+                <Grid size={6}>
+                  <Button
+                    variant="contained"
+                    startIcon={<ChatIcon />}
+                    sx={{
+                      backgroundColor: "#1E90FF",
+                      "&:hover": { backgroundColor: "#1565C0" },
+                      textTransform: "none",
+                      fontSize: "1rem",
+                      py: 1.5,
+                      width: "100%",
+                    }}
+                    onClick={() =>
+                      handleLinkClick(setting?.support_contact?.messenger ?? "")
+                    }
+                  >
+                    Messenger
+                  </Button>
+                </Grid>
+              )}
+              {setting?.support_contact?.facebook && (
+                <Grid size={6}>
+                  <Button
+                    variant="contained"
+                    startIcon={<FacebookIcon />}
+                    sx={{
+                      backgroundColor: "#1E90FF",
+                      "&:hover": { backgroundColor: "#1565C0" },
+                      textTransform: "none",
+                      fontSize: "1rem",
+                      py: 1.5,
+                      width: "100%",
+                    }}
+                    onClick={() =>
+                      handleLinkClick(setting?.support_contact?.facebook ?? "")
+                    }
+                  >
+                    Facebook
+                  </Button>
+                </Grid>
+              )}
+              {setting?.support_contact?.zalo && (
+                <Grid size={6}>
+                  <Button
+                    variant="contained"
+                    startIcon={<ChatIcon />}
+                    sx={{
+                      backgroundColor: "#1E90FF",
+                      "&:hover": { backgroundColor: "#1565C0" },
+                      textTransform: "none",
+                      fontSize: "1rem",
+                      py: 1.5,
+                      width: "100%",
+                    }}
+                    onClick={() =>
+                      handleLinkClick(setting?.support_contact?.zalo ?? "")
+                    }
+                  >
+                    Zalo
+                  </Button>
+                </Grid>
+              )}
+            </Grid>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: { xs: 2, sm: 3 } }}>
+          <Button
+            onClick={handleCloseSupportDialog}
+            variant="outlined"
+            sx={{
+              color: "#000",
+              borderColor: "#000",
               fontSize: { xs: "12px", sm: "14px" },
               px: { xs: 2, sm: 3 },
             }}

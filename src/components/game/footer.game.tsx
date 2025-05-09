@@ -12,7 +12,9 @@ import { numberThousand } from "@/utils/function-convert.util";
 import Link from "next/link";
 import { useUser } from "@/hooks/use-user";
 
-export default function GameFooter() {
+export default function GameFooter({
+  userBetTotal,
+}: Readonly<{ userBetTotal: number }>) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user } = useUser();
@@ -102,7 +104,7 @@ export default function GameFooter() {
             color="white"
             fontSize={{ xs: 14, sm: 18 }}
           >
-            Cược: 100
+            Cược: {userBetTotal ?? 0}
           </Typography>
         </Box>
       </Toolbar>

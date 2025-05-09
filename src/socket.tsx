@@ -1,21 +1,21 @@
-// hooks/useSocket.ts
 import { useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:5000"; // đổi theo URL backend NestJS
+const SOCKET_URL = "http://localhost:5000"; // hoặc process.env.NEXT_PUBLIC_SOCKET_URL
 
 export const useSocket = () => {
   const socketRef = useRef<Socket | null>(null);
-  const accessToken = localStorage.getItem("account");
 
   useEffect(() => {
+    // Đảm bảo chỉ gọi ở client
+    const accessToken =
+      typeof window !== "undefined" ? localStorage.getItem("account") : null;
     if (!accessToken) return;
-    console.log("access=>>>>>: ", accessToken);
 
     const socket = io(SOCKET_URL, {
       transports: ["websocket"],
       extraHeaders: {
-        Authorization: accessToken, // JWT từ localStorage hoặc cookie
+        Authorization: accessToken,
       },
       auth: {
         token: accessToken,
@@ -39,7 +39,7 @@ export const useSocket = () => {
     return () => {
       socket.disconnect();
     };
-  }, [accessToken]);
+  }, []);
 
   return socketRef.current;
 };

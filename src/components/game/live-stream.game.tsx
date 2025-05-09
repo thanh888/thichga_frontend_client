@@ -84,9 +84,9 @@ const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
           height: 0,
         }}
       >
-        {sourceType === "iframe" ? (
+        {sourceType === "iframe" && sourceUrl ? (
           <iframe
-            src={sourceUrl ?? ""}
+            src={sourceUrl}
             title="Video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

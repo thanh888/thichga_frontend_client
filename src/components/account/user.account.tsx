@@ -3,17 +3,19 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  TextField,
-  MenuItem,
-  Select,
   Button,
   Grid,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-
+import ChangePinForm from "./user-account/change-pin";
+import BankInfoForm from "./user-account/change-bank";
+import ChangePasswordForm from "./user-account/change-password";
+import { useUser } from "@/hooks/use-user";
+import { convertDateTime } from "@/utils/function-convert.util";
 export default function UserAccount() {
-  const [transferType, setTransferType] = useState<string>("");
+  const { user } = useUser();
+
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -70,7 +72,9 @@ export default function UserAccount() {
                 }}
               >
                 Họ và tên:
-                <Typography variant="caption">Chưa có</Typography>
+                <Typography variant="caption">
+                  {user?.username ?? "Chưa có"}
+                </Typography>
               </Typography>
               <Typography
                 variant="body2"
@@ -83,7 +87,9 @@ export default function UserAccount() {
                 }}
               >
                 Số điện thoại:
-                <Typography variant="caption">Chưa có</Typography>
+                <Typography variant="caption">
+                  {user?.phone ?? "Chưa có"}
+                </Typography>
               </Typography>
               <Typography
                 variant="body2"
@@ -95,7 +101,9 @@ export default function UserAccount() {
                 }}
               >
                 Email:
-                <Typography variant="caption">Chưa có</Typography>
+                <Typography variant="caption">
+                  {user?.email ?? "Chưa có"}
+                </Typography>
               </Typography>
             </Box>
           </Grid>
@@ -120,7 +128,10 @@ export default function UserAccount() {
                 }}
               >
                 Thời gian đăng ký:
-                <Typography variant="caption">Chưa có</Typography>
+                <Typography variant="caption">
+                  {convertDateTime(user?.createdAt?.toString() ?? "") ??
+                    "Chưa có"}
+                </Typography>
               </Typography>
               <Typography
                 variant="body2"
@@ -157,6 +168,7 @@ export default function UserAccount() {
         sx={{
           backgroundColor: "white",
           p: { xs: 1, sm: 2 },
+          mb: 8,
           borderRadius: "8px",
           boxShadow: {
             xs: "0 1px 5px rgba(0,0,0,0.1)",
@@ -208,270 +220,9 @@ export default function UserAccount() {
             Ngân hàng
           </Button>
         </Box>
-        {selectedIndex === 0 && (
-          <Box
-            className="bank-form"
-            component="form"
-            sx={{ p: { xs: 1, sm: 2 } }}
-          >
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Mật khẩu cũ
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Mật khẩu cũ"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              InputProps={{
-                sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-              }}
-            />
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Mật khẩu mới
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Mật khẩu mới"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              InputProps={{
-                sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-              }}
-            />
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Xác thực mật khẩu
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Xác thực mật khẩu"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              InputProps={{
-                sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-              }}
-            />
-            <Box display="flex" justifyContent="center" mt={{ xs: 2, sm: 3 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{
-                  width: "100%",
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  py: { xs: 0.75, sm: 1 },
-                }}
-              >
-                Xác nhận
-              </Button>
-            </Box>
-          </Box>
-        )}
-        {selectedIndex === 1 && (
-          <Box
-            className="bank-form"
-            component="form"
-            sx={{ p: { xs: 1, sm: 2 } }}
-          >
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Mã pin mới
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Mã pin mới"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              InputProps={{
-                sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-              }}
-            />
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Xác thực mã pin mới
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Xác thực mã pin mới"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              InputProps={{
-                sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-              }}
-            />
-            <Box display="flex" justifyContent="center" mt={{ xs: 2, sm: 3 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{
-                  width: "100%",
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  py: { xs: 0.75, sm: 1 },
-                }}
-              >
-                Xác nhận
-              </Button>
-            </Box>
-          </Box>
-        )}
-        {selectedIndex === 2 && (
-          <Box
-            className="bank-form"
-            component="form"
-            sx={{ p: { xs: 1, sm: 2 } }}
-          >
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Họ và tên
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Họ và tên"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              InputProps={{
-                sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-              }}
-            />
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Số tài khoản
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Số tài khoản"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              InputProps={{
-                sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-              }}
-            />
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Ngân hàng
-            </Typography>
-            <Select
-              fullWidth
-              value={transferType}
-              onChange={(e) => setTransferType(e.target.value)}
-              displayEmpty
-              variant="outlined"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              MenuProps={{
-                PaperProps: {
-                  sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-                },
-              }}
-            >
-              <MenuItem
-                value=""
-                disabled
-                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-              >
-                -- Chọn ngân hàng --
-              </MenuItem>
-              <MenuItem
-                value="vietcombank"
-                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-              >
-                Vietcombank
-              </MenuItem>
-              <MenuItem
-                value="techcombank"
-                sx={{ fontSize: { xs: "0.75rem", sm: "metry" } }}
-              >
-                Techcombank
-              </MenuItem>
-              <MenuItem
-                value="bidv"
-                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-              >
-                BIDV
-              </MenuItem>
-            </Select>
-            <Typography
-              variant="body1"
-              mb={1}
-              fontSize={{ xs: "0.875rem", sm: "1rem" }}
-            >
-              Chi nhánh ngân hàng
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Chi nhánh ngân hàng"
-              sx={{
-                mb: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-              }}
-              InputProps={{
-                sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-              }}
-            />
-            <Box display="flex" justifyContent="center" mt={{ xs: 2, sm: 3 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{
-                  width: "100%",
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  py: { xs: 0.75, sm: 1 },
-                }}
-              >
-                Xác nhận
-              </Button>
-            </Box>
-          </Box>
-        )}
+        {selectedIndex === 0 && <ChangePasswordForm />}
+        {selectedIndex === 1 && <ChangePinForm />}
+        {selectedIndex === 2 && <BankInfoForm />}
       </Box>
     </Box>
   );

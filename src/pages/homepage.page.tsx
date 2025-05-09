@@ -1,6 +1,7 @@
 "use client";
 import BannerComponent from "@/components/banner/banner";
 import { SettingContext } from "@/contexts/setting-context";
+import { useUser } from "@/hooks/use-user";
 import { getRoomIsOpenedApi } from "@/services/room.api";
 import { CampaignOutlined } from "@mui/icons-material";
 import {
@@ -24,18 +25,25 @@ export default function Homepage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const { user } = useUser();
+
   const handleRedirectGame = async () => {
+    if (!user) {
+      router.push("/login");
+    }
     try {
       const respone = await getRoomIsOpenedApi();
-      if (respone.status === 200 || respone.status === 2001) {
-        console.log(respone.data);
-
+      if (
+        (respone.status === 200 || respone.status === 201) &&
+        respone.data._id
+      ) {
         router.push(`/game/${respone.data._id}`);
       } else {
         toast.warning("Không có phòng được mở");
       }
     } catch (error) {
       console.log(error);
+      router.push("/login");
     }
   };
 

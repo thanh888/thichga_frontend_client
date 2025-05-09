@@ -14,7 +14,6 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  createBetHistoryApi,
   deleteBetHistoryApi,
   getHistoriesBySession,
   updateMatchedBetHistoryApi,
@@ -26,7 +25,7 @@ import { useUser } from "@/hooks/use-user";
 import { toast } from "react-toastify";
 import AcceptBetDialog from "./confirm-matched";
 import { calculateMoneyBet } from "@/utils/function-convert.util";
-import { Prev } from "react-bootstrap/esm/PageItem";
+import { useSocket } from "@/socket";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -53,7 +52,7 @@ const BetList: React.FC<{
   title: string;
   color: string;
   betHistories: any[];
-  setIsReload: Dispatch<SetStateAction<boolean>>;
+  setIsReloadBetting: Dispatch<SetStateAction<boolean>>;
   sessionID: string;
   setAcceptDialogOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedBet: Dispatch<SetStateAction<BettingHistoryInterface | null>>;
@@ -62,7 +61,7 @@ const BetList: React.FC<{
   title,
   color,
   betHistories,
-  setIsReload,
+  setIsReloadBetting,
   sessionID,
   setAcceptDialogOpen,
   setSelectedBet,
@@ -70,13 +69,20 @@ const BetList: React.FC<{
 }) => {
   const { user } = useUser();
 
+  const socket = useSocket();
+
   const handleCancelBet = async (bet: BettingHistoryInterface) => {
     try {
       const response = await deleteBetHistoryApi(bet?._id);
       if (response.status === 200 || response.status === 201) {
         toast.success("Hủy thành công");
+        if (socket) {
+          socket.emit("bet-history", {
+            roomID: betRoom._id,
+          });
+        }
       }
-      setIsReload(true);
+      setIsReloadBetting(true);
     } catch (error) {
       console.log(error);
     }
@@ -245,9 +251,10 @@ interface BetInfoProps {
   sessionID: string;
   isBetOpen: boolean;
   setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isReload: boolean;
-  setIsReload: React.Dispatch<React.SetStateAction<boolean>>;
   betRoom: any;
+  isReloadBetting: boolean;
+  setIsReloadBetting: React.Dispatch<React.SetStateAction<boolean>>;
+  setUserBetTotal: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const slideVariants = {
@@ -260,9 +267,10 @@ const BetInfo: React.FC<BetInfoProps> = ({
   sessionID,
   isBetOpen,
   setIsBetOpen,
-  isReload,
-  setIsReload,
   betRoom,
+  isReloadBetting,
+  setIsReloadBetting,
+  setUserBetTotal,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -273,17 +281,45 @@ const BetInfo: React.FC<BetInfoProps> = ({
   const [selectedBet, setSelectedBet] =
     useState<BettingHistoryInterface | null>(null);
   const { user } = useUser();
+  const { checkSession } = useUser();
 
-  const getBetHistories = async (session_id: string) => {
+  const socket = useSocket();
+
+  const getBetHistories = async () => {
     try {
-      const response = await getHistoriesBySession(session_id);
+      const response = await getHistoriesBySession(sessionID);
       if (response.status === 200 || response.status === 201) {
         setBetHistories(response.data);
+        const userTotalBet = response?.data
+          ?.filter(
+            (item: BettingHistoryInterface) => item.creatorID._id === user._id
+          )
+          .reduce(
+            (total: number, item: BettingHistoryInterface) =>
+              total + Number(item.money),
+            0
+          );
+
+        setUserBetTotal(userTotalBet);
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (!socket || !betRoom?._id) return;
+
+    socket.on("bet-history", (msg) => {
+      if (msg.roomID === betRoom._id) {
+        getBetHistories();
+      }
+    });
+
+    return () => {
+      socket.off("bet-history");
+    };
+  }, [socket, betRoom?._id]);
 
   const handleAcceptBet = async () => {
     if (!selectedBet) return;
@@ -316,7 +352,15 @@ const BetInfo: React.FC<BetInfoProps> = ({
         toast.success("Khớp kèo thành công");
         setAcceptDialogOpen(false);
         setSelectedBet(null);
-        setIsReload(true);
+        setIsReloadBetting(true);
+        if (socket) {
+          if (checkSession) {
+            checkSession();
+          }
+          socket.emit("bet-history", {
+            roomID: betRoom._id,
+          });
+        }
       }
     } catch (error) {
       console.log(error);
@@ -325,15 +369,17 @@ const BetInfo: React.FC<BetInfoProps> = ({
   };
 
   useEffect(() => {
-    if (isReload) {
-      getBetHistories(sessionID);
-      setIsReload(false);
+    if (isReloadBetting) {
+      getBetHistories();
+      setIsReloadBetting(false);
     }
-  }, [sessionID, isReload]);
+  }, [isReloadBetting]);
 
   useEffect(() => {
-    getBetHistories(sessionID);
-  }, [sessionID]);
+    console.log("123213:");
+
+    getBetHistories();
+  }, []);
 
   return (
     <>
@@ -374,7 +420,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
                   betHistories={betHistories?.filter(
                     (item) => item.selectedTeam === TeamEnum.RED && item
                   )}
-                  setIsReload={setIsReload}
+                  setIsReloadBetting={setIsReloadBetting}
                   sessionID={sessionID}
                   setAcceptDialogOpen={setAcceptDialogOpen}
                   setSelectedBet={setSelectedBet}
@@ -387,7 +433,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
                   betHistories={betHistories?.filter(
                     (item) => item.selectedTeam === TeamEnum.BLUE && item
                   )}
-                  setIsReload={setIsReload}
+                  setIsReloadBetting={setIsReloadBetting}
                   sessionID={sessionID}
                   setAcceptDialogOpen={setAcceptDialogOpen}
                   setSelectedBet={setSelectedBet}
@@ -438,7 +484,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
               betHistories={betHistories?.filter(
                 (item) => item.selectedTeam === TeamEnum.RED && item
               )}
-              setIsReload={setIsReload}
+              setIsReloadBetting={setIsReloadBetting}
               sessionID={sessionID}
               setAcceptDialogOpen={setAcceptDialogOpen}
               setSelectedBet={setSelectedBet}
@@ -451,7 +497,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
               betHistories={betHistories?.filter(
                 (item) => item.selectedTeam === TeamEnum.BLUE && item
               )}
-              setIsReload={setIsReload}
+              setIsReloadBetting={setIsReloadBetting}
               sessionID={sessionID}
               setAcceptDialogOpen={setAcceptDialogOpen}
               setSelectedBet={setSelectedBet}

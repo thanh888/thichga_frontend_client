@@ -8,16 +8,15 @@ import {
   IconButton,
   CardContent,
   Grid,
-  FormControl,
-  Select,
-  MenuItem,
-  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { DefaultMoney, rates } from "@/utils/constans";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
-import { calculateMoneyBet } from "@/utils/function-convert.util";
+import {
+  calculateMoneyBet,
+  numberThousand,
+} from "@/utils/function-convert.util";
 
 interface AcceptBetDialogProps {
   open: boolean;
@@ -81,7 +80,7 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
               >
                 <Typography
                   variant="body2"
-                  id="lable_ratio"
+                  id="win"
                   sx={{
                     color: "black",
                     alignContent: "center",
@@ -94,7 +93,7 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
                 </Typography>
                 <Typography
                   variant="body2"
-                  id="lable_ratio"
+                  id="lost"
                   sx={{
                     color: "black",
                     border: "1px solid #ccc",
@@ -188,10 +187,12 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
                   width={"100%"}
                   height={40}
                 >
-                  {calculateMoneyBet(
-                    selectedBet?.win || 0,
-                    selectedBet?.lost || 0,
-                    selectedBet?.money || 0
+                  {numberThousand(
+                    calculateMoneyBet(
+                      selectedBet?.win || 0,
+                      selectedBet?.lost || 0,
+                      selectedBet?.money || 0
+                    ).toString()
                   )}
                 </Typography>
               </Box>

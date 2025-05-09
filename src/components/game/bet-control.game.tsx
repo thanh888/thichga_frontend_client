@@ -23,11 +23,12 @@ import { TeamEnum } from "@/utils/enum/team.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { toast } from "react-toastify";
 import { createBetHistoryApi } from "@/services/auth/bet-history.api";
+import { useSocket } from "@/socket";
 
-interface GameHeaderProps {
+interface Props {
   isCommentOpen: boolean;
   setIsCommentOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsReload: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsReloadBetting: React.Dispatch<React.SetStateAction<boolean>>;
   sessionID: string;
   betRoom: BettingRoomInterface;
 }
@@ -41,11 +42,12 @@ const slideVariants = {
 export default function BetControls({
   isCommentOpen,
   setIsCommentOpen,
-  setIsReload,
+  setIsReloadBetting,
   sessionID,
   betRoom,
-}: Readonly<GameHeaderProps>) {
+}: Readonly<Props>) {
   const { user } = useUser();
+  const { checkSession } = useUser();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [formData, setFormData] = useState({
@@ -70,6 +72,8 @@ export default function BetControls({
     }));
   };
 
+  const socket = useSocket();
+
   const handleCreateBetHistory = async () => {
     if (!formData.selectedTeam) {
       toast.warning("Vui lòng chọn đội");
@@ -77,6 +81,10 @@ export default function BetControls({
     }
     if (Number(formData.money) <= 0) {
       toast.warning("Vui lòng điền số tiền cược lớn hơn 0");
+      return;
+    }
+    if (Number(formData.money) > Number(user.money)) {
+      toast.warning("Tài khoản không đủ");
       return;
     }
 
@@ -94,14 +102,22 @@ export default function BetControls({
       const response = await createBetHistoryApi(newData);
       if (response.status === 200 || response.status === 201) {
         toast.success("Đặt cược thành công");
+        setIsReloadBetting(true);
+        if (socket) {
+          if (checkSession) {
+            checkSession();
+          }
+          socket.emit("bet-history", {
+            roomID: betRoom._id,
+          });
+        }
       }
-      setIsReload(true);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      if (error?.response?.data?.message === "Betting is disable") {
+        toast.warning("Phòng đã đóng cược");
+      }
     }
-
-    // Trigger reload to refresh bet history
-    setIsReload(true);
   };
 
   return (
@@ -487,23 +503,25 @@ export default function BetControls({
               >
                 Bình luận trực tuyến
               </Typography>
-              <Box
-                sx={{
-                  paddingTop: "54px",
-                  height: "100%",
-                  overflow: "hidden",
-                }}
-              >
-                <iframe
-                  src={betRoom.chattingJframe}
-                  width="100%"
-                  height={isMobile ? "246px" : "346px"}
-                  allow="autoplay"
-                  frameBorder="0"
-                  scrolling="auto"
-                  title="Live Comments"
-                />
-              </Box>
+              {betRoom.chattingJframe && (
+                <Box
+                  sx={{
+                    paddingTop: "54px",
+                    height: "100%",
+                    overflow: "hidden",
+                  }}
+                >
+                  <iframe
+                    src={betRoom.chattingJframe}
+                    width="100%"
+                    height={isMobile ? "246px" : "346px"}
+                    allow="autoplay"
+                    frameBorder="0"
+                    scrolling="auto"
+                    title="Live Comments"
+                  />
+                </Box>
+              )}
             </Box>
           </motion.div>
         )}
