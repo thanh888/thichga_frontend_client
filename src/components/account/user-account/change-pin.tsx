@@ -103,7 +103,8 @@ export default function ChangePinForm() {
     } catch (error: any) {
       console.error("Error changing PIN:", error);
       toast.error(
-        error.response?.data?.message || "Lỗi khi đổi mã PIN, vui lòng thử lại"
+        error.response?.data?.message === "Pin is incorrect" &&
+          "Mã pin không đúng"
       );
     }
   };

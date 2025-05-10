@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "react-toastify";
+import { getRoomIsOpenedApi } from "@/services/room.api";
 
 const pages = [
   { name: "ĐÁ GÀ", path: "/game" },
@@ -50,6 +51,26 @@ function HeaderComponent() {
     toast.success("Đăng xuất thành công");
   };
 
+  const handleRedirectGame = async () => {
+    if (!user) {
+      router.push("/login");
+    }
+    try {
+      const respone = await getRoomIsOpenedApi();
+      if (
+        (respone.status === 200 || respone.status === 201) &&
+        respone.data._id
+      ) {
+        router.push(`/game/${respone.data._id}`);
+      } else {
+        toast.warning("Không có phòng được mở");
+      }
+    } catch (error) {
+      console.log(error);
+      router.push("/login");
+    }
+  };
+
   return (
     <AppBar
       sx={{
@@ -78,9 +99,20 @@ function HeaderComponent() {
           </Link>
 
           <Box
-            sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, gap: 2 }}
+            sx={{
+              flexGrow: 1,
+              display: {
+                xs: "none",
+                md: "flex",
+                justifyContent: "right",
+                alignItems: "center",
+                mx: 2,
+                marginRight: 10,
+              },
+              gap: 2,
+            }}
           >
-            {pages.map((page) => (
+            {/* {pages.map((page) => (
               <Link
                 className="hover:text-blue-500"
                 href={page.path}
@@ -89,14 +121,39 @@ function HeaderComponent() {
                   textDecoration: "none",
                   color: "black",
                   fontSize: 16,
-                  fontWeight: 500,
+                  fontWeight: 600,
                 }}
               >
                 {page.name}
               </Link>
-            ))}
+            ))} */}
+            <Link
+              href="#"
+              className="hover:text-blue-500"
+              onClick={handleRedirectGame}
+              passHref
+              style={{
+                textDecoration: "none",
+                color: "black",
+                fontSize: 16,
+                fontWeight: 600,
+              }}
+            >
+              Game
+            </Link>
+            <Link
+              href={"/support"}
+              className="hover:text-blue-500"
+              style={{
+                textDecoration: "none",
+                color: "black",
+                fontSize: 16,
+                fontWeight: 600,
+              }}
+            >
+              Hướng dẫn
+            </Link>
           </Box>
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}></Box>
           {user ? (
             <Box
               sx={{

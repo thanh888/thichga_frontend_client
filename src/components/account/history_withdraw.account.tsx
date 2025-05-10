@@ -1,7 +1,11 @@
+"use client";
+import * as React from "react";
 import { Box, Paper, Typography } from "@mui/material";
-import HistoryTable from "./table_history.account";
+import HistoryTableComponent from "./table_history.account";
 
 export default function WithdrawHistoryComponent() {
+  const [isReload, setIsReload] = React.useState<boolean>(false);
+
   return (
     <Box sx={{ width: "100%", px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 } }}>
       <Paper
@@ -24,7 +28,11 @@ export default function WithdrawHistoryComponent() {
         >
           Lịch sử rút tiền
         </Typography>
-        <HistoryTable />
+        <HistoryTableComponent
+          isReload={isReload}
+          setIsReload={setIsReload}
+          type="withdraw"
+        />
       </Paper>
     </Box>
   );

@@ -24,6 +24,7 @@ import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { toast } from "react-toastify";
 import { createBetHistoryApi } from "@/services/auth/bet-history.api";
 import { useSocket } from "@/socket";
+import { sampleMoneys } from "@/utils/function-convert.util";
 
 interface Props {
   isCommentOpen: boolean;
@@ -53,7 +54,7 @@ export default function BetControls({
   const [formData, setFormData] = useState({
     win: "10",
     lost: "10",
-    money: "100",
+    money: "100000",
     selectedTeam: null as TeamEnum | null,
   });
 
@@ -298,9 +299,9 @@ export default function BetControls({
                   onChange={handleSelect}
                   value={" "}
                 >
-                  {DefaultMoney.map((item, index) => (
-                    <MenuItem key={index} value={item}>
-                      {item}
+                  {sampleMoneys.map((item, index) => (
+                    <MenuItem key={+index} value={item.value}>
+                      {item.lable}
                     </MenuItem>
                   ))}
                 </Select>

@@ -1,9 +1,12 @@
+"use client";
+import * as React from "react";
 import { Box, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
-import HistoryTable from "./table_history.account";
+import HistoryTableComponent from "./table_history.account";
 
 export default function DepositHistoryComponent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [isReload, setIsReload] = React.useState<boolean>(false);
 
   return (
     <Box sx={{ width: "100%", px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 } }}>
@@ -27,7 +30,11 @@ export default function DepositHistoryComponent() {
         >
           Lịch sử nạp tiền
         </Typography>
-        <HistoryTable />
+        <HistoryTableComponent
+          isReload={isReload}
+          setIsReload={setIsReload}
+          type="deposit"
+        />
       </Paper>
     </Box>
   );

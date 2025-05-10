@@ -19,6 +19,8 @@ import DepositComponent from "@/components/account/deposit.account";
 import WithdrawComponent from "@/components/account/withdraw.account";
 import DepositHistoryComponent from "@/components/account/history_deposit.account";
 import WithdrawHistoryComponent from "@/components/account/history_withdraw.account";
+import { useUser } from "@/hooks/use-user";
+import { ConvertMoneyVND, numberThousand } from "@/utils/function-convert.util";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -55,6 +57,8 @@ const AccountPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const { user } = useUser();
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -89,8 +93,6 @@ const AccountPage: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
-        px: { xs: 1, sm: 2, md: 3 },
-        py: { xs: 2, sm: 3 },
       }}
     >
       {/* User Info */}
@@ -121,7 +123,7 @@ const AccountPage: React.FC = () => {
               color="#1a202c"
               fontSize={{ xs: "1rem", sm: "1.25rem" }}
             >
-              thanhnest
+              {user?.username ?? ""}
             </Typography>
             <Typography
               variant="body2"
@@ -137,7 +139,7 @@ const AccountPage: React.FC = () => {
                 height={16}
                 style={{ marginRight: "4px" }}
               />{" "}
-              2,002,695.00
+              {ConvertMoneyVND(user?.money ?? 0)}
             </Typography>
           </Box>
         </Box>

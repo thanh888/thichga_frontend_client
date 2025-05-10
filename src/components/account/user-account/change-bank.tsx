@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,28 +9,153 @@ import {
   Button,
   useMediaQuery,
   useTheme,
+  CircularProgress,
+  SelectChangeEvent,
 } from "@mui/material";
+import axios from "axios";
+import { useUser } from "@/hooks/use-user";
+import { changeBankApi } from "@/services/user.api";
+
+// Define interface for bank data from VietQR API
+interface Bank {
+  code: string;
+  name: string;
+  shortName?: string;
+  bin?: string;
+}
 
 export default function BankInfoForm() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [transferType, setTransferType] = useState<string>("");
-
+  const { user } = useUser();
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [isLoadingBanks, setIsLoadingBanks] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
+    accountName: "",
     accountNumber: "",
-    bankBranch: "",
+    bankName: "",
+    branch: "",
+  });
+  const [errors, setErrors] = useState({
+    accountName: "",
+    accountNumber: "",
+    bankName: "",
+    branch: "",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const getBanks = async () => {
+    setIsLoadingBanks(true);
+    try {
+      const response = await axios.get<{ data: Bank[] }>(
+        "https://api.vietqr.io/v2/banks"
+      );
+      setBanks(response.data.data);
+    } catch (error) {
+      console.error("Error fetching banks:", error);
+      alert("Không thể tải danh sách ngân hàng, vui lòng thử lại");
+    } finally {
+      setIsLoadingBanks(false);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    getBanks();
+  }, []);
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      accountName: "",
+      accountNumber: "",
+      bankName: "",
+      branch: "",
+    };
+
+    // Account name validation
+    if (!formData.accountName.trim()) {
+      newErrors.accountName = "Họ và tên là bắt buộc";
+      isValid = false;
+    }
+
+    // Account number validation
+    if (!formData.accountNumber.trim()) {
+      newErrors.accountNumber = "Số tài khoản là bắt buộc";
+      isValid = false;
+    } else if (!/^\d+$/.test(formData.accountNumber)) {
+      newErrors.accountNumber = "Số tài khoản chỉ được chứa số";
+      isValid = false;
+    }
+
+    // Bank name validation
+    if (!formData.bankName) {
+      newErrors.bankName = "Vui lòng chọn ngân hàng";
+      isValid = false;
+    }
+
+    // Branch validation
+    if (!formData.branch.trim()) {
+      newErrors.branch = "Chi nhánh ngân hàng là bắt buộc";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add API call or logic for updating bank info here
-    console.log("Bank Info:", { ...formData, bank: transferType });
+    setIsSubmitting(true);
+
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      if (!user._id) {
+        alert("Không tìm thấy thông tin người dùng");
+        setIsSubmitting(false);
+        return;
+      }
+      const response = await changeBankApi(user._id, formData);
+
+      if (response.status === 200 || response.status === 201) {
+        alert("Cập nhật thông tin ngân hàng thành công");
+        setFormData({
+          accountName: "",
+          accountNumber: "",
+          bankName: "",
+          branch: "",
+        });
+        setErrors({
+          accountName: "",
+          accountNumber: "",
+          bankName: "",
+          branch: "",
+        });
+      }
+    } catch (error: any) {
+      console.error("Error updating bank info:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (
+    e:
+      | React.ChangeEvent<
+          | HTMLInputElement
+          | HTMLTextAreaElement
+          | { name?: string; value: unknown }
+        >
+      | SelectChangeEvent<string>
+  ) => {
+    const { name, value } = e.target;
+    if (name) {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   return (
@@ -51,9 +176,13 @@ export default function BankInfoForm() {
         fullWidth
         variant="outlined"
         placeholder="Họ và tên"
-        name="fullName"
-        value={formData.fullName}
+        type="text"
+        name="accountName"
+        value={formData.accountName}
         onChange={handleInputChange}
+        error={!!errors.accountName}
+        helperText={errors.accountName}
+        aria-label="Họ và tên"
         sx={{
           mb: { xs: 1, sm: 2 },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
@@ -74,8 +203,13 @@ export default function BankInfoForm() {
         variant="outlined"
         placeholder="Số tài khoản"
         name="accountNumber"
+        type="text"
         value={formData.accountNumber}
         onChange={handleInputChange}
+        error={!!errors.accountNumber}
+        helperText={errors.accountNumber}
+        aria-label="Số tài khoản"
+        inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
         sx={{
           mb: { xs: 1, sm: 2 },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
@@ -93,10 +227,14 @@ export default function BankInfoForm() {
       </Typography>
       <Select
         fullWidth
-        value={transferType}
-        onChange={(e) => setTransferType(e.target.value)}
+        value={formData.bankName}
+        onChange={handleInputChange}
         displayEmpty
         variant="outlined"
+        name="bankName"
+        error={!!errors.bankName}
+        disabled={isLoadingBanks}
+        aria-label="Chọn ngân hàng"
         sx={{
           mb: { xs: 1, sm: 2 },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
@@ -112,27 +250,30 @@ export default function BankInfoForm() {
           disabled
           sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
         >
-          -- Chọn ngân hàng --
+          {isLoadingBanks ? "Đang tải ngân hàng..." : "-- Chọn ngân hàng --"}
         </MenuItem>
-        <MenuItem
-          value="vietcombank"
-          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-        >
-          Vietcombank
-        </MenuItem>
-        <MenuItem
-          value="techcombank"
-          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-        >
-          Techcombank
-        </MenuItem>
-        <MenuItem
-          value="bidv"
-          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-        >
-          BIDV
-        </MenuItem>
+        {banks.map((bank) => (
+          <MenuItem
+            key={bank.code}
+            value={bank.code}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+          >
+            {bank.name}
+          </MenuItem>
+        ))}
       </Select>
+      {errors.bankName && (
+        <Typography
+          color="error"
+          variant="caption"
+          sx={{
+            fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            mb: { xs: 1, sm: 2 },
+          }}
+        >
+          {errors.bankName}
+        </Typography>
+      )}
       <Typography
         variant="body1"
         mb={1}
@@ -144,11 +285,14 @@ export default function BankInfoForm() {
         fullWidth
         variant="outlined"
         placeholder="Chi nhánh ngân hàng"
-        name="bankBranch"
-        value={formData.bankBranch}
+        name="branch"
+        value={formData.branch}
         onChange={handleInputChange}
+        error={!!errors.branch}
+        helperText={errors.branch}
+        aria-label="Chi nhánh ngân hàng"
         sx={{
-          mb: { xs: 1, sm: 2 },
+          mb: { xs: 1, sm: "2px" },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
         }}
         InputProps={{
@@ -160,13 +304,18 @@ export default function BankInfoForm() {
           variant="contained"
           color="primary"
           type="submit"
+          disabled={isSubmitting || isLoadingBanks}
           sx={{
             width: "100%",
             fontSize: { xs: "0.75rem", sm: "0.875rem" },
             py: { xs: 0.75, sm: 1 },
           }}
         >
-          Xác nhận
+          {isSubmitting ? (
+            <CircularProgress size={20} color="inherit" />
+          ) : (
+            "Xác nhận"
+          )}
         </Button>
       </Box>
     </Box>

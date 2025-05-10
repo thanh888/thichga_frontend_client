@@ -15,3 +15,30 @@ export const calculateMoneyBet = (win: number, lost: number, money: number) => {
 export const convertDateTime = (dateTime: string) => {
   return new Date(dateTime ?? "").toLocaleString("vi-VN");
 };
+
+export const sampleMoneys = [
+  {
+    lable: "100K",
+    value: "100000",
+  },
+  {
+    lable: "200K",
+    value: "200000",
+  },
+  {
+    lable: "500K",
+    value: "500000",
+  },
+  {
+    lable: "1M",
+    value: "1000000",
+  },
+  {
+    lable: "2M",
+    value: "2000000",
+  },
+  {
+    lable: "5M",
+    value: "5000000",
+  },
+];

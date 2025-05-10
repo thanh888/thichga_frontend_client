@@ -1,8 +1,9 @@
-import { DepositModeEnum } from '../enum/deposit-mode.enum';
-import { DepositStatusEnum } from '../enum/deposit-status.enum';
+import { DepositModeEnum } from "../enum/deposit-mode.enum";
+import { DepositStatusEnum } from "../enum/deposit-status.enum";
+import { BankInteface } from "./bank.interface";
 
 // Interface for the DepositTransaction document
-export interface DepositTransactionInterface {
+export interface DepositHistoryInterface {
   // ID of the user who made the deposit
   userID?: string;
 
@@ -23,6 +24,8 @@ export interface DepositTransactionInterface {
 
   // Transaction code (e.g., bank transaction ID)
   transactionCode?: string;
+
+  bank?: BankInteface;
 
   // Timestamp when the deposit was created
   createdAt?: Date;

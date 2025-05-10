@@ -1,265 +1,171 @@
+"use client";
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
+  Button,
+  Card,
+  Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TablePagination,
   TableRow,
   TableSortLabel,
+  TextField,
   Typography,
-  useMediaQuery,
-  useTheme,
+  CircularProgress,
 } from "@mui/material";
-import { visuallyHidden } from "@mui/utils";
+import { useUser } from "@/hooks/use-user";
+import { convertDateTime, numberThousand } from "@/utils/function-convert.util";
+import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
+import { paginateDepositApi } from "@/services/deposit.api";
+import { paginateWithdrawApi } from "@/services/withdraw.api";
 
-interface Data {
+// Define interface for transaction data
+interface Transaction {
   code: string;
   money: string;
-  bank: string;
-  account_name: string;
-  account_number: string;
-  content: string;
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  transferContent: string;
   status: string;
-  created_at: string;
+  createdAt: string;
 }
 
-function createData(
-  code: string,
-  money: string,
-  bank: string,
-  account_name: string,
-  account_number: string,
-  content: string,
-  status: string,
-  created_at: string
-): Data {
-  return {
-    code,
-    money,
-    bank,
-    account_name,
-    account_number,
-    content,
-    status,
-    created_at,
-  };
-}
-
-const rows = [
-  createData(
-    "TXN001",
-    "1,000,000",
-    "Vietcombank",
-    "Nguyen Van A",
-    "0123456789",
-    "Thanh toan don hang #123",
-    "Thành công",
-    "2025-04-20 10:30:00"
-  ),
-  createData(
-    "TXN002",
-    "500,000",
-    "Techcombank",
-    "Tran Thi B",
-    "0987654321",
-    "Nap tien vi",
-    "Chờ xử lý",
-    "2025-04-20 11:15:22"
-  ),
-  createData(
-    "TXN003",
-    "2,300,000",
-    "BIDV",
-    "Le Van C",
-    "0911223344",
-    "Rút tiền",
-    "Thất bại",
-    "2025-04-19 09:45:10"
-  ),
-  createData(
-    "TXN004",
-    "150,000",
-    "ACB",
-    "Pham Thi D",
-    "0334455667",
-    "Thanh toan hoa don",
-    "Thành công",
-    "2025-04-18 17:20:45"
-  ),
-  createData(
-    "TXN005",
-    "3,500,000",
-    "Sacombank",
-    "Hoang Van E",
-    "0778899001",
-    "Chuyen tien cho A",
-    "Thành công",
-    "2025-04-17 08:05:30"
-  ),
-];
-
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-type Order = "asc" | "desc";
-
-function getComparator<Key extends keyof any>(
-  order: Order,
-  orderBy: Key
-): (
-  a: { [key in Key]: number | string },
-  b: { [key in Key]: number | string }
-) => number {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-interface HeadCell {
-  disablePadding: boolean;
-  id: keyof Data;
+// Define interface for table columns
+interface Column {
+  id: keyof Transaction | "action";
   label: string;
-  numeric: boolean;
+  minWidth?: number;
+  align?: "right" | "left" | "center";
+  format?: (value: string) => string;
 }
 
-const headCells: readonly HeadCell[] = [
-  {
-    id: "code",
-    numeric: false,
-    disablePadding: true,
-    label: "Mã giao dịch",
-  },
+const statusLabels: Record<DepositStatusEnum, string> = {
+  [DepositStatusEnum.PENDING]: "Chờ xử lý",
+  [DepositStatusEnum.SUCCESS]: "Thành công",
+  [DepositStatusEnum.REJECT]: "Đã từ chối",
+};
+
+const columns: Column[] = [
+  { id: "code", label: "Mã giao dịch", minWidth: 100, align: "left" },
   {
     id: "money",
-    numeric: true,
-    disablePadding: false,
-    label: "Số tiền",
+    label: "Số tiền (VND)",
+    minWidth: 120,
+    align: "right",
+    format: (value: string) => numberThousand(value),
   },
+  { id: "bankName", label: "Tên NH", minWidth: 100, align: "left" },
+  { id: "accountName", label: "Tên TK", minWidth: 100, align: "left" },
+  { id: "accountNumber", label: "Số TK", minWidth: 100, align: "left" },
+  { id: "transferContent", label: "Chi tiết", minWidth: 150, align: "left" },
+  { id: "status", label: "Trạng thái", minWidth: 150, align: "left" },
   {
-    id: "bank",
-    numeric: false,
-    disablePadding: false,
-    label: "Tên NH",
-  },
-  {
-    id: "account_name",
-    numeric: false,
-    disablePadding: false,
-    label: "Tên TK",
-  },
-  {
-    id: "account_number",
-    numeric: false,
-    disablePadding: false,
-    label: "Số TK",
-  },
-  {
-    id: "content",
-    numeric: false,
-    disablePadding: false,
-    label: "Chi tiết",
-  },
-  {
-    id: "status",
-    numeric: false,
-    disablePadding: false,
-    label: "Trạng thái",
-  },
-  {
-    id: "created_at",
-    numeric: false,
-    disablePadding: false,
+    id: "createdAt",
     label: "Thời gian",
+    minWidth: 150,
+    align: "left",
+    format: (value: string) => convertDateTime(value),
   },
 ];
 
-interface EnhancedTableProps {
-  onRequestSort: (
-    event: React.MouseEvent<unknown>,
-    property: keyof Data
-  ) => void;
-  order: Order;
-  orderBy: string;
+interface Props {
+  isReload: boolean;
+  setIsReload: React.Dispatch<React.SetStateAction<boolean>>;
+  type: "deposit" | "withdraw";
 }
 
-function EnhancedTableHead(props: Readonly<EnhancedTableProps>) {
-  const { order, orderBy, onRequestSort } = props;
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+export default function HistoryTableComponent({
+  isReload,
+  setIsReload,
+  type,
+}: Readonly<Props>): React.JSX.Element {
+  const [transactions, setTransactions] = React.useState<any>(null);
+  const [page, setPage] = React.useState<number>(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState<number>(10);
+  const [filter, setFilter] = React.useState({ code: "", status: "" });
+  const [order, setOrder] = React.useState<"asc" | "desc">("desc");
+  const [orderBy, setOrderBy] = React.useState<keyof Transaction>("createdAt");
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [error, setError] = React.useState<string>("");
 
-  const createSortHandler =
-    (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
-      onRequestSort(event, property);
-    };
+  const { user } = useUser();
+  const router = useRouter();
 
-  return (
-    <TableHead>
-      <TableRow>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? "right" : "left"}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-            sx={{
-              fontSize: { xs: "0.7rem", sm: "0.875rem" },
-              fontWeight: 600,
-              color: "black",
-              px: { xs: 1, sm: 2 },
-              py: { xs: 0.5, sm: 1 },
-            }}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-              sx={{
-                fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                fontWeight: 600,
-              }}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
+  const fetchTransactions = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      if (!user._id) {
+        setError("Không tìm thấy thông tin người dùng");
+        alert("Không tìm thấy thông tin người dùng");
+        return;
+      }
+      const sortQuery = order === "asc" ? orderBy : `-${orderBy}`;
+      const query = `limit=${rowsPerPage}&skip=${page * rowsPerPage}&search=${
+        filter.code
+      }&status=${filter.status}&sort=${sortQuery}&user_id=${user._id}`;
+      const api = type === "deposit" ? paginateDepositApi : paginateWithdrawApi;
+      const response = (await api(query)) as any;
+      if (response.status === 200 || response.status === 201) {
+        setTransactions(response.data);
+        setIsReload(false);
+      }
+    } catch (err: any) {
+      console.error(`Failed to fetch ${type} transactions:`, err);
+      setError(
+        err.response?.data?.message ||
+          `Không thể tải lịch sử ${
+            type === "deposit" ? "nạp tiền" : "rút tiền"
+          }, vui lòng thử lại`
+      );
+      alert(
+        err.response?.data?.message ||
+          `Không thể tải lịch sử ${
+            type === "deposit" ? "nạp tiền" : "rút tiền"
+          }, vui lòng thử lại`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-export default function HistoryTable() {
-  const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("created_at");
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  React.useEffect(() => {
+    if (isReload) {
+      fetchTransactions();
+    }
+  }, [isReload]);
 
-  const handleRequestSort = (
-    event: React.MouseEvent<unknown>,
-    property: keyof Data
-  ) => {
+  React.useEffect(() => {
+    fetchTransactions();
+  }, [page, rowsPerPage, filter, order, orderBy, user._id, type]);
+
+  const handleRequestSort = (property: keyof Transaction) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleFilterChange = (
+    event:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<string>
+  ) => {
+    const { name, value } = event.target;
+    setFilter((prev) => ({ ...prev, [name]: value }));
+    setPage(0); // Reset to first page when filtering
+  };
+
+  const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -267,167 +173,121 @@ export default function HistoryTable() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setPage(0); // Reset to first page
   };
 
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const handleViewDetail = (code: string) => {
+    router.push(`/transactions/${code}`); // Navigate to transaction detail page
+  };
 
-  const visibleRows = React.useMemo(
-    () =>
-      [...rows]
-        .sort(getComparator(order, orderBy))
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage]
-  );
+  if (isLoading) {
+    return (
+      <Card sx={{ p: 4, display: "flex", justifyContent: "center" }}>
+        <CircularProgress />
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card sx={{ p: 2, textAlign: "center" }}>
+        <Typography color="error">{error}</Typography>
+        <Button
+          variant="contained"
+          onClick={() => fetchTransactions()}
+          sx={{ mt: 2 }}
+        >
+          Thử lại
+        </Button>
+      </Card>
+    );
+  }
+
+  if (!transactions?.docs?.length) {
+    return (
+      <Card sx={{ p: 2, textAlign: "center" }}>
+        <Typography>Không có giao dịch nào để hiển thị</Typography>
+      </Card>
+    );
+  }
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <TableContainer sx={{ maxWidth: "100%", overflowX: "auto" }}>
-        <Table
-          sx={{ minWidth: isMobile ? 600 : 750 }}
-          aria-labelledby="tableTitle"
-          size={isMobile ? "small" : "medium"}
-        >
-          <EnhancedTableHead
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-          />
-          <TableBody>
-            {visibleRows.map((row, index) => {
-              const labelId = `enhanced-table-checkbox-${index}`;
-
-              return (
-                <TableRow
-                  hover
-                  tabIndex={-1}
-                  key={row.code}
-                  sx={{ cursor: "pointer" }}
+    <Card>
+      <Box sx={{ overflowX: "auto" }}>
+        <Table sx={{ minWidth: "800px" }}>
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align}
+                  sx={{ minWidth: column.minWidth }}
                 >
-                  <TableCell
-                    component="th"
-                    id={labelId}
-                    scope="row"
-                    padding="none"
+                  {column.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {transactions?.docs?.map((row: any, index: number) => (
+              <TableRow hover key={+index}>
+                <TableCell>
+                  <Typography variant="subtitle2">{row.code}</Typography>
+                </TableCell>
+                <TableCell align="right">
+                  {columns
+                    .find((col) => col.id === "money")
+                    ?.format?.(row?.money?.toString() ?? "0") ||
+                    numberThousand(row?.money?.toString())}
+                </TableCell>
+                <TableCell>{row?.bank?.bankName || "N/A"}</TableCell>
+                <TableCell>{row?.bank?.accountName || "N/A"}</TableCell>
+                <TableCell>{row?.bank?.accountNumber || "N/A"}</TableCell>
+                <TableCell>
+                  {row?.bank?.transferContent || row.transferContent}
+                </TableCell>
+                <TableCell>
+                  <Typography
+                    variant="caption"
+                    bgcolor={
+                      row.status === DepositStatusEnum.SUCCESS
+                        ? "#1de9b6"
+                        : row.status === DepositStatusEnum.PENDING
+                        ? "#ffb300"
+                        : "#e57373"
+                    }
                     sx={{
-                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                      px: { xs: 1, sm: 2 },
+                      p: 1,
+                      borderRadius: 1,
+                      fontWeight: 500,
+                      fontSize: 16,
                     }}
                   >
-                    {row.code}
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                      px: { xs: 1, sm: 2 },
-                    }}
-                  >
-                    {row.money}
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                      px: { xs: 1, sm: 2 },
-                    }}
-                  >
-                    {row.bank}
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                      px: { xs: 1, sm: 2 },
-                    }}
-                  >
-                    {row.account_name}
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                      px: { xs: 1, sm: 2 },
-                    }}
-                  >
-                    {row.account_number}
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                      px: { xs: 1, sm: 2 },
-                    }}
-                  >
-                    {row.content}
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                      px: { xs: 1, sm: 2 },
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      color={
-                        row.status === "Thành công"
-                          ? "green"
-                          : row.status === "Chờ xử lý"
-                          ? "orange"
-                          : "red"
-                      }
-                      sx={{ fontSize: { xs: "0.7rem", sm: "0.875rem" } }}
-                    >
-                      {row.status}
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      fontSize: { xs: "0.7rem", sm: "0.875rem" },
-                      px: { xs: 1, sm: 2 },
-                    }}
-                  >
-                    {row.created_at}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {emptyRows > 0 && (
-              <TableRow
-                style={{
-                  height: (isMobile ? 33 : 53) * emptyRows,
-                }}
-              >
-                <TableCell colSpan={8} />
+                    {statusLabels[row.status as DepositStatusEnum] ??
+                      row.status}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  {columns
+                    .find((col) => col.id === "createdAt")
+                    ?.format?.(row?.createdAt?.toString() ?? "") ||
+                    convertDateTime(row?.createdAt?.toString() ?? "")}
+                </TableCell>
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
-      </TableContainer>
+      </Box>
+      <Divider />
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
+        count={transactions?.totalDocs || 0}
         page={page}
         onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-        sx={{
-          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
-            {
-              fontSize: { xs: "0.7rem", sm: "0.875rem" },
-            },
-          "& .MuiTablePagination-select": {
-            fontSize: { xs: "0.7rem", sm: "0.875rem" },
-          },
-          "& .MuiTablePagination-actions button": {
-            p: { xs: 0.5, sm: 1 },
-          },
-        }}
+        rowsPerPageOptions={[5, 10, 25]}
       />
-    </Box>
+    </Card>
   );
 }

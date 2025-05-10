@@ -6,6 +6,13 @@ export const changePasswordApi = async (id: string, formData: any) => {
 };
 
 export const changePinApi = async (id: string, formData: any) => {
+  console.log(id);
+
   const res = await axiosCustomize.put(`/user/${id}/pin`, formData);
+  return res;
+};
+
+export const changeBankApi = async (id: string, formData: any) => {
+  const res = await axiosCustomize.put(`/user/${id}/bank`, formData);
   return res;
 };

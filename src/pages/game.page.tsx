@@ -4,6 +4,7 @@ import BetInfo from "@/components/game/bet-info.game";
 import GameFooter from "@/components/game/footer.game";
 import GameHeader from "@/components/game/header.game";
 import LiveStream from "@/components/game/live-stream.game";
+import { useUser } from "@/hooks/use-user";
 import { getRoomById } from "@/services/room.api";
 import { useSocket } from "@/socket";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
@@ -19,12 +20,15 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function GamePage() {
+  const router = useRouter();
   const params = useParams();
   const roomID = params?.id.toString();
+
+  const { user } = useUser();
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -52,10 +56,13 @@ export default function GamePage() {
   };
 
   useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
     if (roomID) {
       getBetRoomInfo(roomID);
     }
-  }, [roomID]);
+  }, [roomID, user]);
 
   const socket = useSocket();
 
@@ -191,7 +198,10 @@ export default function GamePage() {
         </DialogContent>
         <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
           <Button
-            onClick={handleCloseDialog}
+            onClick={() => {
+              handleCloseDialog();
+              router.push("/");
+            }}
             variant="contained"
             sx={{
               backgroundColor: "#3B82F6",

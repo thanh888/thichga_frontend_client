@@ -6,7 +6,11 @@ export const metadata: Metadata = {};
 
 export default function AccountLayout() {
   return (
-    <Container maxWidth="xl" className="account-page">
+    <Container
+      maxWidth="xl"
+      sx={{ px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 } }}
+      className="account-page"
+    >
       <AccountPage />
     </Container>
   );
