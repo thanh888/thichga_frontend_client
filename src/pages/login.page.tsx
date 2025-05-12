@@ -51,6 +51,8 @@ const LoginPage: React.FC = () => {
     }
     try {
       const res = await signInApi(formData);
+      console.log(res);
+
       if (res.status === 200 || res.status === 201) {
         localStorage.setItem("account", res.data.accessToken);
         if (checkSession) {
@@ -58,6 +60,10 @@ const LoginPage: React.FC = () => {
         }
         toast.success("Đăng nhập thành công");
         router.push("/");
+      } else if (
+        res?.response?.data?.message === "Username or password is incorrect"
+      ) {
+        toast.error("Tài khoản hoặc mật khẩu không đúng");
       }
     } catch (error: any) {
       console.error("Login failed:", error);

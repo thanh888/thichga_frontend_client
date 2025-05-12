@@ -3,6 +3,7 @@ import BannerComponent from "@/components/banner/banner";
 import { SettingContext } from "@/contexts/setting-context";
 import { useUser } from "@/hooks/use-user";
 import { getRoomIsOpenedApi } from "@/services/room.api";
+import { useSocket } from "@/socket";
 import { CampaignOutlined } from "@mui/icons-material";
 import {
   Box,
@@ -14,7 +15,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { use, useEffect } from "react";
 import Marquee from "react-fast-marquee";
 import { toast } from "react-toastify";
 

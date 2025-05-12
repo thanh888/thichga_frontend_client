@@ -112,7 +112,9 @@ export default function WithdrawComponent() {
         if (checkSession) {
           checkSession();
         }
-      }
+      } else if (response?.response?.data?.message === "Pin is incorrect") {
+        toast.warning("Mã pin không chính xác");
+      } else toast.warning("Yêu cầu thất bạn, vui lòng thử lại sau");
     } catch (error: any) {
       console.error("Error withdrawing money:", error);
       console.log(error?.response?.data?.message);

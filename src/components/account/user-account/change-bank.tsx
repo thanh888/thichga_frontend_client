@@ -15,6 +15,7 @@ import {
 import axios from "axios";
 import { useUser } from "@/hooks/use-user";
 import { changeBankApi } from "@/services/user.api";
+import { toast } from "react-toastify";
 
 // Define interface for bank data from VietQR API
 interface Bank {
@@ -32,10 +33,10 @@ export default function BankInfoForm() {
   const [isLoadingBanks, setIsLoadingBanks] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    accountName: "",
-    accountNumber: "",
-    bankName: "",
-    branch: "",
+    accountName: user?.bank?.accountName ?? "",
+    accountNumber: user?.bank?.accountNumber ?? "",
+    bankName: user?.bank?.bankName ?? "",
+    branch: user?.bank?.branch ?? "",
   });
   const [errors, setErrors] = useState({
     accountName: "",
@@ -121,19 +122,7 @@ export default function BankInfoForm() {
       const response = await changeBankApi(user._id, formData);
 
       if (response.status === 200 || response.status === 201) {
-        alert("Cập nhật thông tin ngân hàng thành công");
-        setFormData({
-          accountName: "",
-          accountNumber: "",
-          bankName: "",
-          branch: "",
-        });
-        setErrors({
-          accountName: "",
-          accountNumber: "",
-          bankName: "",
-          branch: "",
-        });
+        toast.success("Cập nhật thông tin ngân hàng thành công");
       }
     } catch (error: any) {
       console.error("Error updating bank info:", error);
@@ -178,7 +167,7 @@ export default function BankInfoForm() {
         placeholder="Họ và tên"
         type="text"
         name="accountName"
-        value={formData.accountName}
+        value={formData?.accountName}
         onChange={handleInputChange}
         error={!!errors.accountName}
         helperText={errors.accountName}
@@ -204,7 +193,7 @@ export default function BankInfoForm() {
         placeholder="Số tài khoản"
         name="accountNumber"
         type="text"
-        value={formData.accountNumber}
+        value={formData?.accountNumber}
         onChange={handleInputChange}
         error={!!errors.accountNumber}
         helperText={errors.accountNumber}
@@ -227,7 +216,7 @@ export default function BankInfoForm() {
       </Typography>
       <Select
         fullWidth
-        value={formData.bankName}
+        value={formData?.bankName}
         onChange={handleInputChange}
         displayEmpty
         variant="outlined"
@@ -286,7 +275,7 @@ export default function BankInfoForm() {
         variant="outlined"
         placeholder="Chi nhánh ngân hàng"
         name="branch"
-        value={formData.branch}
+        value={formData?.branch}
         onChange={handleInputChange}
         error={!!errors.branch}
         helperText={errors.branch}
@@ -314,7 +303,7 @@ export default function BankInfoForm() {
           {isSubmitting ? (
             <CircularProgress size={20} color="inherit" />
           ) : (
-            "Xác nhận"
+            "Cập nhật"
           )}
         </Button>
       </Box>

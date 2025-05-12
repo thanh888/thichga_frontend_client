@@ -111,7 +111,7 @@ export default function HistoryTableComponent({
         return;
       }
       const sortQuery = order === "asc" ? orderBy : `-${orderBy}`;
-      const query = `limit=${rowsPerPage}&skip=${page * rowsPerPage}&search=${
+      const query = `limit=${rowsPerPage}&skip=${page + 1}&search=${
         filter.code
       }&status=${filter.status}&sort=${sortQuery}&user_id=${user._id}`;
       const api = type === "deposit" ? paginateDepositApi : paginateWithdrawApi;
@@ -166,6 +166,8 @@ export default function HistoryTableComponent({
   };
 
   const handleChangePage = (_: unknown, newPage: number) => {
+    console.log(11111111111111, newPage);
+
     setPage(newPage);
   };
 
@@ -174,10 +176,6 @@ export default function HistoryTableComponent({
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0); // Reset to first page
-  };
-
-  const handleViewDetail = (code: string) => {
-    router.push(`/transactions/${code}`); // Navigate to transaction detail page
   };
 
   if (isLoading) {

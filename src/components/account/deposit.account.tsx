@@ -81,7 +81,12 @@ export default function DepositComponent() {
 
     try {
       if (!user._id) {
-        alert("Không tìm thấy thông tin người dùng");
+        toast.warning("Không tìm thấy thông tin người dùng");
+        setIsSubmitting(false);
+        return;
+      }
+      if (!user._id) {
+        toast.warning("Không tìm thấy thông tin ngân hàng");
         setIsSubmitting(false);
         return;
       }
