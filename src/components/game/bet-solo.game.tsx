@@ -23,9 +23,9 @@ import { TeamEnum } from "@/utils/enum/team.enum";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "react-toastify";
-import AcceptBetDialog from "./confirm-matched";
 import { calculateMoneyBet } from "@/utils/function-convert.util";
 import { useSocket } from "@/socket";
+import AcceptSolo from "../lib/dialogs/confirm-solo";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -508,7 +508,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
       )}
 
       {/* Accept Bet Dialog */}
-      <AcceptBetDialog
+      <AcceptSolo
         open={acceptDialogOpen}
         onClose={() => {
           setAcceptDialogOpen(false);
@@ -517,7 +517,6 @@ const BetInfo: React.FC<BetInfoProps> = ({
         selectedBet={selectedBet}
         betRoom={betRoom}
         handleAcceptBet={handleAcceptBet}
-        user={user}
       />
     </>
   );

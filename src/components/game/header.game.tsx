@@ -34,6 +34,7 @@ interface GameHeaderProps {
   isBetOpen: boolean;
   setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isReload: boolean;
+  setIsReload: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function GameHeader({
@@ -42,6 +43,7 @@ export default function GameHeader({
   isBetOpen,
   setIsBetOpen,
   isReload,
+  setIsReload,
 }: Readonly<GameHeaderProps>) {
   const router = useRouter();
   const param = useParams();
@@ -54,13 +56,6 @@ export default function GameHeader({
 
   const settingContext = useContext(SettingContext);
   const setting = settingContext?.setting;
-
-  const scrollButtonList = [
-    "MỞC HÔ ĐỘ 6E",
-    "MỞC HÔ ĐỘ 77",
-    "MỞC HÔ ĐỘ 4",
-    "ĐAKPUER ĐỘ 1",
-  ];
 
   const HeaderIconButton = ({
     icon: Icon,
@@ -111,6 +106,7 @@ export default function GameHeader({
   useEffect(() => {
     if (isReload) {
       getListRooms();
+      setIsReload(false);
     }
   }, [isReload]);
 
@@ -277,7 +273,7 @@ export default function GameHeader({
             Danh sách phòng
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {scrollButtonList.map((label, index) => (
+            {listRooms.map((label, index) => (
               <Button
                 key={index}
                 variant="contained"

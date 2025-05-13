@@ -1,7 +1,8 @@
-import { TeamEnum } from '../enum/team.enum';
+import { TeamEnum } from "../enum/team.enum";
 
 // Interface for the BettingOption document
 export interface BettingOptionInterface {
+  _id: string;
   // ID of the betting session associated with this option
   betSessionID?: string;
 
@@ -15,10 +16,10 @@ export interface BettingOptionInterface {
   selectedTeam?: TeamEnum;
 
   // Odds for the red team
-  red_odds?: number;
+  win?: number;
 
   // Odds for the blue team
-  blue_odds?: number;
+  lost?: number;
 
   // Timestamp when the bet option was created
   createdAt?: Date;

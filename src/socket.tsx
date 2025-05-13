@@ -31,7 +31,7 @@ export const useSocket = () => {
     });
 
     socket.on("error", (err) => {
-      console.error("Socket error:", err);
+      console.log("Socket error:", err);
     });
 
     socketRef.current = socket;

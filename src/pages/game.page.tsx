@@ -1,12 +1,14 @@
 "use client";
 import BetControls from "@/components/game/bet-control.game";
-import BetInfo from "@/components/game/bet-info.game";
+import BetInfo from "@/components/game/bet-solo.game";
+import BetNormal from "@/components/game/bet-normal.game";
 import GameFooter from "@/components/game/footer.game";
 import GameHeader from "@/components/game/header.game";
 import LiveStream from "@/components/game/live-stream.game";
 import { useUser } from "@/hooks/use-user";
 import { getRoomById } from "@/services/room.api";
 import { useSocket } from "@/socket";
+import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import {
   Box,
@@ -22,6 +24,7 @@ import {
 } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import CommentComponent from "@/components/game/comment.game";
 
 export default function GamePage() {
   const router = useRouter();
@@ -75,10 +78,10 @@ export default function GamePage() {
       if (!msg.roomsOpening.includes(roomID)) {
         setIsClosed(true);
       }
+      setIsReload(true);
     });
 
     socket.on("bet-history", (msg) => {
-      console.log("💰 Received update history:", msg);
       if (msg.roomID === roomID) {
         setIsReloadBetting(true); // Add this to trigger BetInfo reload
       }
@@ -110,6 +113,7 @@ export default function GamePage() {
         isBetOpen={isBetOpen}
         setIsBetOpen={setIsBetOpen}
         isReload={isReload}
+        setIsReload={setIsReload}
       />
       <Box
         sx={{
@@ -125,17 +129,30 @@ export default function GamePage() {
             size={{ xs: 12, md: 3.5, lg: 3, xl: 2.5 }}
             sx={{ display: { xs: "none", md: "block" } }}
           >
-            {betRoom?.latestSessionID && (
-              <BetInfo
-                sessionID={betRoom.latestSessionID}
-                isBetOpen={isBetOpen}
-                setIsBetOpen={setIsBetOpen}
-                betRoom={betRoom}
-                isReloadBetting={isReloadBetting}
-                setIsReloadBetting={setIsReloadBetting}
-                setUserBetTotal={setUserBetTotal}
-              />
-            )}
+            {betRoom?.latestSessionID &&
+              betRoom.typeRoom === TypeBetRoomEnum.SOLO && (
+                <BetInfo
+                  sessionID={betRoom.latestSessionID}
+                  isBetOpen={isBetOpen}
+                  setIsBetOpen={setIsBetOpen}
+                  betRoom={betRoom}
+                  isReloadBetting={isReloadBetting}
+                  setIsReloadBetting={setIsReloadBetting}
+                  setUserBetTotal={setUserBetTotal}
+                />
+              )}
+            {betRoom?.latestSessionID &&
+              betRoom.typeRoom === TypeBetRoomEnum.NORMAL && (
+                <BetNormal
+                  sessionID={betRoom.latestSessionID}
+                  isBetOpen={isBetOpen}
+                  setIsBetOpen={setIsBetOpen}
+                  betRoom={betRoom}
+                  isReloadBetting={isReloadBetting}
+                  setIsReloadBetting={setIsReloadBetting}
+                  setUserBetTotal={setUserBetTotal}
+                />
+              )}
           </Grid>
           <Grid size={{ xs: 12, md: 5, lg: 6, xl: 7 }}>
             {betRoom?.urlType && betRoom?.urlLive && (
@@ -151,15 +168,22 @@ export default function GamePage() {
               display: { xs: isCommentOpen ? "block" : "none", md: "block" },
             }}
           >
-            {betRoom?.latestSessionID && betRoom && (
-              <BetControls
-                isCommentOpen={isCommentOpen}
-                setIsCommentOpen={setIsCommentOpen}
-                setIsReloadBetting={setIsReload}
-                sessionID={betRoom.latestSessionID}
-                betRoom={betRoom}
-              />
-            )}
+            {betRoom?.latestSessionID &&
+              betRoom.typeRoom === TypeBetRoomEnum.SOLO && (
+                <BetControls
+                  isCommentOpen={isCommentOpen}
+                  setIsCommentOpen={setIsCommentOpen}
+                  setIsReloadBetting={setIsReloadBetting}
+                  sessionID={betRoom.latestSessionID}
+                  betRoom={betRoom}
+                />
+              )}
+
+            <CommentComponent
+              isCommentOpen={isCommentOpen}
+              setIsCommentOpen={setIsCommentOpen}
+              betRoom={betRoom}
+            />
           </Grid>
         </Grid>
       </Box>

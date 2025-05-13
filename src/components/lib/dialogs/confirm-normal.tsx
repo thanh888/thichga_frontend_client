@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -8,6 +8,7 @@ import {
   IconButton,
   CardContent,
   Grid,
+  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { DefaultMoney, rates } from "@/utils/constans";
@@ -17,24 +18,109 @@ import {
   calculateMoneyBet,
   numberThousand,
 } from "@/utils/function-convert.util";
+import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
+import { useUser } from "@/hooks/use-user";
+import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
+import {
+  createBetHistoryApi,
+  createBetHistoryByOptionApi,
+  getHistoriesBySession,
+  updateMatchedBetHistoryApi,
+} from "@/services/auth/bet-history.api";
+import { toast } from "react-toastify";
+import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
 
 interface AcceptBetDialogProps {
   open: boolean;
   onClose: () => void;
-  selectedBet: BettingHistoryInterface | null;
-  betRoom: any;
-  handleAcceptBet: () => void;
-  user: any;
+  selectedOption: BettingOptionInterface | null;
+  betRoom: BettingRoomInterface;
+  setUserBetTotal: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
+const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
   open,
   onClose,
-  selectedBet,
+  selectedOption,
   betRoom,
-  handleAcceptBet,
-  user,
+  setUserBetTotal,
 }) => {
+  const { user } = useUser();
+  const { checkSession } = useUser();
+  const [money, setMoney] = useState<string>("100000");
+
+  const handleAcceptBet = async () => {
+    if (!selectedOption) return;
+
+    if (Number(money) < 50000) {
+      toast.warning("Số tiền phải lớn hơn 50k");
+      return;
+    }
+
+    const newData = {
+      betSessionID: betRoom.latestSessionID,
+      creatorID: user._id,
+      money: money,
+      selectedTeam:
+        selectedOption?.selectedTeam === TeamEnum.BLUE
+          ? TeamEnum.RED
+          : TeamEnum.BLUE,
+      status: BetHistoryStatusEnum.MATCHED,
+      win: selectedOption?.lost,
+      lost: selectedOption?.win,
+      betOptionID: selectedOption._id,
+    };
+
+    try {
+      const response = await createBetHistoryApi(newData);
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Khớp kèo thành công");
+
+        onClose();
+        if (checkSession) {
+          checkSession();
+        }
+        setIsReload(true);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Lỗi khi khớp kèo");
+    }
+  };
+
+  const [isReload, setIsReload] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (setIsReload) {
+      getTotalBetOfUser();
+      setIsReload(false);
+    }
+  }, [isReload]);
+
+  const getTotalBetOfUser = async () => {
+    if (!betRoom.latestSessionID) {
+      return;
+    }
+    try {
+      const response = await getHistoriesBySession(betRoom.latestSessionID);
+      if (response.status === 200 || response.status === 201) {
+        const userTotalBet = response?.data
+          ?.filter(
+            (item: BettingHistoryInterface) => item.creatorID._id === user._id
+          )
+          .reduce(
+            (total: number, item: BettingHistoryInterface) =>
+              total + Number(item.money),
+            0
+          );
+
+        setUserBetTotal(userTotalBet);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -104,7 +190,7 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
                   width={"100%"}
                   height={40}
                 >
-                  {selectedBet?.lost}
+                  {selectedOption?.lost}
                 </Typography>
               </Box>
             </Grid>
@@ -146,7 +232,7 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
                   width={"100%"}
                   height={40}
                 >
-                  {selectedBet?.win}
+                  {selectedOption?.win}
                 </Typography>
               </Box>
             </Grid>
@@ -174,27 +260,20 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
                 >
                   Số tiền
                 </Typography>
-                <Typography
-                  variant="body2"
-                  id="lable_ratio"
+                <TextField
+                  id="money"
+                  name="money"
+                  value={money}
+                  onChange={(e) => setMoney(e.target.value)}
+                  type="number"
                   sx={{
                     color: "black",
                     border: "1px solid #ccc",
                     alignContent: "center",
                     fontSize: 20,
+                    width: "100%",
                   }}
-                  textAlign={"center"}
-                  width={"100%"}
-                  height={40}
-                >
-                  {numberThousand(
-                    calculateMoneyBet(
-                      selectedBet?.win || 0,
-                      selectedBet?.lost || 0,
-                      selectedBet?.money || 0
-                    ).toString()
-                  )}
-                </Typography>
+                />
               </Box>
             </Grid>
 
@@ -204,7 +283,7 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
             >
               <Button
                 variant={
-                  selectedBet?.selectedTeam === TeamEnum.BLUE
+                  selectedOption?.selectedTeam === TeamEnum.BLUE
                     ? "contained"
                     : "outlined"
                 }
@@ -221,12 +300,12 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
               </Button>
               <Button
                 variant={
-                  selectedBet?.selectedTeam === TeamEnum.RED
+                  selectedOption?.selectedTeam === TeamEnum.RED
                     ? "contained"
                     : "outlined"
                 }
                 color={
-                  selectedBet?.selectedTeam === TeamEnum.RED
+                  selectedOption?.selectedTeam === TeamEnum.RED
                     ? "primary"
                     : "info"
                 }
@@ -279,4 +358,4 @@ const AcceptBetDialog: React.FC<AcceptBetDialogProps> = ({
   );
 };
 
-export default AcceptBetDialog;
+export default AcceptNormal;
