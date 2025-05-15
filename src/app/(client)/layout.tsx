@@ -1,6 +1,7 @@
 "use client";
 import FooterComponent from "@/components/footer/footer";
 import HeaderComponent from "@/components/header/header";
+import NotificationRealtime from "@/components/lib/dialogs/notification-realtime";
 import { useUser } from "@/hooks/use-user";
 import { useSocket } from "@/socket";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
@@ -30,23 +31,38 @@ export default function ClientLayout({
     [DepositStatusEnum.REJECT]: "bị từ chối",
   };
 
-  const [isClosed, setIsClosed] = useState<any>(null);
-
-  const handleCloseDialog = () => {
-    setIsClosed(false);
-  };
+  const [notification, setNotification] = useState<any>(null);
 
   useEffect(() => {
     if (user && socket) {
       socket.on("deposit-money", (msg) => {
+        console.log(msg);
+
         if (msg?.data?.userID === user._id && checkSession) {
           checkSession();
-          setIsClosed(msg.data);
+          const title = "Thông báo nạp tiền";
+          const content = `Yêu cầu nạp ${ConvertMoneyVND(
+            msg?.data?.money ?? 0
+          )} của bạn đã 
+            ${statusLabels[msg?.data?.status as DepositStatusEnum]}`;
+          setNotification({ title, content });
+        }
+      });
+      socket.on("withdraw-money", (msg) => {
+        if (msg?.data?.userID === user._id && checkSession) {
+          const title = "Thông báo rút tiền";
+          const content = `Yêu cầu rút ${ConvertMoneyVND(
+            msg?.data?.money ?? 0
+          )} của bạn đã ${
+            statusLabels[msg?.data?.status as DepositStatusEnum]
+          }`;
+          setNotification({ title, content });
         }
       });
 
       return () => {
         socket.off("deposit-money");
+        socket.off("withdraw-money");
       };
     }
   }, [user, socket]);
@@ -55,59 +71,10 @@ export default function ClientLayout({
     <>
       <HeaderComponent />
       <main style={{ marginTop: "60px" }}>{children}</main>
-      <Dialog
-        open={isClosed}
-        onClose={handleCloseDialog}
-        maxWidth="xs"
-        fullWidth
-        sx={{
-          "& .MuiDialog-paper": {
-            borderRadius: "12px",
-            backgroundColor: "#1E2A44",
-            color: "#FFFFFF",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            textAlign: "center",
-            fontSize: "1.5rem",
-            fontWeight: 600,
-            color: "#FFD700",
-            pt: 3,
-          }}
-        >
-          Thông báo yêu cầu nạp tiền
-        </DialogTitle>
-        <DialogContent sx={{ textAlign: "center", px: 4, py: 2 }}>
-          <Typography sx={{ color: "#E0E0E0", fontSize: "1rem" }}>
-            Yêu cầu nạp {ConvertMoneyVND(isClosed?.money ?? 0)} của bạn đã{" "}
-            {statusLabels[isClosed?.status as DepositStatusEnum]}
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
-          <Button
-            onClick={() => {
-              handleCloseDialog();
-            }}
-            variant="contained"
-            sx={{
-              backgroundColor: "#3B82F6",
-              color: "#FFFFFF",
-              textTransform: "none",
-              fontWeight: 500,
-              borderRadius: "8px",
-              px: 4,
-              "&:hover": {
-                backgroundColor: "#2563EB",
-              },
-            }}
-          >
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <NotificationRealtime
+        notification={notification}
+        setNotification={setNotification}
+      />
       <FooterComponent />
     </>
   );

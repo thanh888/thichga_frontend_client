@@ -10,24 +10,20 @@ import {
 } from "@mui/material";
 
 interface Props {
-  title: string;
-  content: string;
-  isClosed: any;
-  setIsclosed: any;
+  notification: any;
+  setNotification: any;
 }
 
-export default function NotificatinRealtime({
-  title,
-  content,
-  isClosed,
-  setIsclosed,
+export default function NotificationRealtime({
+  notification,
+  setNotification,
 }: Readonly<Props>) {
   const handleCloseDialog = async () => {
-    setIsclosed(null);
+    setNotification(null);
   };
   return (
     <Dialog
-      open={isClosed}
+      open={notification}
       onClose={handleCloseDialog}
       maxWidth="xs"
       fullWidth
@@ -49,11 +45,11 @@ export default function NotificatinRealtime({
           pt: 3,
         }}
       >
-        {title}
+        {notification?.title}
       </DialogTitle>
       <DialogContent sx={{ textAlign: "center", px: 4, py: 2 }}>
         <Typography sx={{ color: "#E0E0E0", fontSize: "1rem" }}>
-          {content}
+          {notification?.content}
         </Typography>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "center", pb: 3 }}>

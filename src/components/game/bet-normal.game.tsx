@@ -13,13 +13,8 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { AnimatePresence, motion } from "framer-motion";
-import { updateMatchedBetHistoryApi } from "@/services/auth/bet-history.api";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
-import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
-import { useUser } from "@/hooks/use-user";
-import { toast } from "react-toastify";
-import { calculateMoneyBet } from "@/utils/function-convert.util";
 import { useSocket } from "@/socket";
 import { getOptionsBySession } from "@/services/bet-option.api";
 import AcceptNormal from "../lib/dialogs/confirm-normal";
@@ -50,25 +45,9 @@ const OptionList: React.FC<{
   title: string;
   color: string;
   betOptions: any[];
-  setIsReloadBetting: Dispatch<SetStateAction<boolean>>;
-  sessionID: string;
   setAcceptDialogOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedBet: Dispatch<SetStateAction<BettingHistoryInterface | null>>;
-  betRoom: any;
-}> = ({
-  title,
-  color,
-  betOptions,
-  setIsReloadBetting,
-  sessionID,
-  setAcceptDialogOpen,
-  setSelectedBet,
-  betRoom,
-}) => {
-  const { user } = useUser();
-
-  const socket = useSocket();
-
+}> = ({ title, color, betOptions, setAcceptDialogOpen, setSelectedBet }) => {
   const handleOpenAcceptDialog = (bet: BettingHistoryInterface) => {
     setSelectedBet(bet);
     setAcceptDialogOpen(true);
@@ -204,8 +183,6 @@ const BetNormal: React.FC<BetInfoProps> = ({
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [selectedOption, setSelectedBet] =
     useState<BettingOptionInterface | null>(null);
-  const { user } = useUser();
-  const { checkSession } = useUser();
 
   const socket = useSocket();
 
@@ -223,14 +200,16 @@ const BetNormal: React.FC<BetInfoProps> = ({
   useEffect(() => {
     if (!socket || !betRoom?._id) return;
 
-    socket.on("bet-option", (msg) => {
+    socket.on("update-option", (msg) => {
+      console.log(msg);
+
       if (msg.roomID === betRoom._id) {
         getBetOptions();
       }
     });
 
     return () => {
-      socket.off("bet-option");
+      socket.off("update-option");
     };
   }, [socket, betRoom?._id]);
 
@@ -283,11 +262,8 @@ const BetNormal: React.FC<BetInfoProps> = ({
                   betOptions={betOptions?.filter(
                     (item) => item.selectedTeam === TeamEnum.RED && item
                   )}
-                  setIsReloadBetting={setIsReloadBetting}
-                  sessionID={sessionID}
                   setAcceptDialogOpen={setAcceptDialogOpen}
                   setSelectedBet={setSelectedBet}
-                  betRoom={betRoom}
                 />
                 <Box sx={{ height: "5px", mx: 2 }} />
                 <OptionList
@@ -296,11 +272,8 @@ const BetNormal: React.FC<BetInfoProps> = ({
                   betOptions={betOptions?.filter(
                     (item) => item.selectedTeam === TeamEnum.BLUE && item
                   )}
-                  setIsReloadBetting={setIsReloadBetting}
-                  sessionID={sessionID}
                   setAcceptDialogOpen={setAcceptDialogOpen}
                   setSelectedBet={setSelectedBet}
-                  betRoom={betRoom}
                 />
               </Box>
             </motion.div>
@@ -347,11 +320,8 @@ const BetNormal: React.FC<BetInfoProps> = ({
               betOptions={betOptions?.filter(
                 (item) => item.selectedTeam === TeamEnum.RED && item
               )}
-              setIsReloadBetting={setIsReloadBetting}
-              sessionID={sessionID}
               setAcceptDialogOpen={setAcceptDialogOpen}
               setSelectedBet={setSelectedBet}
-              betRoom={betRoom}
             />
             <Box sx={{ height: "5px", mx: 2 }} />
             <OptionList
@@ -360,11 +330,8 @@ const BetNormal: React.FC<BetInfoProps> = ({
               betOptions={betOptions?.filter(
                 (item) => item.selectedTeam === TeamEnum.BLUE && item
               )}
-              setIsReloadBetting={setIsReloadBetting}
-              sessionID={sessionID}
               setAcceptDialogOpen={setAcceptDialogOpen}
               setSelectedBet={setSelectedBet}
-              betRoom={betRoom}
             />
           </DialogContent>
         </Dialog>

@@ -6,10 +6,6 @@ import {
   Button,
   Card,
   Divider,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   SelectChangeEvent,
   Table,
   TableBody,
@@ -17,8 +13,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TableSortLabel,
-  TextField,
   Typography,
   CircularProgress,
 } from "@mui/material";
@@ -35,7 +29,7 @@ interface Transaction {
   bankName?: string;
   accountName?: string;
   accountNumber?: string;
-  transferContent: string;
+  feedback?: string;
   status: string;
   createdAt: string;
 }
@@ -67,7 +61,7 @@ const columns: Column[] = [
   { id: "bankName", label: "Tên NH", minWidth: 100, align: "left" },
   { id: "accountName", label: "Tên TK", minWidth: 100, align: "left" },
   { id: "accountNumber", label: "Số TK", minWidth: 100, align: "left" },
-  { id: "transferContent", label: "Chi tiết", minWidth: 150, align: "left" },
+  { id: "feedback", label: "Chi tiết", minWidth: 150, align: "left" },
   { id: "status", label: "Trạng thái", minWidth: 150, align: "left" },
   {
     id: "createdAt",
@@ -241,9 +235,7 @@ export default function HistoryTableComponent({
                 <TableCell>{row?.bank?.bankName || "N/A"}</TableCell>
                 <TableCell>{row?.bank?.accountName || "N/A"}</TableCell>
                 <TableCell>{row?.bank?.accountNumber || "N/A"}</TableCell>
-                <TableCell>
-                  {row?.bank?.transferContent || row.transferContent}
-                </TableCell>
+                <TableCell>{row?.bank?.feedback || row.feedback}</TableCell>
                 <TableCell>
                   <Typography
                     variant="caption"

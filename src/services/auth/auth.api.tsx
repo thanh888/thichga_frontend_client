@@ -25,7 +25,7 @@ export const getAccoutUserApi = async () => {
 
 export const SignOutApi = async () => {
   try {
-    await axiosCustomize.get(`/auth/sign-out`);
+    await axiosCustomize.post(`/auth/sign-out`);
     return true;
   } catch (error) {
     return error;

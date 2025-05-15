@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "react-toastify";
 import { getRoomIsOpenedApi } from "@/services/room.api";
+import { SignOutApi } from "@/services/auth/auth.api";
 
 const pages = [
   { name: "ĐÁ GÀ", path: "/game" },
@@ -40,13 +41,16 @@ function HeaderComponent() {
     setAnchorElUser(null);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("account");
+
+    await SignOutApi();
 
     if (checkSession) {
       checkSession();
     }
+    router.push("/");
 
     toast.success("Đăng xuất thành công");
   };
@@ -112,21 +116,6 @@ function HeaderComponent() {
               gap: 2,
             }}
           >
-            {/* {pages.map((page) => (
-              <Link
-                className="hover:text-blue-500"
-                href={page.path}
-                key={page.name}
-                style={{
-                  textDecoration: "none",
-                  color: "black",
-                  fontSize: 16,
-                  fontWeight: 600,
-                }}
-              >
-                {page.name}
-              </Link>
-            ))} */}
             <Link
               href="#"
               className="hover:text-blue-500"

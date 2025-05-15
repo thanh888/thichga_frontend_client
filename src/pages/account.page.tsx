@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Tabs,
@@ -21,6 +21,7 @@ import DepositHistoryComponent from "@/components/account/history_deposit.accoun
 import WithdrawHistoryComponent from "@/components/account/history_withdraw.account";
 import { useUser } from "@/hooks/use-user";
 import { ConvertMoneyVND, numberThousand } from "@/utils/function-convert.util";
+import { useRouter } from "next/navigation";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -58,6 +59,7 @@ const AccountPage: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { user } = useUser();
+  const router = useRouter();
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -85,6 +87,16 @@ const AccountPage: React.FC = () => {
       backgroundColor: "#1e88e5",
     },
   };
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user]);
+
+  if (!user) {
+    return <div>Loadding...</div>;
+  }
 
   return (
     <Box
