@@ -82,9 +82,11 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
         }
         setIsReload(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      toast.error("Lỗi khi khớp kèo");
+      if (error?.response?.data?.message === "Betting is disable") {
+        toast.warning("Phòng đã đóng cược");
+      }
     }
   };
 
@@ -166,7 +168,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
               >
                 <Typography
                   variant="body2"
-                  id="win"
+                  id="lost"
                   sx={{
                     color: "black",
                     alignContent: "center",
@@ -190,7 +192,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
                   width={"100%"}
                   height={40}
                 >
-                  {selectedOption?.lost}
+                  {selectedOption?.win}
                 </Typography>
               </Box>
             </Grid>
@@ -208,7 +210,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
               >
                 <Typography
                   variant="body2"
-                  id="lable_ratio"
+                  id="wint"
                   sx={{
                     color: "black",
                     alignContent: "center",
@@ -221,7 +223,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
                 </Typography>
                 <Typography
                   variant="body2"
-                  id="lable_ratio"
+                  id="wint"
                   sx={{
                     color: "black",
                     border: "1px solid #ccc",
@@ -232,7 +234,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
                   width={"100%"}
                   height={40}
                 >
-                  {selectedOption?.win}
+                  {selectedOption?.lost}
                 </Typography>
               </Box>
             </Grid>

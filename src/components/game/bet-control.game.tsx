@@ -455,7 +455,7 @@ export default function BetControls({
         </Button>
       </Box>
 
-      <AnimatePresence initial={false}>
+      {/* <AnimatePresence initial={false}>
         {isCommentOpen && (
           <motion.div
             variants={slideVariants}
@@ -526,7 +526,7 @@ export default function BetControls({
             </Box>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </Box>
   );
 }

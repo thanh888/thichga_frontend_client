@@ -18,26 +18,92 @@ import {
   calculateMoneyBet,
   numberThousand,
 } from "@/utils/function-convert.util";
+import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
+import { useUser } from "@/hooks/use-user";
+import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
+import { updateMatchedBetHistoryApi } from "@/services/auth/bet-history.api";
+import { toast } from "react-toastify";
+import { useSocket } from "@/socket";
 
 interface AcceptBetDialogProps {
-  open: boolean;
-  onClose: () => void;
+  acceptDialogOpen: boolean;
   selectedBet: BettingHistoryInterface | null;
-  betRoom: any;
-  handleAcceptBet: () => void;
+  betRoom: BettingRoomInterface;
+  setAcceptDialogOpen: (acceptDialogOpen: boolean) => void;
+  setSelectedBet: (bet: BettingHistoryInterface | null) => void;
+  setIsReloadBetting: (reload: boolean) => void;
 }
 
 const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
-  open,
-  onClose,
+  acceptDialogOpen,
   selectedBet,
   betRoom,
-  handleAcceptBet,
+  setAcceptDialogOpen,
+  setSelectedBet,
+  setIsReloadBetting,
+  // handleAcceptBet,
 }) => {
+  const { user, checkSession } = useUser();
+
+  const socket = useSocket();
+
+  const handleClose = () => {
+    setAcceptDialogOpen(false);
+    setSelectedBet(null);
+  };
+
+  const handleAcceptBet = async () => {
+    if (!selectedBet) return;
+
+    const newData = {
+      betSessionID: betRoom.latestSessionID,
+      creatorID: user._id,
+      money: calculateMoneyBet(
+        selectedBet?.lost || 0,
+        selectedBet?.win || 0,
+        selectedBet?.money || 0
+      ).toString(),
+      selectedTeam:
+        selectedBet?.selectedTeam === TeamEnum.BLUE
+          ? TeamEnum.RED
+          : TeamEnum.BLUE,
+      status: BetHistoryStatusEnum.MATCHED,
+      win: selectedBet?.lost,
+      lost: selectedBet?.win,
+      matchedUserId: selectedBet?.creatorID._id,
+    };
+
+    try {
+      const response = await updateMatchedBetHistoryApi(
+        selectedBet?._id,
+        newData
+      );
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Khớp kèo thành công");
+        setAcceptDialogOpen(false);
+        setSelectedBet(null);
+        setIsReloadBetting(true);
+        if (socket) {
+          if (checkSession) {
+            checkSession();
+          }
+          socket.emit("bet-history", {
+            roomID: betRoom._id,
+          });
+        }
+      }
+    } catch (error: any) {
+      console.log(error);
+      if (error?.response?.data?.message === "Betting is disable") {
+        toast.warning("Phòng đã đóng cược");
+      }
+    }
+  };
+
   return (
     <Dialog
-      open={open}
-      onClose={onClose}
+      open={acceptDialogOpen}
+      onClose={handleClose}
       fullWidth
       sx={{
         "& .MuiDialog-paper": {
@@ -51,7 +117,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
     >
       <DialogContent sx={{ p: { xs: 1, sm: 2 }, position: "relative" }}>
         <IconButton
-          onClick={onClose}
+          onClick={handleClose}
           sx={{
             position: "absolute",
             top: 8,
@@ -79,7 +145,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
               >
                 <Typography
                   variant="body2"
-                  id="win"
+                  id="lost"
                   sx={{
                     color: "black",
                     alignContent: "center",
@@ -103,7 +169,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
                   width={"100%"}
                   height={40}
                 >
-                  {selectedBet?.lost}
+                  {selectedBet?.win}
                 </Typography>
               </Box>
             </Grid>
@@ -121,7 +187,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
               >
                 <Typography
                   variant="body2"
-                  id="lable_ratio"
+                  id="win"
                   sx={{
                     color: "black",
                     alignContent: "center",
@@ -134,7 +200,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
                 </Typography>
                 <Typography
                   variant="body2"
-                  id="lable_ratio"
+                  id="win"
                   sx={{
                     color: "black",
                     border: "1px solid #ccc",
@@ -145,7 +211,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
                   width={"100%"}
                   height={40}
                 >
-                  {selectedBet?.win}
+                  {selectedBet?.lost}
                 </Typography>
               </Box>
             </Grid>
@@ -185,13 +251,11 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
                   width={"100%"}
                   height={40}
                 >
-                  {numberThousand(
-                    calculateMoneyBet(
-                      selectedBet?.win || 0,
-                      selectedBet?.lost || 0,
-                      selectedBet?.money || 0
-                    ).toString()
-                  )}
+                  {calculateMoneyBet(
+                    selectedBet?.lost || 0,
+                    selectedBet?.win || 0,
+                    selectedBet?.money || 0
+                  ).toString()}
                 </Typography>
               </Box>
             </Grid>

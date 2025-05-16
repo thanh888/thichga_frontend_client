@@ -155,7 +155,7 @@ const BetList: React.FC<{
                 textAlign: "center",
               }}
             >
-              {bet?.win}:{bet?.lost}
+              {bet?.lost}:{bet?.win}
             </Typography>
             <Typography
               sx={{
@@ -281,7 +281,6 @@ const BetInfo: React.FC<BetInfoProps> = ({
   const [selectedBet, setSelectedBet] =
     useState<BettingHistoryInterface | null>(null);
   const { user } = useUser();
-  const { checkSession } = useUser();
 
   const socket = useSocket();
 
@@ -320,53 +319,6 @@ const BetInfo: React.FC<BetInfoProps> = ({
       socket.off("bet-history");
     };
   }, [socket, betRoom?._id]);
-
-  const handleAcceptBet = async () => {
-    if (!selectedBet) return;
-
-    const newData = {
-      betSessionID: sessionID,
-      creatorID: user._id,
-      money: calculateMoneyBet(
-        selectedBet?.win ?? 0,
-        selectedBet?.lost ?? 0,
-        selectedBet?.money ?? 0
-      ),
-      selectedTeam:
-        selectedBet?.selectedTeam === TeamEnum.BLUE
-          ? TeamEnum.RED
-          : TeamEnum.BLUE,
-      status: BetHistoryStatusEnum.MATCHED,
-      win: selectedBet?.lost,
-      lost: selectedBet?.win,
-      matchedUserId: selectedBet?.creatorID._id,
-      betOptionID: "",
-    };
-
-    try {
-      const response = await updateMatchedBetHistoryApi(
-        selectedBet?._id,
-        newData
-      );
-      if (response.status === 200 || response.status === 201) {
-        toast.success("Khớp kèo thành công");
-        setAcceptDialogOpen(false);
-        setSelectedBet(null);
-        setIsReloadBetting(true);
-        if (socket) {
-          if (checkSession) {
-            checkSession();
-          }
-          socket.emit("bet-history", {
-            roomID: betRoom._id,
-          });
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Lỗi khi khớp kèo");
-    }
-  };
 
   useEffect(() => {
     if (isReloadBetting) {
@@ -509,14 +461,12 @@ const BetInfo: React.FC<BetInfoProps> = ({
 
       {/* Accept Bet Dialog */}
       <AcceptSolo
-        open={acceptDialogOpen}
-        onClose={() => {
-          setAcceptDialogOpen(false);
-          setSelectedBet(null);
-        }}
+        acceptDialogOpen={acceptDialogOpen}
+        setAcceptDialogOpen={setAcceptDialogOpen}
+        setSelectedBet={setSelectedBet}
+        setIsReloadBetting={setIsReloadBetting}
         selectedBet={selectedBet}
         betRoom={betRoom}
-        handleAcceptBet={handleAcceptBet}
       />
     </>
   );

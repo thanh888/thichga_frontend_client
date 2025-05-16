@@ -88,14 +88,26 @@ const AccountPage: React.FC = () => {
     },
   };
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    }
-  }, [user]);
+  const { isLoading, error } = useUser();
 
-  if (!user) {
-    return <div>Loadding...</div>;
+  const [isChecking, setIsChecking] = useState(true);
+  const [hasRedirected, setHasRedirected] = useState(false);
+
+  useEffect(() => {
+    if (isLoading || hasRedirected) return;
+
+    // Nếu có lỗi hoặc chưa đăng nhập
+    if (error || !user) {
+      setHasRedirected(true);
+      router.push("/login");
+    } else {
+      setIsChecking(false);
+    }
+  }, [isLoading, user, error, hasRedirected, router]);
+
+  if (isLoading || isChecking) {
+    // Loading UI (tùy bạn có thể thay đổi thành spinner)
+    return <div className="absolute top-[50%] left-[50%]">Loading...</div>;
   }
 
   return (

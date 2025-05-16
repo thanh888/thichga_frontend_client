@@ -103,7 +103,7 @@ const OptionList: React.FC<{
                 textAlign: "center",
               }}
             >
-              {bet?.win}:{bet?.lost}
+              {bet?.lost}:{bet?.win}
             </Typography>
             <Typography
               sx={{

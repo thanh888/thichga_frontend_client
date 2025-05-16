@@ -7,7 +7,7 @@ export const numberThousand = (value: string) => {
 };
 
 export const calculateMoneyBet = (win: number, lost: number, money: number) => {
-  const result = ((Number(money) * Number(win)) / Number(lost)).toFixed(2);
+  const result = ((Number(money) * Number(lost)) / Number(win)).toFixed(2);
 
   return Number(result);
 };
