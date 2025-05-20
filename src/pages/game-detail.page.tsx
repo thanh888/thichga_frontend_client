@@ -26,7 +26,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CommentComponent from "@/components/game/comment.game";
 
-export default function GamePage() {
+export default function GameDetailPage() {
   const router = useRouter();
   const params = useParams();
   const roomID = params?.id.toString();
@@ -209,7 +209,7 @@ export default function GamePage() {
             textAlign: "center",
             fontSize: "1.5rem",
             fontWeight: 600,
-            color: "#FFD700",
+            color: "#d7b500",
             pt: 3,
           }}
         >

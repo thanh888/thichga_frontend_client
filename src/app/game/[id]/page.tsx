@@ -1,9 +1,9 @@
-import GamePage from "@/pages/game.page";
+import GameDetailPage from "@/pages/game-detail.page";
 
 export default function GameDetailLayout() {
   return (
     <div>
-      <GamePage />
+      <GameDetailPage />
     </div>
   );
 }

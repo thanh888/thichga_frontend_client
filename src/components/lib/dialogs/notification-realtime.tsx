@@ -41,7 +41,7 @@ export default function NotificationRealtime({
           textAlign: "center",
           fontSize: "1.5rem",
           fontWeight: 600,
-          color: "#FFD700",
+          color: "#d7b500",
           pt: 3,
         }}
       >
