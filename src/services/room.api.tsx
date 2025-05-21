@@ -14,3 +14,8 @@ export const getListRoomsOpening = async () => {
   const res = await axiosCustomize.get(`/bet-room/list-opened`);
   return res;
 };
+
+export const getListOtherRoomsOpening = async () => {
+  const res = await axiosCustomize.get(`/bet-room/list-other-opening`);
+  return res;
+};

@@ -1,8 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Paper } from "@mui/material";
 import { Box, Typography, Button, Grid } from "@mui/material";
+import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
+import { getOptionsExGameBySession } from "@/services/bet-option.api";
+interface Props {
+  isReloadOption: boolean;
+  setIsreloadOption: React.Dispatch<React.SetStateAction<boolean>>;
+  sessionID: string;
+}
 
-const BetOptionTable = () => {
+const BetOptionTable = ({
+  isReloadOption,
+  setIsreloadOption,
+  sessionID,
+}: Readonly<Props>) => {
+  const [options, setOptions] = useState<BettingOptionInterface[]>([]);
+
+  const getBetOptions = async () => {
+    try {
+      const response = await getOptionsExGameBySession(sessionID);
+      if (response.status === 200 || response.status === 201) {
+        setOptions(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (isReloadOption) {
+      getBetOptions();
+      setIsreloadOption(false);
+    }
+  }, [isReloadOption]);
   return (
     <Paper
       elevation={0}
@@ -32,8 +62,8 @@ const BetOptionTable = () => {
         },
       }}
     >
-      {[...Array(16)].map((_, idx) => (
-        <BetOptionItem key={idx} />
+      {options?.map((item, idx) => (
+        <BetOptionItem key={+idx} bet={item} />
       ))}
     </Paper>
   );
@@ -42,18 +72,10 @@ const BetOptionTable = () => {
 export default BetOptionTable;
 
 interface BetOptionItemProps {
-  odds?: string;
-  total?: string;
-  matched?: string;
-  pending?: string;
+  bet: any;
 }
 
-const BetOptionItem: React.FC<BetOptionItemProps> = ({
-  odds = "6.6:6.6",
-  total = "700.000",
-  matched = "700.000",
-  pending = "700.000",
-}) => {
+const BetOptionItem: React.FC<BetOptionItemProps> = ({ bet }) => {
   return (
     <Box
       sx={{
@@ -76,7 +98,7 @@ const BetOptionItem: React.FC<BetOptionItemProps> = ({
           align="center"
           sx={{ fontSize: 24, textWrap: "nowrap" }}
         >
-          {odds}
+          {bet?.lost + " : " + bet?.win}
         </Typography>
 
         <Box
@@ -90,7 +112,7 @@ const BetOptionItem: React.FC<BetOptionItemProps> = ({
           }}
         >
           <Typography variant="h6" fontWeight={600} fontSize={18}>
-            {total}
+            {bet?.money}
           </Typography>
         </Box>
       </Box>
@@ -151,15 +173,15 @@ const BetOptionItem: React.FC<BetOptionItemProps> = ({
             overflow={"hidden"}
           >
             <Typography fontWeight={600} fontSize={14}>
-              {total}
+              {1000}
             </Typography>
             <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }}></Box>
             <Typography fontWeight={600} fontSize={14}>
-              {matched}
+              {1000}
             </Typography>
             <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }}></Box>
             <Typography fontWeight={600} fontSize={14}>
-              {pending}
+              {2000}
             </Typography>
           </Box>
         </Box>

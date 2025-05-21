@@ -7,45 +7,43 @@ import {
   MenuItem,
   TextField,
   Button,
+  SelectChangeEvent,
 } from "@mui/material";
+import { TeamEnum } from "@/utils/enum/team.enum";
+import { exRates } from "@/utils/constans";
+import { useUser } from "@/hooks/use-user";
+import { createOptionExGame } from "@/services/bet-option.api";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 interface WagerModalProps {
   open: boolean;
   onClose: () => void;
-  gameId: string;
+  sessionID: string;
+  setIsReloadOption: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
+const WagerModal: React.FC<WagerModalProps> = ({
+  open,
+  onClose,
+  sessionID,
+  setIsReloadOption,
+}) => {
+  const { user } = useUser();
+  const router = useRouter();
+
   const [selectedTeam, setSelectedTeam] = useState<string>("");
   const [lost, setLost] = useState("10");
   const [win, setWin] = useState("10");
   const [betAmount, setBetAmount] = useState("");
   const [winAmount, setWinAmount] = useState(0);
-
-  const rateOptions = [
-    "0.3",
-    "0.5",
-    "0.7",
-    "1",
-    "1.5",
-    "2",
-    "2.5",
-    "3",
-    "3.5",
-    "4",
-    "4.5",
-    "5",
-    "5.5",
-    "6",
-    "6.5",
-    "7",
-    "7.5",
-    "8",
-    "8.5",
-    "9",
-    "9.5",
-    "10",
-  ];
+  const [errors, setErrors] = useState<{
+    team?: string;
+    betAmount?: string;
+    lost?: string;
+    win?: string;
+    user?: string;
+  }>({});
 
   useEffect(() => {
     const calculatedWinAmount =
@@ -53,17 +51,93 @@ const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
     setWinAmount(isNaN(calculatedWinAmount) ? 0 : calculatedWinAmount);
   }, [betAmount, lost, win, selectedTeam]);
 
+  const validateForm = () => {
+    const newErrors: {
+      team?: string;
+      betAmount?: string;
+      lost?: string;
+      win?: string;
+      user?: string;
+    } = {};
+
+    if (!user?._id) {
+      newErrors.user = "Bạn cần đăng nhập để tạo kèo.";
+    }
+    if (!selectedTeam) {
+      newErrors.team = "Vui lòng chọn một đội.";
+    }
+    if (!betAmount || parseFloat(betAmount) < 100000) {
+      newErrors.betAmount = "Số tiền đặt phải lớn hơn hoặc bằng 100,000.";
+    }
+    if (!lost || isNaN(parseFloat(lost))) {
+      newErrors.lost = "Vui lòng chọn tỷ lệ đặt hợp lệ.";
+    }
+    if (!win || isNaN(parseFloat(win))) {
+      newErrors.win = "Vui lòng chọn tỷ lệ ăn hợp lệ.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    if (!user?._id) {
+      router.push("/login");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("selectedTeam", selectedTeam);
     formData.append("lost", lost);
     formData.append("win", win);
-    formData.append("betAmount", betAmount);
+    formData.append("money", betAmount);
+    formData.append("betSessionID", sessionID);
+    formData.append("makerID", user._id);
+
+    // Proceed with form submission (e.g., API call)
+    try {
+      const response = await createOptionExGame(formData);
+      if (response.status === 200 || response.status === 201) {
+        setIsReloadOption(true);
+        onClose();
+        toast.success("Tạo kèo thành công");
+      }
+    } catch (error: any) {
+      if (error?.response?.data?.message === "Betting is disable") {
+        toast.warning("Phòng đã đóng cược");
+      } else toast.warning("Tạo kèo thất bại, vui lòng thử lại sau");
+      console.log(error);
+    }
   };
 
   const handleTeamSelect = (team: string) => {
     setSelectedTeam(team === selectedTeam ? "" : team);
+    setErrors({ ...errors, team: undefined }); // Clear team error on selection
+  };
+
+  const handleBetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBetAmount(e.target.value);
+    setErrors({ ...errors, betAmount: undefined }); // Clear bet amount error on change
+  };
+
+  const handleLostChange = (
+    e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
+  ) => {
+    setLost(e.target.value);
+    setErrors({ ...errors, lost: undefined }); // Clear lost error on change
+  };
+
+  const handleWinChange = (
+    e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
+  ) => {
+    setWin(e.target.value);
+    setErrors({ ...errors, win: undefined }); // Clear win error on change
   };
 
   return (
@@ -83,10 +157,17 @@ const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
           animation: open ? "modalOpening 0.2s" : "modalClosing 0.2s",
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
           <Typography
             variant="h6"
-            sx={{ color: "#FFFFFF", fontWeight: 600, fontSize: 16 }}
+            sx={{ color: "#d7b500", fontWeight: 600, fontSize: 20 }}
           >
             TẠO KÈO
           </Typography>
@@ -95,29 +176,37 @@ const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
             sx={{
               color: "#FFFFFF",
               fontWeight: 600,
-              fontSize: 16,
+              fontSize: 24,
               minWidth: "auto",
-              p: 0,
+              px: 1,
             }}
           >
             ×
           </Button>
         </Box>
         <form onSubmit={handleSubmit}>
+          {errors.user && (
+            <Typography sx={{ color: "red", mb: 2, fontSize: 14 }}>
+              {errors.user}
+            </Typography>
+          )}
           <Box
             sx={{ display: "flex", gap: 2, mb: 2, justifyContent: "center" }}
           >
             <Button
-              onClick={() => handleTeamSelect("A")}
-              variant="contained"
+              onClick={() => handleTeamSelect(TeamEnum.BLUE)}
+              variant="outlined"
               sx={{
-                bgcolor: selectedTeam === "A" ? "#d7b500" : "#333",
-                color: "#FFFFFF",
+                bgcolor: selectedTeam === TeamEnum.BLUE ? "#005FA7" : "#333",
+                color: "#d7b500",
                 fontWeight: 600,
-                fontSize: 14,
-                borderRadius: "20px",
+                fontSize: 20,
+                borderRadius: 2,
+                border: "4px dashed #005FA7",
+                width: "100%",
                 "&:hover": {
-                  bgcolor: selectedTeam === "A" ? "#FFC107" : "#444",
+                  bgcolor:
+                    selectedTeam === TeamEnum.RED ? "#005FA7" : undefined,
                 },
                 minWidth: "100px",
               }}
@@ -125,16 +214,19 @@ const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
               GÀ XANH
             </Button>
             <Button
-              onClick={() => handleTeamSelect("B")}
-              variant="contained"
+              onClick={() => handleTeamSelect(TeamEnum.RED)}
+              variant="outlined"
               sx={{
-                bgcolor: selectedTeam === "B" ? "#d7b500" : "#333",
-                color: "#FFFFFF",
+                bgcolor: selectedTeam === TeamEnum.RED ? "#B6080D" : "#333",
+                color: "#F6D02F",
                 fontWeight: 600,
-                fontSize: 14,
-                borderRadius: "20px",
+                fontSize: 20,
+                width: "100%",
+                border: "4px dashed #B6080D",
+                borderRadius: 2,
                 "&:hover": {
-                  bgcolor: selectedTeam === "B" ? "#FFC107" : "#444",
+                  bgcolor:
+                    selectedTeam === TeamEnum.BLUE ? "#B6080D" : undefined,
                 },
                 minWidth: "100px",
               }}
@@ -142,80 +234,95 @@ const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
               GÀ ĐỎ
             </Button>
           </Box>
+          {errors.team && (
+            <Typography sx={{ color: "red", mb: 2, fontSize: 14 }}>
+              {errors.team}
+            </Typography>
+          )}
           <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
             <Box sx={{ flex: 1 }}>
               <Typography
-                sx={{ color: "#FFFFFF", fontWeight: 600, fontSize: 14, mb: 1 }}
+                sx={{ color: "#d7b500", fontWeight: 600, fontSize: 16, mb: 1 }}
               >
                 ĐẶT
               </Typography>
               <Select
                 value={lost}
-                onChange={(e) => setLost(e.target.value)}
+                onChange={handleLostChange}
                 fullWidth
                 required
                 sx={{
                   bgcolor: "#333",
-                  color: "#FFFFFF",
-                  border: "2px solid white",
+                  color: "#d7b500",
+                  border: "2px solid #d7b500",
                   borderRadius: "8px",
-                  "& .MuiSelect-icon": { color: "#FFFFFF" },
+                  "& .MuiSelect-icon": { color: "#d7b500" },
                   "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                 }}
               >
-                {rateOptions.map((opt) => (
+                {exRates.map((opt) => (
                   <MenuItem
                     key={opt}
                     value={opt}
-                    sx={{ color: "#FFFFFF", bgcolor: "#333" }}
+                    sx={{ color: "#d7b500", bgcolor: "#333" }}
                   >
                     {opt}
                   </MenuItem>
                 ))}
               </Select>
+              {errors.lost && (
+                <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+                  {errors.lost}
+                </Typography>
+              )}
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography
-                sx={{ color: "#FFFFFF", fontWeight: 600, fontSize: 14, mb: 1 }}
+                sx={{ color: "#d7b500", fontWeight: 600, fontSize: 16, mb: 1 }}
               >
                 ĂN
               </Typography>
               <Select
                 value={win}
-                onChange={(e) => setWin(e.target.value)}
+                onChange={handleWinChange}
                 fullWidth
                 required
                 sx={{
                   bgcolor: "#333",
-                  color: "#FFFFFF",
-                  border: "2px solid white",
+                  color: "#d7b500",
+                  border: "2px solid #d7b500",
                   borderRadius: "8px",
-                  "& .MuiSelect-icon": { color: "#FFFFFF" },
+                  "& .MuiSelect-icon": { color: "#d7b500" },
                   "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                 }}
               >
-                {rateOptions.map((opt) => (
+                {exRates.map((opt) => (
                   <MenuItem
                     key={opt}
                     value={opt}
-                    sx={{ color: "#FFFFFF", bgcolor: "#333" }}
+                    sx={{ color: "#d7b500", bgcolor: "#333" }}
                   >
                     {opt}
                   </MenuItem>
                 ))}
               </Select>
+              {errors.win && (
+                <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+                  {errors.win}
+                </Typography>
+              )}
             </Box>
           </Box>
           <Box sx={{ mb: 2 }}>
             <Typography
-              sx={{ color: "#FFFFFF", fontWeight: 600, fontSize: 14, mb: 1 }}
+              sx={{ color: "#d7b500", fontWeight: 600, fontSize: 16, mb: 1 }}
             >
               SỐ TIỀN ĐẶT
             </Typography>
             <TextField
               type="number"
               value={betAmount}
-              onChange={(e) => setBetAmount(e.target.value)}
+              onChange={handleBetAmountChange}
               fullWidth
               required
               inputProps={{ min: 100000 }}
@@ -225,8 +332,8 @@ const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
                 },
                 sx: {
                   bgcolor: "#333",
-                  color: "#FFFFFF",
-                  border: "2px solid white",
+                  color: "#d7b500",
+                  border: "2px solid #d7b500",
                   borderRadius: "8px",
                   "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                 },
@@ -242,29 +349,36 @@ const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
               <option value="5000000">5M</option>
               <option value="10000000">10M</option>
             </datalist>
+            {errors.betAmount && (
+              <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+                {errors.betAmount}
+              </Typography>
+            )}
           </Box>
           <Box sx={{ mb: 2 }}>
             <Typography
-              sx={{ color: "#FFFFFF", fontWeight: 600, fontSize: 14, mb: 1 }}
+              sx={{ color: "#d7b500", fontWeight: 600, fontSize: 16, mb: 1 }}
             >
               SỐ TIỀN ĂN
             </Typography>
             <TextField
               type="number"
               value={winAmount}
-              disabled
               fullWidth
               required
               InputProps={{
                 sx: {
                   bgcolor: "#333",
-                  color: "#FFFFFF",
-                  border: "2px solid white",
+                  color: "#d7b500",
+                  border: "2px solid #d7b500",
                   borderRadius: "8px",
                   "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                 },
               }}
-              sx={{ "& .MuiInputBase-input": { padding: "10px" } }}
+              sx={{
+                "& .MuiInputBase-input": { padding: "10px" },
+                pointerEvents: "none",
+              }}
             />
           </Box>
           <Button
@@ -275,7 +389,7 @@ const WagerModal: React.FC<WagerModalProps> = ({ open, onClose, gameId }) => {
               bgcolor: "#d7b500",
               color: "#000",
               fontWeight: 600,
-              fontSize: 14,
+              fontSize: 16,
               borderRadius: "20px",
               "&:hover": { bgcolor: "#FFC107" },
             }}

@@ -4,13 +4,13 @@ import { Modal, Box, Typography, Button } from "@mui/material";
 interface HistoryModalProps {
   open: boolean;
   onClose: () => void;
-  gameId: string;
+  sessionID: string;
 }
 
 const HistoryModal: React.FC<HistoryModalProps> = ({
   open,
   onClose,
-  gameId,
+  sessionID,
 }) => {
   return (
     <Modal

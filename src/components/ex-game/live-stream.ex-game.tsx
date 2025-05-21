@@ -9,14 +9,15 @@ import {
   VolumeOffOutlined,
 } from "@mui/icons-material";
 import Marquee from "react-fast-marquee";
+import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 
 interface BetContainerProps {
-  session: { suggestOddsText: [string, string] } | null;
+  betRoom: BettingRoomInterface;
   onWagerClick: () => void;
 }
 
 const LiveStreamContainer: React.FC<BetContainerProps> = ({
-  session,
+  betRoom,
   onWagerClick,
 }) => {
   const router = useRouter();
@@ -62,7 +63,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
         sx={{
           display: "flex",
           alignItems: "center",
-          mb: 2,
+          mb: 1,
           bgcolor: "#fff8e1",
           p: 1,
           borderRadius: 1,
@@ -88,8 +89,8 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 2,
-          height: 40,
+          mb: 1,
+          height: 44,
           borderRadius: 4,
         }}
       >
@@ -103,41 +104,48 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
             border: "2px solid #ffe88d",
             alignItems: "center",
             flexGrow: 1,
-            p: 1,
+            height: "100%",
+            // p: 1,
           }}
         >
           <Typography
             variant="h6"
-            fontSize={{ xs: 12, sm: 16 }}
+            fontSize={{ xs: 14, sm: 20 }}
             sx={{
               color: "#0D85D8",
-              textShadow: "1px 1px 0 #ccc",
+              fontWeight: 600,
+              textShadow: "1px 1px 1px #ccc",
             }}
           >
-            GÀ XANH {session?.suggestOddsText[0] || "4.5"}
+            GÀ XANH {betRoom?.blueOdds || "4.5"}
           </Typography>
           <Typography
             variant="h6"
-            fontSize={{ xs: 12, sm: 16 }}
-            sx={{ mx: 1, color: "#d7b500" }}
+            fontSize={{ xs: 14, sm: 20 }}
+            sx={{ mx: 1, fontWeight: 600, color: "#d7b500" }}
           >
             :
           </Typography>
           <Typography
-            fontSize={{ xs: 12, sm: 16 }}
+            fontSize={{ xs: 14, sm: 20 }}
             variant="h6"
-            sx={{ color: "red", textShadow: "1px 1px 0 #ccc" }}
+            sx={{
+              color: "red",
+              fontWeight: 600,
+              textShadow: "1px 1px 1px #ccc",
+            }}
           >
-            {session?.suggestOddsText[1] || "10"} GÀ ĐỎ
+            {betRoom?.redOdds || "10"} GÀ ĐỎ
           </Typography>
         </Box>
         <Button
-          variant="text"
+          variant="contained"
           sx={{
             color: "black",
             bgcolor: "#d7b500",
-            height: "100%",
             ml: 2,
+            fontWeight: 600,
+            height: "100%",
           }}
           onClick={() => router.push("/ex-game")}
         >
@@ -145,9 +153,6 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
         </Button>
       </Box>
 
-      {/* Odds Display */}
-
-      {/* Video Player */}
       <Box
         sx={{
           position: "relative",
@@ -176,6 +181,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          height: 56,
         }}
       >
         <Box
@@ -234,6 +240,8 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
             },
             borderRadius: 2,
             padding: "6px 16px",
+            fontSize: 20,
+            fontWeight: 600,
           }}
           onClick={onWagerClick}
         >

@@ -15,52 +15,32 @@ import {
 import { Grid } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Box } from "@mui/system";
+import { getListOtherRoomsOpening } from "@/services/room.api";
 
 interface Room {
-  id: string;
-  name: string;
-  status: string;
-  thumbnail: string;
-  href: string;
+  _id: string;
+  roomName: string;
 }
-
-const rooms: Room[] = [
-  {
-    id: "211",
-    name: "MỘC HÓA ĐỘ 1",
-    status: "Đang mở phiên",
-    thumbnail:
-      "https://png.pngtree.com/png-vector/20240913/ourmid/pngtree-cockfighting-png-image_13254300.png",
-    href: "/ex-game/211",
-  },
-  {
-    id: "32",
-    name: "MỘC HÓA ĐỘ 2",
-    status: "Đang mở phiên",
-    thumbnail:
-      "https://png.pngtree.com/png-vector/20240913/ourmid/pngtree-cockfighting-png-image_13254300.png",
-    href: "/ex-game/32",
-  },
-  {
-    id: "322",
-    name: "MỘC HÓA ĐỘ 3",
-    status: "Đang mở phiên",
-    thumbnail:
-      "https://png.pngtree.com/png-vector/20240913/ourmid/pngtree-cockfighting-png-image_13254300.png",
-    href: "/ex-game/322",
-  },
-  {
-    id: "42",
-    name: "MỘC HÓA ĐỘ 4",
-    status: "Đang mở phiên",
-    thumbnail:
-      "https://png.pngtree.com/png-vector/20240913/ourmid/pngtree-cockfighting-png-image_13254300.png",
-    href: "/ex-game/42",
-  },
-];
 
 export default function ExGamePage(): React.JSX.Element {
   const router = useRouter();
+
+  const [rooms, setRooms] = React.useState<any>([]);
+
+  const getRoomsIsOpening = async () => {
+    try {
+      const response = await getListOtherRoomsOpening();
+      if (response.status === 200 || response.status === 201) {
+        setRooms(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  React.useEffect(() => {
+    getRoomsIsOpening();
+  }, []);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
@@ -103,8 +83,8 @@ export default function ExGamePage(): React.JSX.Element {
             mx: "auto",
           }}
         >
-          {rooms.map((room) => (
-            <Grid size={{ xs: 6, sm: 6, md: 3 }} key={room.id}>
+          {rooms.map((room: Room) => (
+            <Grid size={{ xs: 6, sm: 6, md: 3 }} key={room._id}>
               <Card
                 sx={{
                   border: "2px solid #d7b500", // Gold border
@@ -118,7 +98,7 @@ export default function ExGamePage(): React.JSX.Element {
               >
                 <ButtonBase
                   component={Link}
-                  href={room.href}
+                  href={`ex-game/${room._id}`}
                   sx={{ width: "100%", p: 0, m: 0 }}
                 >
                   <CardContent
@@ -131,8 +111,8 @@ export default function ExGamePage(): React.JSX.Element {
                   >
                     <Box
                       component="img"
-                      src={room.thumbnail}
-                      alt={room.name}
+                      src={"images/ex-game.png"}
+                      alt={room.roomName}
                       sx={{
                         width: 120, // Fixed width for side-by-side layout
                         height: 120,
@@ -146,20 +126,17 @@ export default function ExGamePage(): React.JSX.Element {
                         component="h4"
                         sx={{ fontWeight: "bold" }}
                       >
-                        {room.name}
+                        {room.roomName}
                       </Typography>
                       <Typography
                         variant="body2"
                         sx={{
-                          color:
-                            room.status === "Đang mở phiên"
-                              ? "#4caf50"
-                              : "#f44336",
+                          color: "#4caf50",
                           fontWeight: 500,
                           mt: 1,
                         }}
                       >
-                        {room.status}
+                        Đang mở phiên
                       </Typography>
                     </Box>
                   </CardContent>

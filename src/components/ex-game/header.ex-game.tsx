@@ -4,6 +4,7 @@ import { AppBar, Toolbar, Box, Typography, IconButton } from "@mui/material";
 import ArrowBackIosOutlinedIcon from "@mui/icons-material/ArrowBackIosOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import InsertCommentOutlinedIcon from "@mui/icons-material/InsertCommentOutlined";
+import { SupportAgentOutlined } from "@mui/icons-material";
 
 interface HeaderProps {
   onChatClick: () => void;
@@ -40,14 +41,15 @@ const HeaderExGame: React.FC<HeaderProps> = ({
             justifyContent: "center",
             width: "40px",
             height: "40px",
-            bgcolor: "#d7b500",
+            bgcolor: "#3a2014",
+            border: "2px solid #FFC107",
             borderRadius: "50%",
             cursor: "pointer",
-            "&:hover": { bgcolor: "#FFC107" },
+            "&:hover": { bgcolor: "#3a2014" },
           }}
           onClick={() => router.push("/ex-game")}
         >
-          <ArrowBackIosOutlinedIcon sx={{ color: "#000", fontSize: 20 }} />
+          <ArrowBackIosOutlinedIcon sx={{ color: "#d7b500", fontSize: 20 }} />
         </Box>
 
         {/* Room Name */}
@@ -75,16 +77,17 @@ const HeaderExGame: React.FC<HeaderProps> = ({
               justifyContent: "center",
               width: "40px",
               height: "40px",
-              bgcolor: "#d7b500",
+              bgcolor: "#3a2014",
+              border: "2px solid #FFC107",
               borderRadius: "50%",
               cursor: "pointer",
-              "&:hover": { bgcolor: "#FFC107" },
+              "&:hover": { bgcolor: "#3a2014" },
             }}
             onClick={() =>
               (window.location.href = "https://t.me/cskh_thichga02")
             }
           >
-            <InsertCommentOutlinedIcon sx={{ color: "#000", fontSize: 20 }} />
+            <SupportAgentOutlined sx={{ color: "#d7b500", fontSize: 24 }} />
           </Box>
           <Box
             sx={{
@@ -93,14 +96,15 @@ const HeaderExGame: React.FC<HeaderProps> = ({
               justifyContent: "center",
               width: "40px",
               height: "40px",
-              bgcolor: "#d7b500",
+              bgcolor: "#3a2014",
               borderRadius: "50%",
+              border: "2px solid #FFC107",
               cursor: "pointer",
-              "&:hover": { bgcolor: "#FFC107" },
+              "&:hover": { bgcolor: "#3a2014" },
             }}
             onClick={onHistoryClick}
           >
-            <HistoryOutlinedIcon sx={{ color: "#000", fontSize: 20 }} />
+            <HistoryOutlinedIcon sx={{ color: "#d7b500", fontSize: 24 }} />
           </Box>
         </Box>
       </Toolbar>
