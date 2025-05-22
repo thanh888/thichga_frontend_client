@@ -1,15 +1,11 @@
 import React from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
 import { useRouter } from "next/navigation";
-import {
-  AccountCircleOutlined,
-  CampaignOutlined,
-  DashboardOutlined,
-  PersonOutlineOutlined,
-  VolumeOffOutlined,
-} from "@mui/icons-material";
+import { CampaignOutlined, PersonOutlineOutlined } from "@mui/icons-material";
 import Marquee from "react-fast-marquee";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
+import { useUser } from "@/hooks/use-user";
+import { ConvertMoneyVND } from "@/utils/function-convert.util";
 
 interface BetContainerProps {
   betRoom: BettingRoomInterface;
@@ -21,13 +17,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
   onWagerClick,
 }) => {
   const router = useRouter();
-  const currentDate = new Date()
-    .toLocaleString("vi-VN", {
-      timeZone: "Asia/Ho_Chi_Minh",
-      hour12: false,
-    })
-    .replace(", ", " ");
-
+  const { user } = useUser();
   return (
     <Paper
       elevation={0}
@@ -78,7 +68,8 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
             color: "rgba(0,0,0,0.87)",
           }}
         >
-          TUẦN LỄ VÀNG THICHGA.NET NHẬN NGAY 5% CHO LẦN NẠP ĐẦU TIÊN
+          {betRoom?.marquee ??
+            "TUẦN LỄ VÀNG THICHGA.NET NHẬN NGAY 5% CHO LẦN NẠP ĐẦU TIÊN"}
         </Marquee>
       </Box>
       {/* Header */}
@@ -161,18 +152,23 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
           bgcolor: "#ff69b4", // Pink background
         }}
       >
-        <iframe
-          src="https://player.bakent.live/play.html?live=binhhiep1&index=1&v=1747700581"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            border: "none",
-          }}
-          frameBorder="0"
-        />
+        {betRoom.urlLive && (
+          <iframe
+            src={"https://322722.fun:5443/LiveApp/play.html?id=live5"}
+            title="Video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+            }}
+          ></iframe>
+        )}
       </Box>
 
       {/* User Info and Wager Button */}
@@ -207,13 +203,13 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
           />
           <Box>
             <Typography variant="body2" color="white">
-              ID: :{" "}
+              ID:{" "}
               <strong
                 style={{
                   color: "#d7b500",
                 }}
               >
-                thanhtest
+                {user?.username}
               </strong>{" "}
             </Typography>
             <Typography variant="body2" color="white">
@@ -223,7 +219,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
                   color: "#d7b500",
                 }}
               >
-                999,870,258
+                {ConvertMoneyVND(Number(user?.money))}
               </strong>{" "}
             </Typography>
           </Box>

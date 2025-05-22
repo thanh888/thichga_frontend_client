@@ -12,15 +12,6 @@ const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [url, setUrl] = useState<string>("");
-
-  // useEffect(() => {
-  //   if (sourceUrl) {
-  //     // console.log(sourceUrl.split(" ")[3].split('"')[1]);
-  //     setUrl(sourceUrl.split(" ")[3].split('"')[1]);
-  //   }
-  // }, [sourceUrl]);
-
   return (
     <Box
       sx={{

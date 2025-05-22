@@ -29,7 +29,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
   sessionID,
   setIsReloadOption,
 }) => {
-  const { user } = useUser();
+  const { user, checkSession } = useUser();
   const router = useRouter();
 
   const [selectedTeam, setSelectedTeam] = useState<string>("");
@@ -107,6 +107,9 @@ const WagerModal: React.FC<WagerModalProps> = ({
         setIsReloadOption(true);
         onClose();
         toast.success("Tạo kèo thành công");
+        if (checkSession) {
+          checkSession();
+        }
       }
     } catch (error: any) {
       if (error?.response?.data?.message === "Betting is disable") {

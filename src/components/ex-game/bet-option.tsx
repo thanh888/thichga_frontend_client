@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Paper } from "@mui/material";
+import { Paper, Stack } from "@mui/material";
 import { Box, Typography, Button, Grid } from "@mui/material";
 import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
 import { getOptionsExGameBySession } from "@/services/bet-option.api";
+import { numberThousand } from "@/utils/function-convert.util";
+import { TeamEnum } from "@/utils/enum/team.enum";
 interface Props {
   isReloadOption: boolean;
   setIsreloadOption: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenBetting: React.Dispatch<any>;
   sessionID: string;
 }
 
@@ -13,6 +16,7 @@ const BetOptionTable = ({
   isReloadOption,
   setIsreloadOption,
   sessionID,
+  setOpenBetting,
 }: Readonly<Props>) => {
   const [options, setOptions] = useState<BettingOptionInterface[]>([]);
 
@@ -63,7 +67,7 @@ const BetOptionTable = ({
       }}
     >
       {options?.map((item, idx) => (
-        <BetOptionItem key={+idx} bet={item} />
+        <BetOptionItem key={+idx} bet={item} setOpenBetting={setOpenBetting} />
       ))}
     </Paper>
   );
@@ -73,9 +77,13 @@ export default BetOptionTable;
 
 interface BetOptionItemProps {
   bet: any;
+  setOpenBetting: React.Dispatch<any>;
 }
 
-const BetOptionItem: React.FC<BetOptionItemProps> = ({ bet }) => {
+const BetOptionItem: React.FC<BetOptionItemProps> = ({
+  bet,
+  setOpenBetting,
+}) => {
   return (
     <Box
       sx={{
@@ -84,53 +92,66 @@ const BetOptionItem: React.FC<BetOptionItemProps> = ({ bet }) => {
         borderRadius: 2,
         display: "flex",
         flexDirection: "column",
-        gap: 1,
-        p: "4px",
+        gap: 0.5,
+        p: 1,
         mb: 1,
         height: "100%",
         border: "2px solid #d7b500",
       }}
     >
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <Typography
-          variant="h5"
-          fontWeight={700}
-          align="center"
-          sx={{ fontSize: 24, textWrap: "nowrap" }}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 1,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Stack
+          direction="row"
+          spacing={0.5}
+          justifyContent="center"
+          alignItems="center"
         >
-          {bet?.lost + " : " + bet?.win}
-        </Typography>
-
+          <Typography color="#0D85D8" fontWeight={700} fontSize={24}>
+            {bet?.lost}
+          </Typography>
+          <Typography fontWeight={700} fontSize={24}>
+            :
+          </Typography>
+          <Typography color="#B6080D" fontWeight={700} fontSize={24}>
+            {bet?.win}
+          </Typography>
+        </Stack>
         <Box
           sx={{
-            width: "100%",
+            width: "60%",
             textAlign: "center",
-            backgroundColor: "blue",
             border: "2px solid white",
-            mt: "2px",
             borderRadius: 8,
+            backgroundColor:
+              bet?.teamMissing === TeamEnum.RED ? "#B6080D" : "#0E3B8A",
           }}
         >
-          <Typography variant="h6" fontWeight={600} fontSize={18}>
-            {bet?.money}
+          <Typography variant="h6" fontWeight={600} fontSize={18} color="white">
+            {numberThousand(bet?.profitMissing) ?? 0}
           </Typography>
         </Box>
       </Box>
 
       {/* Tổng / Khớp / Chờ */}
-      <Box sx={{ display: "flex", overflow: "hidden" }}>
-        <Box display="flex" gap={1}>
+      <Box sx={{ display: "flex", overflow: "hidden", alignItems: "center" }}>
+        <Box display="flex" gap={0.5}>
           <Button
             sx={{
               border: "2px solid white",
               borderRadius: "20px",
               color: "white",
               fontWeight: 600,
-              fontSize: 12,
-              m: 0,
-              p: 0,
-              height: "40px",
+              fontSize: 10,
+              height: "32px",
             }}
+            onClick={() => setOpenBetting(bet)}
           >
             Cược
           </Button>
@@ -140,8 +161,8 @@ const BetOptionItem: React.FC<BetOptionItemProps> = ({ bet }) => {
               borderRadius: "20px",
               color: "white",
               fontWeight: 600,
-              fontSize: 12,
-              height: "40px",
+              fontSize: 10,
+              height: "32px",
             }}
           >
             Hủy
@@ -154,34 +175,29 @@ const BetOptionItem: React.FC<BetOptionItemProps> = ({ bet }) => {
           flexGrow={1}
         >
           <Box display="flex" justifyContent="center" overflow={"hidden"}>
-            <Typography fontWeight={600} fontSize={12}>
+            <Typography fontWeight={600} color={"white"} fontSize={12}>
               Tổng
             </Typography>
             <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }}></Box>
-            <Typography fontWeight={600} fontSize={12}>
+            <Typography fontWeight={600} color={"white"} fontSize={12}>
               Chờ
             </Typography>
             <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }}></Box>
-            <Typography fontWeight={600} fontSize={12}>
+            <Typography fontWeight={600} color={"white"} fontSize={12}>
               Khớp
             </Typography>
           </Box>
-          <Box
-            display="flex"
-            justifyContent="center"
-            mt={0.5}
-            overflow={"hidden"}
-          >
-            <Typography fontWeight={600} fontSize={14}>
-              {1000}
+          <Box display="flex" justifyContent="center" overflow={"hidden"}>
+            <Typography fontWeight={600} color={"white"} fontSize={14}>
+              {numberThousand(bet?.totalMoney) ?? 0}
             </Typography>
             <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }}></Box>
-            <Typography fontWeight={600} fontSize={14}>
-              {1000}
+            <Typography fontWeight={600} color={"white"} fontSize={14}>
+              {numberThousand(bet?.moneyMissing) ?? 0}
             </Typography>
             <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }}></Box>
-            <Typography fontWeight={600} fontSize={14}>
-              {2000}
+            <Typography fontWeight={600} color={"white"} fontSize={14}>
+              {numberThousand(bet?.moneyMatched) ?? 0}
             </Typography>
           </Box>
         </Box>

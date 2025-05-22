@@ -18,7 +18,9 @@ export default function ExGameDetailPage(): React.JSX.Element {
   const [isReloadOption, setIsReloadOption] = useState<boolean>(true);
 
   const [isWagerModalOpen, setWagerModalOpen] = useState(false);
-  const [isPlaceBetModalOpen, setPlaceBetModalOpen] = useState(false);
+
+  const [isPlaceBetModalOpen, setPlaceBetModalOpen] = useState<any>(null);
+
   const [isChatModalOpen, setChatModalOpen] = useState(false);
   const [isHistoryModalOpen, setHistoryModalOpen] = useState(false);
   const [placeBetAction, setPlaceBetAction] = useState("");
@@ -84,9 +86,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
           >
             {betRoom.latestSessionID && (
               <BetOptionTable
-                // betOdds={betOdds}
-                // userId={USER_ID}
-                // onBetClick={handleOpenPlaceBetModal}
+                setOpenBetting={setPlaceBetModalOpen}
                 isReloadOption={isReloadOption}
                 setIsreloadOption={setIsReloadOption}
                 sessionID={betRoom.latestSessionID}
@@ -103,11 +103,14 @@ export default function ExGameDetailPage(): React.JSX.Element {
           setIsReloadOption={setIsReloadOption}
         />
       )}
-      <PlaceBetModal
-        open={isPlaceBetModalOpen}
-        onClose={() => setPlaceBetModalOpen(false)}
-        action={placeBetAction}
-      />
+      {betRoom.latestSessionID && (
+        <PlaceBetModal
+          open={isPlaceBetModalOpen}
+          onClose={() => setPlaceBetModalOpen(false)}
+          sessionID={betRoom.latestSessionID}
+          setIsReloadOption={setIsReloadOption}
+        />
+      )}
       {betRoom.latestSessionID && (
         <HistoryModal
           open={isHistoryModalOpen}
