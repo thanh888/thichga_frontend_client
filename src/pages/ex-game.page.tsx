@@ -56,7 +56,7 @@ export default function ExGamePage(): React.JSX.Element {
           <IconButton
             edge="start"
             color="inherit"
-            onClick={() => router.back()}
+            onClick={() => router.push("/")}
             aria-label="back"
           >
             <ArrowBackIcon />
