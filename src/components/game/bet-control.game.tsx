@@ -1,7 +1,5 @@
 "use client";
-import React, { useState } from "react";
-import CloseIcon from "@mui/icons-material/Close";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { useContext, useState } from "react";
 import {
   CardContent,
   Grid,
@@ -13,11 +11,8 @@ import {
   SelectChangeEvent,
   TextField,
   Button,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
-import { DefaultMoney, rates } from "@/utils/constans";
-import { useUser } from "@/hooks/use-user";
+import { rates } from "@/utils/constans";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
@@ -25,32 +20,22 @@ import { toast } from "react-toastify";
 import { createBetHistoryApi } from "@/services/auth/bet-history.api";
 import { useSocket } from "@/socket";
 import { sampleMoneys } from "@/utils/function-convert.util";
+import { UserContext } from "@/contexts/user-context";
 
 interface Props {
-  isCommentOpen: boolean;
-  setIsCommentOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsReloadBetting: React.Dispatch<React.SetStateAction<boolean>>;
   sessionID: string;
   betRoom: BettingRoomInterface;
 }
 
-const slideVariants = {
-  hidden: { height: 0, opacity: 0 },
-  visible: { height: "auto", opacity: 1 },
-  exit: { height: 0, opacity: 0 },
-};
-
 export default function BetControls({
-  isCommentOpen,
-  setIsCommentOpen,
   setIsReloadBetting,
   sessionID,
   betRoom,
 }: Readonly<Props>) {
-  const { user } = useUser();
-  const { checkSession } = useUser();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
+  const checkSession = userContext?.checkSession;
   const [formData, setFormData] = useState({
     win: "10",
     lost: "10",
@@ -84,7 +69,7 @@ export default function BetControls({
       toast.warning("Vui lòng điền số tiền cược lớn hơn 0");
       return;
     }
-    if (Number(formData.money) > Number(user.money)) {
+    if (!user || Number(formData.money) > Number(user.money)) {
       toast.warning("Tài khoản không đủ");
       return;
     }

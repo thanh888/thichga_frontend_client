@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,21 +9,17 @@ import {
   useTheme,
   CircularProgress,
 } from "@mui/material";
-import axios from "axios";
-import {
-  ConvertMoneyVND,
-  numberThousand,
-  sampleMoneys,
-} from "@/utils/function-convert.util";
-import { useUser } from "@/hooks/use-user";
+import { numberThousand, sampleMoneys } from "@/utils/function-convert.util";
 import { createDepositApi } from "@/services/deposit.api";
 import { DepositMethod } from "@/utils/enum/deposit-method.enum";
 import { toast } from "react-toastify";
+import { UserContext } from "@/contexts/user-context";
 
 export default function DepositComponent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [money, setMoney] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -80,12 +76,12 @@ export default function DepositComponent() {
     }
 
     try {
-      if (!user._id) {
+      if (!user?._id) {
         toast.warning("Không tìm thấy thông tin người dùng");
         setIsSubmitting(false);
         return;
       }
-      if (!user._id) {
+      if (!user?._id) {
         toast.warning("Không tìm thấy thông tin ngân hàng");
         setIsSubmitting(false);
         return;

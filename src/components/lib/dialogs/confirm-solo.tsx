@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Box,
   Typography,
@@ -8,22 +8,17 @@ import {
   IconButton,
   CardContent,
   Grid,
-  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { DefaultMoney, rates } from "@/utils/constans";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
-import {
-  calculateMoneyBet,
-  numberThousand,
-} from "@/utils/function-convert.util";
+import { calculateMoneyBet } from "@/utils/function-convert.util";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
-import { useUser } from "@/hooks/use-user";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { updateMatchedBetHistoryApi } from "@/services/auth/bet-history.api";
 import { toast } from "react-toastify";
 import { useSocket } from "@/socket";
+import { UserContext } from "@/contexts/user-context";
 
 interface AcceptBetDialogProps {
   acceptDialogOpen: boolean;
@@ -41,9 +36,11 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
   setAcceptDialogOpen,
   setSelectedBet,
   setIsReloadBetting,
-  // handleAcceptBet,
 }) => {
-  const { user, checkSession } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
+
+  const checkSession = userContext?.checkSession;
 
   const socket = useSocket();
 
@@ -53,7 +50,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
   };
 
   const handleAcceptBet = async () => {
-    if (!selectedBet) return;
+    if (!selectedBet || !user) return;
 
     const newData = {
       betSessionID: betRoom.latestSessionID,

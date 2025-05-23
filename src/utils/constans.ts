@@ -64,3 +64,11 @@ export const DefaultColors = {
   yellow: "#d7b500",
   brown: "#3a2014",
 };
+
+export const BetResult = {
+  WIN: "Thắng",
+  LOSE: "Thua",
+  REFUDNED: "Hoàn tiền",
+  CANCEL: "Hủy",
+  DRAW: "Hòa",
+};

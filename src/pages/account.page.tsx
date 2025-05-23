@@ -1,15 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Tabs,
-  Tab,
-  Typography,
-  Avatar,
-  Divider,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Tabs, Tab, Typography, Avatar } from "@mui/material";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import AddCardOutlinedIcon from "@mui/icons-material/AddCardOutlined";
 import CurrencyExchangeOutlinedIcon from "@mui/icons-material/CurrencyExchangeOutlined";
@@ -19,9 +10,10 @@ import DepositComponent from "@/components/account/deposit.account";
 import WithdrawComponent from "@/components/account/withdraw.account";
 import DepositHistoryComponent from "@/components/account/history_deposit.account";
 import WithdrawHistoryComponent from "@/components/account/history_withdraw.account";
-import { useUser } from "@/hooks/use-user";
-import { ConvertMoneyVND, numberThousand } from "@/utils/function-convert.util";
+import { ConvertMoneyVND } from "@/utils/function-convert.util";
 import { useRouter } from "next/navigation";
+import { UserContext } from "@/contexts/user-context";
+import { useContext } from "react";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -55,10 +47,12 @@ function a11yProps(index: number) {
 
 const AccountPage: React.FC = () => {
   const [value, setValue] = useState(0);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
+  const isLoading = userContext?.isLoading;
+  const error = userContext?.error;
+
   const router = useRouter();
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -87,8 +81,6 @@ const AccountPage: React.FC = () => {
       backgroundColor: "#1e88e5",
     },
   };
-
-  const { isLoading, error } = useUser();
 
   const [isChecking, setIsChecking] = useState(true);
   const [hasRedirected, setHasRedirected] = useState(false);

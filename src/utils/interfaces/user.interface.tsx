@@ -1,9 +1,9 @@
-import { RoleUsers } from '../enum/role.enum';
-import { UserStatus } from '../enum/user-status.enum';
-import { BankInteface } from './bank.interface';
+import { RoleUsers } from "../enum/role.enum";
+import { UserStatus } from "../enum/user-status.enum";
+import { BankInteface } from "./bank.interface";
 
 export interface UserInterface {
-  _id?: string;
+  _id: string;
 
   fullname?: string;
   pin?: string;

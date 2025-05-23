@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Box, CircularProgress, Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import HeaderExGame from "@/components/ex-game/header.ex-game";
 import LiveStreamContainer from "@/components/ex-game/live-stream.ex-game";
 import BetOptionTable from "@/components/ex-game/bet-option";
@@ -11,28 +10,16 @@ import PlaceBetModal from "@/components/ex-game/PlaceBetModal";
 import HistoryModal from "@/components/ex-game/HistoryModal";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { getRoomById } from "@/services/room.api";
+import { useParams } from "next/navigation";
 
 export default function ExGameDetailPage(): React.JSX.Element {
-  const router = useRouter();
-
   const [isReloadOption, setIsReloadOption] = useState<boolean>(true);
 
-  const [isWagerModalOpen, setWagerModalOpen] = useState(false);
+  const [isWagerModalOpen, setWagerModalOpen] = useState<boolean>(false);
 
   const [isPlaceBetModalOpen, setPlaceBetModalOpen] = useState<any>(null);
 
-  const [isChatModalOpen, setChatModalOpen] = useState(false);
-  const [isHistoryModalOpen, setHistoryModalOpen] = useState(false);
-  const [placeBetAction, setPlaceBetAction] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  // if (loading) {
-  //   return (
-  //     <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-  //       <CircularProgress />
-  //     </Box>
-  //   );
-  // }
+  const [isHistoryModalOpen, setHistoryModalOpen] = useState<boolean>(false);
 
   const param = useParams();
   const roomID = param?.id?.toString();
@@ -58,10 +45,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
 
   return (
     <Box sx={{ bgcolor: "black", height: "100vh", overflow: "hidden" }}>
-      <HeaderExGame
-        onChatClick={() => setChatModalOpen(true)}
-        onHistoryClick={() => setHistoryModalOpen(true)}
-      />
+      <HeaderExGame onHistoryClick={() => setHistoryModalOpen(true)} />
 
       <Box
         component="main"
@@ -115,7 +99,6 @@ export default function ExGameDetailPage(): React.JSX.Element {
         <HistoryModal
           open={isHistoryModalOpen}
           onClose={() => setHistoryModalOpen(false)}
-          sessionID={betRoom.latestSessionID}
         />
       )}
     </Box>

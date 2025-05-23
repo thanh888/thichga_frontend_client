@@ -1,23 +1,12 @@
 "use client";
-import React, { use, useState } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, TextField, Button } from "@mui/material";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useUser } from "@/hooks/use-user";
 import { changePasswordApi } from "@/services/user.api";
 
 export default function ChangePasswordForm() {
   const { user } = useUser();
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [formData, setFormData] = useState({
     oldPassword: "",

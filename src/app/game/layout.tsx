@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/use-user"; // Hook này bạn có thể dùng Firebase Auth hoặc JWT
+import { UserContext, UserProvider } from "@/contexts/user-context";
 
 export default function ClientLayout({
   children,
@@ -10,7 +10,10 @@ export default function ClientLayout({
   readonly children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, isLoading, error } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
+  const isLoading = userContext?.isLoading;
+  const error = userContext?.error;
 
   const [isChecking, setIsChecking] = useState(true);
   const [hasRedirected, setHasRedirected] = useState(false);
@@ -28,9 +31,8 @@ export default function ClientLayout({
   }, [isLoading, user, error, hasRedirected, router]);
 
   if (isLoading || isChecking) {
-    // Loading UI (tùy bạn có thể thay đổi thành spinner)
-    return <div className="absolute top-[50%] left-[50%]">Loading...</div>;
+    return <div className="absolute top-[50%] left-[50%]">Đang tải...</div>;
   }
 
-  return <>{children}</>;
+  return <UserProvider>{children}</UserProvider>;
 }

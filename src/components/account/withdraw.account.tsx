@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Typography,
@@ -13,11 +13,15 @@ import { useUser } from "@/hooks/use-user";
 import { createWithdrawApi } from "@/services/withdraw.api";
 import { toast } from "react-toastify";
 import { numberThousand, sampleMoneys } from "@/utils/function-convert.util";
+import { UserContext } from "@/contexts/user-context";
 
 export default function WithdrawComponent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const { user } = useUser();
+
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
+
   const { checkSession } = useUser();
   const [money, setMoney] = useState<string>("");
   const [pin, setPin] = useState<string>("");
@@ -91,7 +95,7 @@ export default function WithdrawComponent() {
     }
 
     try {
-      if (!user._id) {
+      if (!user?._id) {
         alert("Không tìm thấy thông tin người dùng");
         setIsSubmitting(false);
         return;

@@ -1,20 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Typography, TextField, Button } from "@mui/material";
 import { toast } from "react-toastify";
 import { changePinApi } from "@/services/user.api";
 import { useUser } from "@/hooks/use-user";
 
 export default function ChangePinForm() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user } = useUser();
 
   const [formData, setFormData] = useState({

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Typography,
@@ -11,10 +11,11 @@ import {
 import ChangePinForm from "./user-account/change-pin";
 import BankInfoForm from "./user-account/change-bank";
 import ChangePasswordForm from "./user-account/change-password";
-import { useUser } from "@/hooks/use-user";
 import { convertDateTime } from "@/utils/function-convert.util";
+import { UserContext } from "@/contexts/user-context";
 export default function UserAccount() {
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const theme = useTheme();

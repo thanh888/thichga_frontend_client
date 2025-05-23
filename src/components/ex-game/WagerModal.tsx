@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Modal,
   Box,
@@ -15,6 +15,7 @@ import { useUser } from "@/hooks/use-user";
 import { createOptionExGame } from "@/services/bet-option.api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { UserContext } from "@/contexts/user-context";
 
 interface WagerModalProps {
   open: boolean;
@@ -29,7 +30,9 @@ const WagerModal: React.FC<WagerModalProps> = ({
   sessionID,
   setIsReloadOption,
 }) => {
-  const { user, checkSession } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
+  const { checkSession } = useUser();
   const router = useRouter();
 
   const [selectedTeam, setSelectedTeam] = useState<string>("");

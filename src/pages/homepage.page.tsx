@@ -1,9 +1,7 @@
 "use client";
 import BannerComponent from "@/components/banner/banner";
 import { SettingContext } from "@/contexts/setting-context";
-import { useUser } from "@/hooks/use-user";
 import { getRoomIsOpenedApi } from "@/services/room.api";
-import { useSocket } from "@/socket";
 import { CampaignOutlined } from "@mui/icons-material";
 import {
   Box,
@@ -15,10 +13,11 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useContext } from "react";
 import Marquee from "react-fast-marquee";
 import { toast } from "react-toastify";
 import Grid from "@mui/material/Grid";
+import { UserContext } from "@/contexts/user-context";
 
 export default function Homepage() {
   const router = useRouter();
@@ -27,7 +26,8 @@ export default function Homepage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   const handleRedirectGame = async () => {
     if (!user) {

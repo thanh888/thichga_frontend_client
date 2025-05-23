@@ -1,7 +1,5 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -10,11 +8,10 @@ import {
 import CottageIcon from "@mui/icons-material/Cottage";
 import PermPhoneMsgIcon from "@mui/icons-material/PermPhoneMsg";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import path from "path";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
 export default function FooterComponent() {
-  const user = useUser();
+  const { user } = useUser();
 
   const router = useRouter();
   const [value, setValue] = React.useState(0);

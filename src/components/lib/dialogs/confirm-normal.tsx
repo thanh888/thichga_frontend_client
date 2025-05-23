@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -11,24 +11,17 @@ import {
   TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { DefaultMoney, rates } from "@/utils/constans";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
-import {
-  calculateMoneyBet,
-  numberThousand,
-} from "@/utils/function-convert.util";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
-import { useUser } from "@/hooks/use-user";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import {
   createBetHistoryApi,
-  createBetHistoryByOptionApi,
   getHistoriesBySession,
-  updateMatchedBetHistoryApi,
 } from "@/services/auth/bet-history.api";
 import { toast } from "react-toastify";
 import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
+import { UserContext } from "@/contexts/user-context";
 
 interface AcceptBetDialogProps {
   open: boolean;
@@ -45,12 +38,14 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
   betRoom,
   setUserBetTotal,
 }) => {
-  const { user } = useUser();
-  const { checkSession } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
+
+  const checkSession = userContext?.checkSession;
   const [money, setMoney] = useState<string>("100000");
 
   const handleAcceptBet = async () => {
-    if (!selectedOption) return;
+    if (!selectedOption || !user) return;
 
     if (Number(money) < 50000) {
       toast.warning("Số tiền phải lớn hơn 50k");
@@ -100,7 +95,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
   }, [isReload]);
 
   const getTotalBetOfUser = async () => {
-    if (!betRoom.latestSessionID) {
+    if (!betRoom.latestSessionID || !user) {
       return;
     }
     try {
@@ -108,7 +103,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
       if (response.status === 200 || response.status === 201) {
         const userTotalBet = response?.data
           ?.filter(
-            (item: BettingHistoryInterface) => item.creatorID._id === user._id
+            (item: BettingHistoryInterface) => item?.creatorID?._id === user._id
           )
           .reduce(
             (total: number, item: BettingHistoryInterface) =>

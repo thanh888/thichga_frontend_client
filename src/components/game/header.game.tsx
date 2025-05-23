@@ -10,16 +10,16 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
-  IconButton,
   Typography,
   Grid,
 } from "@mui/material";
 import {
   ListAltOutlined,
-  MonetizationOnOutlined,
   SupportAgentOutlined,
   MarkUnreadChatAltOutlined,
-  ViewListOutlined,
+  HomeOutlined,
+  HistoryOutlined,
+  DoorSlidingOutlined,
 } from "@mui/icons-material";
 import TelegramIcon from "@mui/icons-material/Telegram";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -27,6 +27,8 @@ import ChatIcon from "@mui/icons-material/Chat";
 import { useParams, useRouter } from "next/navigation";
 import { getListRoomsOpening } from "@/services/room.api";
 import { SettingContext } from "@/contexts/setting-context";
+import UserBetHistories from "./user-bet-history.game";
+import { UserContext } from "@/contexts/user-context";
 
 interface GameHeaderProps {
   isCommentOpen: boolean;
@@ -35,6 +37,11 @@ interface GameHeaderProps {
   setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isReload: boolean;
   setIsReload: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+enum BetType {
+  SOLO = "SOLO",
+  NORMAL = "NORMAL",
 }
 
 export default function GameHeader({
@@ -50,9 +57,14 @@ export default function GameHeader({
   const id = param?.id;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [roomDialogOpen, setRoomDialogOpen] = useState(false);
-  const [supportDialogOpen, setSupportDialogOpen] = useState(false); // New state for support dialog
+  const [supportDialogOpen, setSupportDialogOpen] = useState(false);
+  const [betHistoryDialogOpen, setBetHistoryDialogOpen] = useState(false);
   const [listRooms, setListRooms] = useState<any[]>([]);
+
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   const settingContext = useContext(SettingContext);
   const setting = settingContext?.setting;
@@ -126,6 +138,14 @@ export default function GameHeader({
     setSupportDialogOpen(false);
   };
 
+  const handleOpenBetHistoryDialog = () => {
+    if (!user?._id) {
+      alert("Vui lòng đăng nhập để xem lịch sử cược.");
+      return;
+    }
+    setBetHistoryDialogOpen(true);
+  };
+
   const handleLinkClick = (url: string) => {
     window.open(url, "_blank");
   };
@@ -157,7 +177,7 @@ export default function GameHeader({
             }}
           >
             <HeaderIconButton
-              icon={ListAltOutlined}
+              icon={HomeOutlined}
               label="Trang chủ"
               onClick={() => router.push("/")}
             />
@@ -180,7 +200,7 @@ export default function GameHeader({
           >
             {isMobile ? (
               <HeaderIconButton
-                icon={ViewListOutlined}
+                icon={DoorSlidingOutlined}
                 label="Phòng"
                 onClick={handleOpenRoomDialog}
               />
@@ -237,11 +257,15 @@ export default function GameHeader({
               label="Bình luận"
               onClick={() => setIsCommentOpen(!isCommentOpen)}
             />
-            <HeaderIconButton icon={ListAltOutlined} label="LS Cược" />
+            <HeaderIconButton
+              icon={HistoryOutlined}
+              label="LS Cược"
+              onClick={handleOpenBetHistoryDialog}
+            />
             <HeaderIconButton
               icon={SupportAgentOutlined}
               label="Hỗ trợ"
-              onClick={handleOpenSupportDialog} // Open support dialog
+              onClick={handleOpenSupportDialog}
             />
           </Box>
         </Toolbar>
@@ -273,7 +297,7 @@ export default function GameHeader({
             Danh sách phòng
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {listRooms.map((label, index) => (
+            {listRooms.map((room, index) => (
               <Button
                 key={index}
                 variant="contained"
@@ -285,9 +309,12 @@ export default function GameHeader({
                   py: { xs: 1, sm: 1.5 },
                   textTransform: "none",
                 }}
-                onClick={handleCloseRoomDialog}
+                onClick={() => {
+                  router.push(`/game/${room._id}`);
+                  handleCloseRoomDialog();
+                }}
               >
-                {label}
+                {room.roomName}
               </Button>
             ))}
           </Box>
@@ -307,6 +334,10 @@ export default function GameHeader({
           </Button>
         </DialogActions>
       </Dialog>
+      <UserBetHistories
+        betHistoryDialogOpen={betHistoryDialogOpen}
+        setBetHistoryDialogOpen={setBetHistoryDialogOpen}
+      />
 
       {/* Dialog for Support */}
       <Dialog
@@ -325,7 +356,6 @@ export default function GameHeader({
       >
         <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
           <Box sx={{ maxWidth: "800px", mx: "auto", my: 2 }}>
-            {/* Hình ảnh minh họa */}
             <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
               <Box
                 component="img"

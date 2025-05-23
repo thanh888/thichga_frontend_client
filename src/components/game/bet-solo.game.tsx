@@ -1,5 +1,11 @@
 "use client";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   Box,
   Typography,
@@ -16,16 +22,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   deleteBetHistoryApi,
   getHistoriesBySession,
-  updateMatchedBetHistoryApi,
 } from "@/services/auth/bet-history.api";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
-import { useUser } from "@/hooks/use-user";
 import { toast } from "react-toastify";
-import { calculateMoneyBet } from "@/utils/function-convert.util";
 import { useSocket } from "@/socket";
 import AcceptSolo from "../lib/dialogs/confirm-solo";
+import { UserContext } from "@/contexts/user-context";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -67,11 +71,15 @@ const BetList: React.FC<{
   setSelectedBet,
   betRoom,
 }) => {
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   const socket = useSocket();
 
   const handleCancelBet = async (bet: BettingHistoryInterface) => {
+    if (!bet._id) {
+      return;
+    }
     try {
       const response = await deleteBetHistoryApi(bet?._id);
       if (response.status === 200 || response.status === 201) {
@@ -177,7 +185,7 @@ const BetList: React.FC<{
             >
               {bet?.selectedTeam === TeamEnum.RED ? "Gà đỏ" : "Gà xanh"}
             </Typography>
-            {user._id === bet?.creatorID._id &&
+            {user?._id === bet?.creatorID._id &&
             bet?.status === BetHistoryStatusEnum.NOT_MATCHED ? (
               <Button
                 variant="contained"
@@ -280,11 +288,15 @@ const BetInfo: React.FC<BetInfoProps> = ({
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [selectedBet, setSelectedBet] =
     useState<BettingHistoryInterface | null>(null);
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   const socket = useSocket();
 
   const getBetHistories = async () => {
+    if (!user) {
+      return;
+    }
     try {
       const response = await getHistoriesBySession(sessionID);
       if (response.status === 200 || response.status === 201) {

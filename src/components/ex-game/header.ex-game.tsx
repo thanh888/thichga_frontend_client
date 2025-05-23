@@ -1,20 +1,15 @@
 import React from "react";
 import { useRouter } from "next/navigation";
-import { AppBar, Toolbar, Box, Typography, IconButton } from "@mui/material";
+import { AppBar, Toolbar, Box, Typography } from "@mui/material";
 import ArrowBackIosOutlinedIcon from "@mui/icons-material/ArrowBackIosOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
-import InsertCommentOutlinedIcon from "@mui/icons-material/InsertCommentOutlined";
 import { SupportAgentOutlined } from "@mui/icons-material";
 
 interface HeaderProps {
-  onChatClick: () => void;
   onHistoryClick: () => void;
 }
 
-const HeaderExGame: React.FC<HeaderProps> = ({
-  onChatClick,
-  onHistoryClick,
-}) => {
+const HeaderExGame: React.FC<HeaderProps> = ({ onHistoryClick }) => {
   const router = useRouter();
 
   return (

@@ -46,9 +46,9 @@ const OptionList: React.FC<{
   color: string;
   betOptions: any[];
   setAcceptDialogOpen: Dispatch<SetStateAction<boolean>>;
-  setSelectedBet: Dispatch<SetStateAction<BettingHistoryInterface | null>>;
+  setSelectedBet: Dispatch<SetStateAction<BettingOptionInterface | null>>;
 }> = ({ title, color, betOptions, setAcceptDialogOpen, setSelectedBet }) => {
-  const handleOpenAcceptDialog = (bet: BettingHistoryInterface) => {
+  const handleOpenAcceptDialog = (bet: BettingOptionInterface) => {
     setSelectedBet(bet);
     setAcceptDialogOpen(true);
   };
@@ -84,7 +84,7 @@ const OptionList: React.FC<{
         </Typography>
       </Typography>
       <ScrollContainer>
-        {betOptions?.map((bet: BettingHistoryInterface, index: number) => (
+        {betOptions?.map((bet: BettingOptionInterface, index: number) => (
           <Box
             key={+index}
             sx={{
@@ -104,16 +104,6 @@ const OptionList: React.FC<{
               }}
             >
               {bet?.lost}:{bet?.win}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: { xs: 10, sm: 11 },
-                width: "100%",
-                color: "#fff",
-                textAlign: "center",
-              }}
-            >
-              {bet?.money}
             </Typography>
             <Typography
               sx={{

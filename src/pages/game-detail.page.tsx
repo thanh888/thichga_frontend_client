@@ -5,7 +5,6 @@ import BetNormal from "@/components/game/bet-normal.game";
 import GameFooter from "@/components/game/footer.game";
 import GameHeader from "@/components/game/header.game";
 import LiveStream from "@/components/game/live-stream.game";
-import { useUser } from "@/hooks/use-user";
 import { getRoomById } from "@/services/room.api";
 import { useSocket } from "@/socket";
 import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
@@ -13,8 +12,6 @@ import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import {
   Box,
   Grid,
-  useMediaQuery,
-  useTheme,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -23,18 +20,17 @@ import {
   Typography,
 } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import CommentComponent from "@/components/game/comment.game";
+import { UserContext } from "@/contexts/user-context";
 
 export default function GameDetailPage() {
   const router = useRouter();
   const params = useParams();
   const roomID = params?.id.toString();
 
-  const { user } = useUser();
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   const [isCommentOpen, setIsCommentOpen] = useState<boolean>(true);
   const [isBetOpen, setIsBetOpen] = useState<boolean>(true);
@@ -171,8 +167,6 @@ export default function GameDetailPage() {
             {betRoom?.latestSessionID &&
               betRoom.typeRoom === TypeBetRoomEnum.SOLO && (
                 <BetControls
-                  isCommentOpen={isCommentOpen}
-                  setIsCommentOpen={setIsCommentOpen}
                   setIsReloadBetting={setIsReloadBetting}
                   sessionID={betRoom.latestSessionID}
                   betRoom={betRoom}

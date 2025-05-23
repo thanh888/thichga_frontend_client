@@ -13,16 +13,10 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/use-user";
 import { toast } from "react-toastify";
 import { getRoomIsOpenedApi } from "@/services/room.api";
 import { SignOutApi } from "@/services/auth/auth.api";
-
-const pages = [
-  { name: "ĐÁ GÀ", path: "/game" },
-  { name: "HƯỚNG DẪN", path: "/support" },
-];
-const settings = ["Đăng xuất"];
+import { UserContext } from "@/contexts/user-context";
 
 function HeaderComponent() {
   const router = useRouter();
@@ -30,8 +24,9 @@ function HeaderComponent() {
     null
   );
 
-  const { user } = useUser();
-  const { checkSession } = useUser();
+  const userContext = React.useContext(UserContext);
+  const user = userContext?.user;
+  const checkSession = userContext?.checkSession;
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);

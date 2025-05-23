@@ -1,11 +1,9 @@
 "use client";
 import * as React from "react";
-import { Box, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import HistoryTableComponent from "./table_history.account";
 
 export default function DepositHistoryComponent() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [isReload, setIsReload] = React.useState<boolean>(false);
 
   return (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { CampaignOutlined, PersonOutlineOutlined } from "@mui/icons-material";
@@ -6,6 +6,7 @@ import Marquee from "react-fast-marquee";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { useUser } from "@/hooks/use-user";
 import { ConvertMoneyVND } from "@/utils/function-convert.util";
+import { UserContext } from "@/contexts/user-context";
 
 interface BetContainerProps {
   betRoom: BettingRoomInterface;
@@ -17,7 +18,8 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
   onWagerClick,
 }) => {
   const router = useRouter();
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
   return (
     <Paper
       elevation={0}

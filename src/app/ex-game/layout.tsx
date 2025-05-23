@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/use-user"; // Hook này bạn có thể dùng Firebase Auth hoặc JWT
+import { useUser } from "@/hooks/use-user";
 
 export default function ClientLayout({
   children,
@@ -28,8 +28,7 @@ export default function ClientLayout({
   }, [isLoading, user, error, hasRedirected, router]);
 
   if (isLoading || isChecking) {
-    // Loading UI (tùy bạn có thể thay đổi thành spinner)
-    return <div className="absolute top-[50%] left-[50%]">Loading...</div>;
+    return <div className="absolute top-[50%] left-[50%]">Đang tải...</div>;
   }
 
   return <>{children}</>;

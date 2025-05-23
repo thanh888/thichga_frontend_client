@@ -1,5 +1,5 @@
 "use client";
-import React, { use } from "react";
+import React, { useContext } from "react";
 import {
   Toolbar,
   Box,
@@ -10,14 +10,15 @@ import {
 } from "@mui/material";
 import { numberThousand } from "@/utils/function-convert.util";
 import Link from "next/link";
-import { useUser } from "@/hooks/use-user";
+import { UserContext } from "@/contexts/user-context";
 
 export default function GameFooter({
   userBetTotal,
 }: Readonly<{ userBetTotal: number }>) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   return (
     <Box
@@ -39,7 +40,6 @@ export default function GameFooter({
           minHeight: { xs: "60px", sm: "70px" },
         }}
       >
-        {/* Left: User Info */}
         <Box
           sx={{
             display: "flex",

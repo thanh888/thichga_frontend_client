@@ -7,8 +7,6 @@ import {
   Select,
   MenuItem,
   Button,
-  useMediaQuery,
-  useTheme,
   CircularProgress,
   SelectChangeEvent,
 } from "@mui/material";
@@ -26,8 +24,6 @@ interface Bank {
 }
 
 export default function BankInfoForm() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user } = useUser();
   const [banks, setBanks] = useState<Bank[]>([]);
   const [isLoadingBanks, setIsLoadingBanks] = useState(false);

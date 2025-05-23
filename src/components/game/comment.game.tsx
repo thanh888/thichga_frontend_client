@@ -1,30 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  CardContent,
-  Grid,
-  FormControl,
-  Select,
-  MenuItem,
-  Typography,
-  Box,
-  SelectChangeEvent,
-  TextField,
-  Button,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import { DefaultMoney, rates } from "@/utils/constans";
-import { useUser } from "@/hooks/use-user";
-import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
-import { TeamEnum } from "@/utils/enum/team.enum";
+import { Typography, Box, useMediaQuery, useTheme } from "@mui/material";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
-import { toast } from "react-toastify";
-import { createBetHistoryApi } from "@/services/auth/bet-history.api";
-import { useSocket } from "@/socket";
-import { sampleMoneys } from "@/utils/function-convert.util";
 
 interface Props {
   isCommentOpen: boolean;
@@ -110,8 +89,6 @@ export default function CommentComponent({
                     width="100%"
                     height={isMobile ? "246px" : "346px"}
                     allow="autoplay"
-                    frameBorder="0"
-                    scrolling="auto"
                     title="Live Comments"
                   />
                 </Box>

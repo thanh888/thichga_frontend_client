@@ -1,12 +1,10 @@
 "use client";
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import {
   Box,
   Button,
   Card,
   Divider,
-  SelectChangeEvent,
   Table,
   TableBody,
   TableCell,
@@ -86,14 +84,10 @@ export default function HistoryTableComponent({
   const [transactions, setTransactions] = React.useState<any>(null);
   const [page, setPage] = React.useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = React.useState<number>(10);
-  const [filter, setFilter] = React.useState({ code: "", status: "" });
-  const [order, setOrder] = React.useState<"asc" | "desc">("desc");
-  const [orderBy, setOrderBy] = React.useState<keyof Transaction>("createdAt");
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string>("");
 
   const { user } = useUser();
-  const router = useRouter();
 
   const fetchTransactions = async () => {
     setIsLoading(true);
@@ -104,10 +98,8 @@ export default function HistoryTableComponent({
         alert("Không tìm thấy thông tin người dùng");
         return;
       }
-      const sortQuery = order === "asc" ? orderBy : `-${orderBy}`;
-      const query = `limit=${rowsPerPage}&skip=${page + 1}&search=${
-        filter.code
-      }&status=${filter.status}&sort=${sortQuery}&user_id=${user._id}`;
+
+      const query = `limit=${rowsPerPage}&skip=${page + 1}&user_id=${user._id}`;
       const api = type === "deposit" ? paginateDepositApi : paginateWithdrawApi;
       const response = (await api(query)) as any;
       if (response.status === 200 || response.status === 201) {
@@ -141,27 +133,9 @@ export default function HistoryTableComponent({
 
   React.useEffect(() => {
     fetchTransactions();
-  }, [page, rowsPerPage, filter, order, orderBy, user._id, type]);
-
-  const handleRequestSort = (property: keyof Transaction) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleFilterChange = (
-    event:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<string>
-  ) => {
-    const { name, value } = event.target;
-    setFilter((prev) => ({ ...prev, [name]: value }));
-    setPage(0); // Reset to first page when filtering
-  };
+  }, [page, rowsPerPage, user._id, type]);
 
   const handleChangePage = (_: unknown, newPage: number) => {
-    console.log(11111111111111, newPage);
-
     setPage(newPage);
   };
 

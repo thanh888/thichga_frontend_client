@@ -1,17 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Modal, Box, Typography, Button } from "@mui/material";
 
 interface HistoryModalProps {
   open: boolean;
   onClose: () => void;
-  sessionID: string;
 }
 
-const HistoryModal: React.FC<HistoryModalProps> = ({
-  open,
-  onClose,
-  sessionID,
-}) => {
+const HistoryModal: React.FC<HistoryModalProps> = ({ open, onClose }) => {
   return (
     <Modal
       open={open}

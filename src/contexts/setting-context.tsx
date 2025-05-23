@@ -65,7 +65,9 @@ export function SettingProvider({
   }, []);
 
   React.useEffect(() => {
-    checkSettingSession().catch((err: unknown) => {});
+    checkSettingSession().catch((err: unknown) => {
+      console.log(err);
+    });
   }, []);
 
   const contextValue = React.useMemo(

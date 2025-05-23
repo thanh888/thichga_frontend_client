@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import React from "react";
+import { Box, Typography } from "@mui/material";
 import { UrlTypeEnum } from "@/utils/enum/url-type.enum";
-// import HlsPlayer from "react-hls-player";
 
 interface LiveStreamProps {
   sourceType?: UrlTypeEnum | string;
@@ -9,9 +8,6 @@ interface LiveStreamProps {
 }
 
 const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
   return (
     <Box
       sx={{

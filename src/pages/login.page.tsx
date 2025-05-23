@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Typography,
@@ -14,8 +14,8 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Link from "next/link";
 import { signInApi } from "@/services/auth/auth.api";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/use-user";
 import { toast } from "react-toastify";
+import { UserContext } from "@/contexts/user-context";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
@@ -26,8 +26,11 @@ const LoginPage: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  const { user } = useUser(); // Kiểm tra trạng thái đăng nhập
-  const { checkSession } = useUser(); // Access checkSession from UserContext
+  const userContext = useContext(UserContext);
+
+  const user = userContext?.user; // Kiểm tra trạng thái đăng nhập
+
+  const checkSession = userContext?.checkSession; // Access checkSession from UserContext
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

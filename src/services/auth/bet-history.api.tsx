@@ -5,6 +5,16 @@ export const getHistoriesBySession = async (sessionID: string) => {
   return res;
 };
 
+export const paginateBetHistoryByUserIDApi = async (
+  userID: string,
+  query: string
+) => {
+  const res = await axiosCustomize.get(
+    `/bet-history/${userID}/paginate-user?${query}`
+  );
+  return res;
+};
+
 export const createBetHistoryApi = async (formData: any) => {
   const res = await axiosCustomize.post(`/bet-history`, formData);
   return res;
