@@ -34,5 +34,5 @@ export default function ClientLayout({
     return <div className="absolute top-[50%] left-[50%]">Đang tải...</div>;
   }
 
-  return <UserProvider>{children}</UserProvider>;
+  return <>{children}</>;
 }

@@ -3,7 +3,6 @@ import FooterComponent from "@/components/footer/footer";
 import HeaderComponent from "@/components/header/header";
 import NotificationRealtime from "@/components/lib/dialogs/notification-realtime";
 import { UserContext, UserProvider } from "@/contexts/user-context";
-import { useUser } from "@/hooks/use-user";
 import { useSocket } from "@/socket";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
 import { ConvertMoneyVND } from "@/utils/function-convert.util";
@@ -16,7 +15,7 @@ export default function ClientLayout({
 }>) {
   const userContext = useContext(UserContext);
   const user = userContext?.user;
-  const { checkSession } = useUser();
+  const checkSession = userContext?.checkSession;
   const socket = useSocket();
 
   const statusLabels: { [key in DepositStatusEnum]: string } = {
@@ -61,7 +60,7 @@ export default function ClientLayout({
   return (
     <UserProvider>
       <HeaderComponent />
-      <main style={{ marginTop: "60px" }}>{children}</main>
+      <main style={{ marginTop: "48px" }}>{children}</main>
       <NotificationRealtime
         notification={notification}
         setNotification={setNotification}

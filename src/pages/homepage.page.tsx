@@ -90,8 +90,7 @@ export default function Homepage() {
               color: "text.primary",
             }}
           >
-            I can be a React component, multiple React components, or just some
-            text.
+            {setting?.slogan}
           </Typography>
         </Marquee>
       </Stack>
@@ -102,7 +101,7 @@ export default function Homepage() {
               <Box
                 sx={{
                   width: "100%",
-                  height: { xs: "200px", sm: "300px", md: "350px" },
+                  height: { xs: "200px", sm: "300px", md: "300px" },
                   position: "relative",
                   borderRadius: { xs: 1, sm: 2 },
                   overflow: "hidden",
@@ -169,7 +168,7 @@ export default function Homepage() {
               <Box
                 sx={{
                   width: "100%",
-                  height: { xs: "200px", sm: "300px", md: "350px" },
+                  height: { xs: "200px", sm: "300px", md: "300px" },
                   position: "relative",
                   borderRadius: { xs: 1, sm: 2 },
                   overflow: "hidden",

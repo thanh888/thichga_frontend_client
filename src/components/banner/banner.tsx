@@ -46,7 +46,7 @@ export default function BannerComponent() {
           <div
             style={{
               width: "100%",
-              height: isMobile ? "124px" : isTablet ? "300px" : "500px",
+              height: isMobile ? "140px" : isTablet ? "300px" : "500px",
               overflow: "hidden",
               position: "relative",
             }}
@@ -57,7 +57,7 @@ export default function BannerComponent() {
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
+                objectFit: "fill",
                 objectPosition: "center",
                 position: "absolute",
                 top: 0,

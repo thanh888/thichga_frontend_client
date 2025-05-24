@@ -144,8 +144,10 @@ export default function UserAccount() {
                   fontSize: { xs: "0.75rem", sm: "0.875rem" },
                 }}
               >
-                IP lần đăng nhập cuối:
-                <Typography variant="caption">09:21 14-04-2025</Typography>
+                Lần đăng nhập cuối:
+                <Typography variant="caption">
+                  {convertDateTime(user?.last_login_at?.toString() ?? "")}
+                </Typography>
               </Typography>
               <Typography
                 variant="body2"
@@ -156,10 +158,8 @@ export default function UserAccount() {
                   fontSize: { xs: "0.75rem", sm: "0.875rem" },
                 }}
               >
-                IpV6:
-                <Typography variant="caption">
-                  2405:4802:b27b:b750:465:3214:3265:db51
-                </Typography>
+                IP lần đăng nhập cuối:
+                <Typography variant="caption">{user?.ipv6}</Typography>
               </Typography>
             </Box>
           </Grid>

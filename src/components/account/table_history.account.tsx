@@ -14,11 +14,11 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import { useUser } from "@/hooks/use-user";
 import { convertDateTime, numberThousand } from "@/utils/function-convert.util";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
 import { paginateDepositApi } from "@/services/deposit.api";
 import { paginateWithdrawApi } from "@/services/withdraw.api";
+import { UserContext } from "@/contexts/user-context";
 
 // Define interface for transaction data
 interface Transaction {
@@ -87,13 +87,14 @@ export default function HistoryTableComponent({
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string>("");
 
-  const { user } = useUser();
+  const userContext = React.useContext(UserContext);
+  const user = userContext?.user;
 
   const fetchTransactions = async () => {
     setIsLoading(true);
     setError("");
     try {
-      if (!user._id) {
+      if (!user) {
         setError("Không tìm thấy thông tin người dùng");
         alert("Không tìm thấy thông tin người dùng");
         return;
@@ -132,8 +133,10 @@ export default function HistoryTableComponent({
   }, [isReload]);
 
   React.useEffect(() => {
-    fetchTransactions();
-  }, [page, rowsPerPage, user._id, type]);
+    if (user) {
+      fetchTransactions();
+    }
+  }, [page, rowsPerPage, user, type]);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -206,10 +209,14 @@ export default function HistoryTableComponent({
                     ?.format?.(row?.money?.toString() ?? "0") ||
                     numberThousand(row?.money?.toString())}
                 </TableCell>
-                <TableCell>{row?.bank?.bankName || "N/A"}</TableCell>
-                <TableCell>{row?.bank?.accountName || "N/A"}</TableCell>
-                <TableCell>{row?.bank?.accountNumber || "N/A"}</TableCell>
-                <TableCell>{row?.bank?.feedback || row.feedback}</TableCell>
+                <TableCell>{row?.userID?.bank?.bankName || "N/A"}</TableCell>
+                <TableCell>{row?.userID?.bank?.accountName || "N/A"}</TableCell>
+                <TableCell>
+                  {row?.userID?.bank?.accountNumber || "N/A"}
+                </TableCell>
+                <TableCell>
+                  {row?.userID?.bank?.feedback || row.feedback}
+                </TableCell>
                 <TableCell>
                   <Typography
                     variant="caption"

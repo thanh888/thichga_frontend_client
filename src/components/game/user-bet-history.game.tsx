@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useUser } from "@/hooks/use-user";
+import React, { useContext, useEffect, useState } from "react";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
@@ -35,6 +34,7 @@ import { useMediaQuery, useTheme } from "@mui/material";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { paginateBetHistoryByUserIDApi } from "@/services/auth/bet-history.api";
 import { BetResultEnum } from "@/utils/enum/bet-result.enum";
+import { UserContext } from "@/contexts/user-context";
 
 const listResultHistory = [
   { value: BetResultEnum.WIN, label: "Thắng" },
@@ -85,7 +85,8 @@ export default function UserBetHistories({
 }>) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const { user } = useUser();
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   const [bets, setBets] = useState<{
     docs: BettingHistoryInterface[];

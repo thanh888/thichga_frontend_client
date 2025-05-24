@@ -55,13 +55,10 @@ export default function GameDetailPage() {
   };
 
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    }
     if (roomID) {
       getBetRoomInfo(roomID);
     }
-  }, [roomID, user]);
+  }, [roomID]);
 
   const socket = useSocket();
 

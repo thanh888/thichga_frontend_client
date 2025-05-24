@@ -17,6 +17,8 @@ import { toast } from "react-toastify";
 import { getRoomIsOpenedApi } from "@/services/room.api";
 import { SignOutApi } from "@/services/auth/auth.api";
 import { UserContext } from "@/contexts/user-context";
+import { LogoutOutlined } from "@mui/icons-material";
+import { numberThousand } from "@/utils/function-convert.util";
 
 function HeaderComponent() {
   const router = useRouter();
@@ -92,8 +94,8 @@ function HeaderComponent() {
             <img
               alt="logo_thichga"
               src={"/images/game.png"}
-              width={50}
-              height={50}
+              width={60}
+              height={60}
             />
           </Link>
 
@@ -141,42 +143,80 @@ function HeaderComponent() {
           {user ? (
             <Box
               sx={{
-                flexGrow: 0,
+                flexGrow: { xs: 1, md: 0 },
                 gap: { xs: 1, md: 2 },
                 display: "flex",
-                position: "relative",
+                textAlign: "right",
+                justifyContent: "flex-end",
               }}
             >
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar
-                    alt="Remy Sharp"
-                    src="https://cdn.pixabay.com/photo/2016/11/01/21/11/avatar-1789663_640.png"
-                  />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
+              <Box
+                sx={{
+                  flexGrow: 0,
+                  display: "flex",
+                  position: "relative",
+                  border: "1px solid black",
+                  p: 0.2,
+                  borderRadius: 10,
+                  alignItems: "center",
                 }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
               >
-                <MenuItem onClick={handleLogout}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Đăng xuất
-                  </Typography>
-                </MenuItem>
-              </Menu>
+                <Tooltip title="Open settings" sx={{ p: 0, m: 0 }}>
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar
+                      sx={{ width: 28, height: 28 }}
+                      alt="Remy Sharp"
+                      src="/images/vn-flag.png"
+                    />
+                  </IconButton>
+                </Tooltip>
+                <Typography
+                  variant="body2"
+                  fontSize={20}
+                  fontWeight={500}
+                  sx={{ textWrap: "nowrap", color: "black", ml: 0.5, mr: 1 }}
+                >
+                  {numberThousand(user?.money?.toString() ?? "0") ?? 0}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  flexGrow: 0,
+                  gap: { xs: 1, md: 2 },
+                  display: "flex",
+                  position: "relative",
+                }}
+              >
+                <Tooltip title="Đăng xuất">
+                  <IconButton onClick={handleLogout} sx={{ p: 0 }}>
+                    <Avatar alt="Remy Sharp" sx={{ bgcolor: "#0d6efd" }}>
+                      <LogoutOutlined />
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  <MenuItem onClick={handleLogout}>
+                    <Typography sx={{ textAlign: "center" }}>
+                      Đăng xuất
+                    </Typography>
+                  </MenuItem>
+                </Menu>
+              </Box>
             </Box>
           ) : (
             <Box sx={{ flexGrow: 0, gap: { xs: 1, md: 2 }, display: "flex" }}>
