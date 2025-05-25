@@ -17,7 +17,7 @@ import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { toast } from "react-toastify";
-import { createBetHistoryApi } from "@/services/auth/bet-history.api";
+import { createBetHistoryApi } from "@/services/bet-history.api";
 import { useSocket } from "@/socket";
 import { sampleMoneys } from "@/utils/function-convert.util";
 import { UserContext } from "@/contexts/user-context";
@@ -82,6 +82,7 @@ export default function BetControls({
       status: BetHistoryStatusEnum.NOT_MATCHED,
       win: formData.win,
       lost: formData.lost,
+      betRoomID: betRoom._id,
     };
 
     try {

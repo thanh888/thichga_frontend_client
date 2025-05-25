@@ -25,39 +25,17 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
       elevation={0}
       sx={{
         p: 1,
-        border: "4px solid #d7b500",
-        borderRadius: 2,
         position: "relative",
         bgcolor: "black",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: -8,
-          left: -8,
-          width: 16,
-          height: 16,
-          bgcolor: "#d7b500",
-          clipPath: "polygon(0 0, 100% 0, 0 100%)",
-        },
-        "&::after": {
-          content: '""',
-          position: "absolute",
-          bottom: -8,
-          right: -8,
-          width: 16,
-          height: 16,
-          bgcolor: "#d7b500",
-          clipPath: "polygon(100% 0, 0 100%, 100% 100%)",
-        },
       }}
     >
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
-          mb: 1,
           bgcolor: "#fff8e1",
-          p: 1,
+          p: 0.8,
+          mb: 1,
           borderRadius: 1,
         }}
       >
@@ -150,13 +128,17 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
         sx={{
           position: "relative",
           paddingTop: "56.25%",
+          borderRadius: 2,
+          border: "4px solid #d7b500",
           mb: 2,
           bgcolor: "#ff69b4", // Pink background
         }}
       >
         {betRoom.urlLive && (
           <iframe
-            src={"https://322722.fun:5443/LiveApp/play.html?id=live5"}
+            src={
+              "https://www.youtube.com/embed/5Wlf1z4njzM?si=vbsm6xMMhdZOdDfz"
+            }
             title="Video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

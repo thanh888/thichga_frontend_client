@@ -23,6 +23,8 @@ export default function ClientLayout({
 
     // Nếu có lỗi hoặc chưa đăng nhập
     if (error || !user) {
+      console.log("234234: ", error);
+
       setHasRedirected(true);
       router.push("/login");
     } else {

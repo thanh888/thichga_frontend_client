@@ -15,7 +15,7 @@ import { TeamEnum } from "@/utils/enum/team.enum";
 import { calculateMoneyBet } from "@/utils/function-convert.util";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
-import { updateMatchedBetHistoryApi } from "@/services/auth/bet-history.api";
+import { updateMatchedBetHistoryApi } from "@/services/bet-history.api";
 import { toast } from "react-toastify";
 import { useSocket } from "@/socket";
 import { UserContext } from "@/contexts/user-context";
@@ -68,6 +68,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
       win: selectedBet?.lost,
       lost: selectedBet?.win,
       matchedUserId: selectedBet?.creatorID._id,
+      betRoomID: betRoom._id,
     };
 
     try {

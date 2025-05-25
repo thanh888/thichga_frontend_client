@@ -13,6 +13,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { toast } from "react-toastify";
 import { signUpApi } from "@/services/auth/auth.api";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
@@ -128,17 +129,26 @@ const RegisterPage: React.FC = () => {
           value={formData.phone}
           onChange={handleChange}
           variant="outlined"
-          sx={{ mb: 3 }}
           type="tel"
         />
         <Button
           fullWidth
           variant="contained"
           color="primary"
-          sx={{ py: 1.5 }}
+          sx={{ py: 1.5, my: 2 }}
           onClick={handleSubmit}
         >
           Đăng ký
+        </Button>
+        <Button
+          fullWidth
+          variant="outlined"
+          color="primary"
+          sx={{ py: 1.5 }}
+          component={Link}
+          href="/login"
+        >
+          Đăng nhập
         </Button>
       </Box>
     </Box>

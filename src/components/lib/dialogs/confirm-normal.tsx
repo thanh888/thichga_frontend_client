@@ -18,7 +18,7 @@ import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import {
   createBetHistoryApi,
   getHistoriesBySession,
-} from "@/services/auth/bet-history.api";
+} from "@/services/bet-history.api";
 import { toast } from "react-toastify";
 import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
 import { UserContext } from "@/contexts/user-context";
@@ -64,6 +64,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
       win: selectedOption?.lost,
       lost: selectedOption?.win,
       betOptionID: selectedOption._id,
+      betRoomID: betRoom._id,
     };
 
     try {

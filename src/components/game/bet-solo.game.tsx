@@ -22,7 +22,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   deleteBetHistoryApi,
   getHistoriesBySession,
-} from "@/services/auth/bet-history.api";
+} from "@/services/bet-history.api";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";

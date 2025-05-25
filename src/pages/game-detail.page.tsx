@@ -5,7 +5,7 @@ import BetNormal from "@/components/game/bet-normal.game";
 import GameFooter from "@/components/game/footer.game";
 import GameHeader from "@/components/game/header.game";
 import LiveStream from "@/components/game/live-stream.game";
-import { getRoomById } from "@/services/room.api";
+import { getListRoomsOpening, getRoomById } from "@/services/room.api";
 import { useSocket } from "@/socket";
 import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
@@ -62,14 +62,31 @@ export default function GameDetailPage() {
 
   const socket = useSocket();
 
+  const getListRooms = async () => {
+    try {
+      const response = await getListRoomsOpening();
+      if (response.status === 200 || response.status === 201) {
+        let checkIsClosed = true;
+        response?.data?.find((item: BettingRoomInterface) => {
+          if (item._id === roomID) {
+            checkIsClosed = false;
+          }
+          return false;
+        });
+        setIsClosed(checkIsClosed);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (!socket) return;
     if (!roomID) return;
 
     socket.on("update-room", (msg) => {
-      console.log("💰 Received update room:", msg);
       if (!msg.roomsOpening.includes(roomID)) {
-        setIsClosed(true);
+        getListRooms();
       }
       setIsReload(true);
     });
@@ -149,10 +166,7 @@ export default function GameDetailPage() {
           </Grid>
           <Grid size={{ xs: 12, md: 5, lg: 6, xl: 7 }}>
             {betRoom?.urlType && betRoom?.urlLive && (
-              <LiveStream
-                sourceType={betRoom?.urlType}
-                sourceUrl={betRoom?.urlLive}
-              />
+              <LiveStream betRoom={betRoom} />
             )}
           </Grid>
           <Grid

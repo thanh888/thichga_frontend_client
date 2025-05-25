@@ -1,13 +1,13 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { UrlTypeEnum } from "@/utils/enum/url-type.enum";
+import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 
 interface LiveStreamProps {
-  sourceType?: UrlTypeEnum | string;
-  sourceUrl?: string;
+  betRoom: BettingRoomInterface;
 }
 
-const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
+const LiveStream: React.FC<LiveStreamProps> = ({ betRoom }) => {
   return (
     <Box
       sx={{
@@ -41,7 +41,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
           textAlign="left"
           fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
         >
-          21/04/25 16:15:31
+          {betRoom?.leftText}
         </Typography>
         <Typography
           variant="body2"
@@ -51,7 +51,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
           fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
           sx={{ mx: 1, overflow: "hidden", textOverflow: "ellipsis" }}
         >
-          TELE TRƯỜNG: t.me/tgmchoa8888 - ANH HO TRONG GAI
+          {betRoom?.centerText}
         </Typography>
         <Typography
           variant="body2"
@@ -60,7 +60,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
           textAlign="right"
           fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
         >
-          1990 KG
+          {betRoom?.rightText}
         </Typography>
       </Box>
       <Box
@@ -71,9 +71,9 @@ const LiveStream: React.FC<LiveStreamProps> = ({ sourceType, sourceUrl }) => {
           height: 0,
         }}
       >
-        {sourceType === "iframe" && sourceUrl ? (
+        {betRoom.urlType === "iframe" && betRoom.urlLive ? (
           <iframe
-            src={sourceUrl}
+            src={betRoom.urlLive}
             title="Video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

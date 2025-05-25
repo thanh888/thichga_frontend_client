@@ -105,7 +105,7 @@ export default function UserBetHistories({
   const [orderBy, setOrderBy] =
     useState<keyof BettingHistoryInterface>("createdAt");
   const [tabValue, setTabValue] = useState<TypeBetRoomEnum>(
-    TypeBetRoomEnum.SOLO
+    TypeBetRoomEnum.OTHER
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -173,14 +173,6 @@ export default function UserBetHistories({
     setPage(0);
   };
 
-  const handleTabChange = (
-    event: React.SyntheticEvent,
-    newValue: TypeBetRoomEnum
-  ) => {
-    setTabValue(newValue);
-    setPage(0);
-  };
-
   const handleCloseBetHistoryDialog = () => {
     setBetHistoryDialogOpen(false);
     setFilter({ roomName: "", status: "" });
@@ -225,20 +217,6 @@ export default function UserBetHistories({
         >
           Lịch sử cược
         </Typography>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          centered
-          sx={{
-            mb: 2,
-            "& .MuiTab-root": { color: "black" },
-            "& .Mui-selected": { color: "#d7b500" },
-            "& .MuiTabs-indicator": { backgroundColor: "#d7b500" },
-          }}
-        >
-          <Tab label="Solo" value={TypeBetRoomEnum.SOLO} />
-          <Tab label="Normal" value={TypeBetRoomEnum.NORMAL} />
-        </Tabs>
 
         <Card sx={{ bgcolor: "white" }}>
           <Box

@@ -1,18 +1,20 @@
 "use client";
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  Typography,
+  Container,
+  Avatar,
+  Button,
+  Tooltip,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import Link from "next/link";
 import { toast } from "react-toastify";
 import { getRoomIsOpenedApi } from "@/services/room.api";
 import { SignOutApi } from "@/services/auth/auth.api";
@@ -28,6 +30,7 @@ function HeaderComponent() {
 
   const userContext = React.useContext(UserContext);
   const user = userContext?.user;
+  const isLoading = userContext?.isLoading;
   const checkSession = userContext?.checkSession;
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -39,46 +42,54 @@ function HeaderComponent() {
   };
 
   const handleLogout = async () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("account");
-
-    await SignOutApi();
-
-    if (checkSession) {
-      checkSession();
+    try {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("account");
+      await SignOutApi();
+      if (checkSession) {
+        checkSession();
+      }
+      router.push("/");
+      toast.success("Đăng xuất thành công");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Đăng xuất thất bại, vui lòng thử lại");
     }
-    router.push("/");
-
-    toast.success("Đăng xuất thành công");
   };
 
   const handleRedirectGame = async () => {
-    if (!user) {
+    if (!user?._id) {
       router.push("/login");
+      return;
     }
     try {
-      const respone = await getRoomIsOpenedApi();
+      const response = await getRoomIsOpenedApi();
       if (
-        (respone.status === 200 || respone.status === 201) &&
-        respone.data._id
+        (response.status === 200 || response.status === 201) &&
+        response.data._id
       ) {
-        router.push(`/game/${respone.data._id}`);
+        router.push(`/game/${response.data._id}`);
       } else {
         toast.warning("Không có phòng được mở");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Redirect game failed:", error);
       router.push("/login");
     }
   };
 
+  // Prevent rendering during loading to avoid flickering
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <AppBar
       sx={{
-        position: "fixed", // Đặt vị trí sticky cho header
-        top: 0, // Đảm bảo sticky hoạt động
-        zIndex: 1100, // Đặt z-index cao để header luôn nằm trên các phần tử khác
-        backgroundColor: "white", // Màu nền trắng cho header
+        position: "fixed",
+        top: 0,
+        zIndex: 1100,
+        backgroundColor: "white",
       }}
     >
       <Container maxWidth="xl">
@@ -93,7 +104,7 @@ function HeaderComponent() {
           >
             <img
               alt="logo_thichga"
-              src={"/images/game.png"}
+              src="/images/game.png"
               width={60}
               height={60}
             />
@@ -128,7 +139,7 @@ function HeaderComponent() {
               Game
             </Link>
             <Link
-              href={"/support"}
+              href="/support"
               className="hover:text-blue-500"
               style={{
                 textDecoration: "none",
@@ -140,7 +151,8 @@ function HeaderComponent() {
               Hướng dẫn
             </Link>
           </Box>
-          {user ? (
+
+          {user?._id ? (
             <Box
               sx={{
                 flexGrow: { xs: 1, md: 0 },
@@ -148,6 +160,7 @@ function HeaderComponent() {
                 display: "flex",
                 textAlign: "right",
                 justifyContent: "flex-end",
+                alignItems: "center",
               }}
             >
               <Box
@@ -161,15 +174,13 @@ function HeaderComponent() {
                   alignItems: "center",
                 }}
               >
-                <Tooltip title="Open settings" sx={{ p: 0, m: 0 }}>
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar
-                      sx={{ width: 28, height: 28 }}
-                      alt="Remy Sharp"
-                      src="/images/vn-flag.png"
-                    />
-                  </IconButton>
-                </Tooltip>
+                <IconButton sx={{ p: 0 }}>
+                  <Avatar
+                    sx={{ width: 28, height: 28 }}
+                    alt="User Avatar"
+                    src="/images/vn-flag.png"
+                  />
+                </IconButton>
                 <Typography
                   variant="body2"
                   fontSize={20}
@@ -189,7 +200,7 @@ function HeaderComponent() {
               >
                 <Tooltip title="Đăng xuất">
                   <IconButton onClick={handleLogout} sx={{ p: 0 }}>
-                    <Avatar alt="Remy Sharp" sx={{ bgcolor: "#0d6efd" }}>
+                    <Avatar alt="Logout" sx={{ bgcolor: "#0d6efd" }}>
                       <LogoutOutlined />
                     </Avatar>
                   </IconButton>
@@ -219,7 +230,15 @@ function HeaderComponent() {
               </Box>
             </Box>
           ) : (
-            <Box sx={{ flexGrow: 0, gap: { xs: 1, md: 2 }, display: "flex" }}>
+            <Box
+              sx={{
+                gap: { xs: 1, md: 2 },
+                flexGrow: { xs: 1, md: 0 },
+                display: "flex",
+                textAlign: "right",
+                justifyContent: "flex-end",
+              }}
+            >
               <Button variant="contained" onClick={() => router.push("/login")}>
                 Đăng nhập
               </Button>
@@ -236,4 +255,5 @@ function HeaderComponent() {
     </AppBar>
   );
 }
+
 export default HeaderComponent;
