@@ -6,7 +6,6 @@ import LiveStreamContainer from "@/components/ex-game/live-stream.ex-game";
 import BetOptionTable from "@/components/ex-game/bet-option";
 import WagerModal from "@/components/ex-game/WagerModal";
 import PlaceBetModal from "@/components/ex-game/PlaceBetModal";
-import HistoryModal from "@/components/ex-game/HistoryModal";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { getRoomById } from "@/services/room.api";
 import { useParams } from "next/navigation";

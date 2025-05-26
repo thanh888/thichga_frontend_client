@@ -2,9 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  turbopack: {
-    // Add supported Turbopack options here if needed
-  },
+  turbopack: {},
   output: "standalone",
 };
 
