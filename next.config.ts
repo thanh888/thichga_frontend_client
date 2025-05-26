@@ -2,10 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {
-    turbo: {},
+  turbopack: {
+    // Add supported Turbopack options here if needed
   },
-  output: "export",
+  output: "standalone",
 };
 
 export default nextConfig;
