@@ -84,7 +84,7 @@ const LoginPage: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "calc(100vh - 64px)", // Trừ chiều cao của AppBar
+        minHeight: "calc(100vh)", // Trừ chiều cao của AppBar
         backgroundColor: "#f5f5f5",
         p: 3,
       }}

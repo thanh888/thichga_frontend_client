@@ -237,7 +237,8 @@ export default function Homepage() {
         sx={{
           maxWidth: "100%",
           mx: "auto",
-          my: { xs: 2, sm: 5 },
+          mt: { xs: 1, sm: 2 },
+          mb: 4,
           p: { xs: 1, sm: 3 },
           "& > div": {
             fontSize: { xs: "0.875rem", sm: "1rem" },

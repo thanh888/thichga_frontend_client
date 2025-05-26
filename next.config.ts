@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   experimental: {
     turbo: {},
   },
+  output: "export",
 };
 
 export default nextConfig;

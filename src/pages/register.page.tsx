@@ -64,7 +64,7 @@ const RegisterPage: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "calc(100vh - 64px)", // Trừ chiều cao của AppBar
+        minHeight: "calc(100vh)", // Trừ chiều cao của AppBar
         backgroundColor: "#e3f2fd", // Màu nền xanh nhạt giống hình ảnh
         p: 3,
       }}
