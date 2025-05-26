@@ -80,7 +80,9 @@ export default function FooterComponent() {
                 },
               }}
               onClick={() =>
-                user ? router.push(item.path) : router.push("/login")
+                !user && item.path === "account"
+                  ? router.push("/login")
+                  : router.push(item.path)
               }
             />
           ))}

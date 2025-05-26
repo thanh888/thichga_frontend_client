@@ -72,7 +72,7 @@ export default function Homepage() {
   return (
     <Container
       maxWidth="xl"
-      sx={{ px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 } }}
+      sx={{ px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 }, bgcolor: "white" }}
     >
       <BannerComponent />
       <Stack

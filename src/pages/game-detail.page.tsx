@@ -172,7 +172,7 @@ export default function GameDetailPage() {
           <Grid
             size={{ xs: 12, md: 3.5, lg: 3, xl: 2.5 }}
             sx={{
-              display: { xs: isCommentOpen ? "block" : "none", md: "block" },
+              display: "block",
             }}
           >
             {betRoom?.latestSessionID &&
