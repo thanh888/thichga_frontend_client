@@ -135,6 +135,7 @@ const AccountPage: React.FC = () => {
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
+          bgcolor: "white",
           color: "#000000", // Default text color for non-MUI elements
         }}
         className="account-page" // Add class for scoped CSS
@@ -158,7 +159,7 @@ const AccountPage: React.FC = () => {
             borderRadius: "12px",
             boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
             p: { xs: 1.5, sm: 2 },
-            mb: 2,
+            my: 2,
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
