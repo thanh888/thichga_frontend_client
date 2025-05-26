@@ -44,7 +44,6 @@ export function UserProvider({
           isLoading: false,
         }));
       } else {
-        console.log(response?.message);
         setState((prev) => ({
           ...prev,
           user: null,

@@ -128,6 +128,7 @@ const BetOptionItem: React.FC<BetOptionItemProps> = ({
             width: "60%",
             textAlign: "center",
             border: "2px solid white",
+            // mx: "auto",
             borderRadius: 8,
             backgroundColor:
               bet?.teamMissing === TeamEnum.RED ? "#B6080D" : "#0E3B8A",
