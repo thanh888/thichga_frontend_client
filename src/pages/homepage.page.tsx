@@ -30,9 +30,6 @@ export default function Homepage() {
   const user = userContext?.user;
 
   const handleRedirectGame = async () => {
-    if (!user) {
-      router.push("/login");
-    }
     try {
       const respone = await getRoomIsOpenedApi();
       if (
@@ -50,9 +47,6 @@ export default function Homepage() {
   };
 
   const handleRedirectOtherGame = async () => {
-    if (!user) {
-      router.push("/login");
-    }
     try {
       const respone = await getRoomIsOpenedApi();
       if (
