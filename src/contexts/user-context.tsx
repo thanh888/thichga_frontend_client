@@ -34,17 +34,17 @@ export function UserProvider({
 
   const checkSession = React.useCallback(async (): Promise<void> => {
     try {
-      const reponse = await getAccoutUserApi();
+      const response = await getAccoutUserApi();
 
-      if (reponse.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         setState((prev) => ({
           ...prev,
-          user: reponse.data ?? null,
+          user: response.data ?? null,
           error: null,
           isLoading: false,
         }));
       } else {
-        console.log(reponse?.message);
+        console.log(response?.message);
         setState((prev) => ({
           ...prev,
           user: null,

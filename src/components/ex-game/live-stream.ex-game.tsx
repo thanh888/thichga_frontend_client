@@ -136,9 +136,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
       >
         {betRoom.urlLive && (
           <iframe
-            src={
-              "https://www.youtube.com/embed/5Wlf1z4njzM?si=vbsm6xMMhdZOdDfz"
-            }
+            src={betRoom.urlLive}
             title="Video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

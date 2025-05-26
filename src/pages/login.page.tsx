@@ -99,11 +99,14 @@ const LoginPage: React.FC = () => {
           boxShadow: 3,
         }}
       >
-        {/* Tiêu đề */}
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ fontWeight: "bold", color: "#2196f3" }} // Màu xanh cho tiêu đề
+        >
           ĐĂNG NHẬP
         </Typography>
-        <Typography variant="body1" gutterBottom sx={{ mb: 3 }}>
+        <Typography variant="body1" gutterBottom sx={{ mb: 4, color: "#666" }}>
           Hãy đăng nhập để tiếp tục nhé!
         </Typography>
 
