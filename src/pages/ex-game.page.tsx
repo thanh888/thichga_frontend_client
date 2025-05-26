@@ -11,6 +11,7 @@ import {
   Toolbar,
   Typography,
   ButtonBase,
+  CircularProgress,
 } from "@mui/material";
 import { Grid } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -24,17 +25,20 @@ interface Room {
 
 export default function ExGamePage(): React.JSX.Element {
   const router = useRouter();
-
-  const [rooms, setRooms] = React.useState<any>([]);
+  const [rooms, setRooms] = React.useState<Room[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   const getRoomsIsOpening = async () => {
     try {
+      setIsLoading(true);
       const response = await getListOtherRoomsOpening();
       if (response.status === 200 || response.status === 201) {
         setRooms(response.data);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Failed to fetch rooms:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,87 +68,110 @@ export default function ExGamePage(): React.JSX.Element {
           <Typography
             variant="h6"
             component="span"
-            sx={{ flexGrow: 1, textAlign: "center" }}
+            sx={{
+              flexGrow: 1,
+              textAlign: "center",
+              fontSize: { xs: "1rem", sm: "1.25rem" },
+            }}
           >
             CHỌN PHÒNG GÀ ĐÒN
           </Typography>
-          <Box sx={{ width: 48 }} /> {/* Spacer for alignment */}
+          <Box sx={{ width: { xs: 40, sm: 48 } }} />
         </Toolbar>
       </AppBar>
 
       {/* Main Content */}
-      <Box component="main" maxWidth="xl" sx={{ p: 3, mx: "auto" }}>
-        <Grid
-          container
-          spacing={2}
-          sx={{
-            justifyContent: "center",
-            maxWidth: "xl",
-            mx: "auto",
-          }}
-        >
-          {rooms.map((room: Room) => (
-            <Grid size={{ xs: 6, sm: 6, md: 3 }} key={room._id}>
-              <Card
-                sx={{
-                  border: "2px solid #d7b500", // Gold border
-                  borderRadius: 2,
-                  boxShadow: 3,
-                  "&:hover": {
-                    boxShadow: 6, // Stronger shadow on hover
-                    bgcolor: "#fff8e1", // Light gold background
-                  },
-                }}
-              >
-                <ButtonBase
-                  component={Link}
-                  href={`ex-game/${room._id}`}
-                  sx={{ width: "100%", p: 0, m: 0 }}
+      <Box
+        component="main"
+        maxWidth="xl"
+        sx={{ p: { xs: 2, sm: 3 }, mx: "auto" }}
+      >
+        {isLoading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+            <CircularProgress />
+          </Box>
+        ) : rooms.length === 0 ? (
+          <Typography sx={{ textAlign: "center", p: 3 }}>
+            Không có phòng nào được mở
+          </Typography>
+        ) : (
+          <Grid
+            container
+            spacing={{ xs: 1, sm: 2 }}
+            sx={{ justifyContent: "center", maxWidth: "xl", mx: "auto" }}
+          >
+            {rooms.map((room: Room) => (
+              <Grid size={{ xs: 6, sm: 6, md: 3 }} key={room._id}>
+                <Card
+                  sx={{
+                    border: "2px solid #d7b500",
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    "&:hover": {
+                      boxShadow: 6,
+                      bgcolor: "#fff8e1",
+                    },
+                  }}
                 >
-                  <CardContent
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      textAlign: "left",
-                      p: 1,
-                    }}
+                  <ButtonBase
+                    component={Link}
+                    href={`ex-game/${room._id}`}
+                    sx={{ width: "100%", p: 0, m: 0 }}
                   >
-                    <Box
-                      component="img"
-                      src={"images/ex-game.png"}
-                      alt={room.roomName}
+                    <CardContent
                       sx={{
-                        width: 120, // Fixed width for side-by-side layout
-                        height: 120,
-                        objectFit: "cover",
-                        borderRadius: 1,
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
+                        textAlign: { xs: "center", sm: "left" },
+                        p: { xs: 1.5, sm: 1 },
                       }}
-                    />
-                    <Box sx={{ p: 2, width: "100%" }}>
-                      <Typography
-                        variant="h6"
-                        component="h4"
-                        sx={{ fontWeight: "bold" }}
-                      >
-                        {room.roomName}
-                      </Typography>
-                      <Typography
-                        variant="body2"
+                    >
+                      <Box
+                        component="img"
+                        src="/images/ex-game.png"
+                        alt={room.roomName}
                         sx={{
-                          color: "#4caf50",
-                          fontWeight: 500,
-                          mt: 1,
+                          width: { xs: "100%", sm: 120 },
+                          maxWidth: 120,
+                          height: 120,
+                          objectFit: "cover",
+                          borderRadius: 1,
+                          mb: { xs: 1, sm: 0 },
                         }}
-                      >
-                        Đang mở phiên
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </ButtonBase>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                      />
+                      <Box sx={{ p: { xs: 1, sm: 2 }, width: "100%" }}>
+                        <Typography
+                          variant="h6"
+                          component="h4"
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: { xs: "0.9rem", sm: "1rem" },
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {room.roomName}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "#4caf50",
+                            fontWeight: 500,
+                            mt: 1,
+                            fontSize: { xs: "0.8rem", sm: "0.875rem" },
+                          }}
+                        >
+                          Đang mở phiên
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </ButtonBase>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
     </Box>
   );

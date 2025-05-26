@@ -239,6 +239,7 @@ export default function Homepage() {
             lineHeight: 1.5,
             overflowWrap: "break-word",
           },
+          color: "black",
         }}
       >
         <div

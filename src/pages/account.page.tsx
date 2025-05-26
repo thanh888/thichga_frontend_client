@@ -99,7 +99,7 @@ const AccountPage: React.FC = () => {
 
   if (isLoading || isChecking) {
     // Loading UI (tùy bạn có thể thay đổi thành spinner)
-    return <div className="absolute top-[50%] left-[50%]">Loading...</div>;
+    return <div className="absolute top-[50%] left-[40%]">Loading...</div>;
   }
 
   return (
@@ -109,6 +109,7 @@ const AccountPage: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
+        color: "black",
       }}
     >
       {/* User Info */}
