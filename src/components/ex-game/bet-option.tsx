@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Paper, Stack } from "@mui/material";
-import { Box, Typography, Button } from "@mui/material";
-import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
+import { Paper, Stack, Box, Typography, Button } from "@mui/material";
 import { getOptionsExGameBySession } from "@/services/bet-option.api";
 import { numberThousand } from "@/utils/function-convert.util";
 import { TeamEnum } from "@/utils/enum/team.enum";
@@ -13,20 +11,25 @@ import { useSocket } from "@/socket";
 
 interface Props {
   isReloadOption: boolean;
-  setIsreloadOption: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsReloadOption: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenBetting: React.Dispatch<any>;
   sessionID: string;
   betRoomID: string;
+  isReloadBetting: boolean;
 }
 
 const BetOptionTable = ({
   isReloadOption,
-  setIsreloadOption,
+  setIsReloadOption,
   sessionID,
   setOpenBetting,
   betRoomID,
+  isReloadBetting,
 }: Readonly<Props>) => {
-  const [options, setOptions] = useState<BettingOptionInterface[]>([]);
+  const [options, setOptions] = useState<any[]>([]);
+  const { user, checkSession } = useUser();
+  const currentUserID = user?._id;
+  const socket = useSocket();
 
   const getBetOptions = async () => {
     try {
@@ -39,12 +42,35 @@ const BetOptionTable = ({
     }
   };
 
+  const handleCancleBetExGame = async (betHistory: BettingHistoryInterface) => {
+    try {
+      const response = await UpdateCancelBetExGameHistoryApi(
+        betHistory._id,
+        betHistory
+      );
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Hủy cược thành công");
+        setIsReloadOption(true);
+        checkSession?.();
+        socket?.emit("bet-history", { roomID: betRoomID });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
+    console.log(isReloadOption);
+
     if (isReloadOption) {
       getBetOptions();
-      setIsreloadOption(false);
+      setIsReloadOption(false);
     }
   }, [isReloadOption]);
+
+  useEffect(() => {
+    getBetOptions();
+  }, [isReloadBetting]);
 
   return (
     <Paper
@@ -74,191 +100,149 @@ const BetOptionTable = ({
         },
       }}
     >
-      {options?.map((item, idx) => (
-        <BetOptionItem
-          key={+idx}
-          option={item}
-          setOpenBetting={setOpenBetting}
-          setIsreloadOption={setIsreloadOption}
-          betRoomID={betRoomID}
-        />
-      ))}
+      {options?.map((option, idx) => {
+        const hasUnmatchedOfCurrentUser = option?.unmatchedBets?.find(
+          (item: any) => item.creatorID === currentUserID
+        );
+
+        return (
+          <Box
+            key={idx}
+            sx={{
+              bgcolor: "#000",
+              color: "#d7b500",
+              borderRadius: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 0.5,
+              p: 1,
+              mb: 1,
+              height: "100%",
+              border: "2px solid #d7b500",
+            }}
+          >
+            {/* Tỉ lệ cược */}
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1,
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <Typography color="#0D85D8" fontWeight={700} fontSize={24}>
+                  {option?.lost}
+                </Typography>
+                <Typography fontWeight={700} fontSize={24}>
+                  :
+                </Typography>
+                <Typography color="#B6080D" fontWeight={700} fontSize={24}>
+                  {option?.win}
+                </Typography>
+              </Stack>
+
+              <Box
+                sx={{
+                  width: "60%",
+                  textAlign: "center",
+                  border: "2px solid white",
+                  borderRadius: 8,
+                  backgroundColor:
+                    option?.teamMissing === TeamEnum.RED
+                      ? "#B6080D"
+                      : "#0E3B8A",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight={600}
+                  fontSize={18}
+                  color="white"
+                >
+                  {numberThousand(option?.profitMissing) ?? 0}
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Tổng / Chờ / Khớp */}
+            <Box
+              sx={{ display: "flex", overflow: "hidden", alignItems: "center" }}
+            >
+              <Box display="flex" gap={0.5}>
+                <Button
+                  sx={{
+                    border: "2px solid white",
+                    borderRadius: "20px",
+                    color: "white",
+                    fontWeight: 600,
+                    fontSize: 10,
+                    height: "32px",
+                  }}
+                  onClick={() => setOpenBetting(option)}
+                >
+                  Cược
+                </Button>
+
+                {hasUnmatchedOfCurrentUser && (
+                  <Button
+                    sx={{
+                      border: "2px solid white",
+                      borderRadius: "20px",
+                      color: "white",
+                      fontWeight: 600,
+                      fontSize: 10,
+                      height: "32px",
+                    }}
+                    onClick={() =>
+                      handleCancleBetExGame(hasUnmatchedOfCurrentUser)
+                    }
+                  >
+                    Hủy
+                  </Button>
+                )}
+              </Box>
+
+              <Box
+                display="flex"
+                justifyContent="center"
+                flexDirection="column"
+                flexGrow={1}
+              >
+                <Box display="flex" justifyContent="center" overflow="hidden">
+                  <Typography fontWeight={600} color={"white"} fontSize={12}>
+                    Tổng
+                  </Typography>
+                  <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
+                  <Typography fontWeight={600} color={"white"} fontSize={12}>
+                    Chờ
+                  </Typography>
+                  <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
+                  <Typography fontWeight={600} color={"white"} fontSize={12}>
+                    Khớp
+                  </Typography>
+                </Box>
+
+                <Box display="flex" justifyContent="center" overflow="hidden">
+                  <Typography fontWeight={600} color={"white"} fontSize={14}>
+                    {numberThousand(option?.totalMoney) ?? 0}
+                  </Typography>
+                  <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
+                  <Typography fontWeight={600} color={"white"} fontSize={14}>
+                    {numberThousand(option?.moneyMissing) ?? 0}
+                  </Typography>
+                  <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
+                  <Typography fontWeight={600} color={"white"} fontSize={14}>
+                    {numberThousand(option?.moneyMatched) ?? 0}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        );
+      })}
     </Paper>
   );
 };
 
 export default BetOptionTable;
-
-// ==================== Item Component ====================
-
-interface BetOptionItemProps {
-  option: any;
-  setOpenBetting: React.Dispatch<any>;
-  setIsreloadOption: React.Dispatch<React.SetStateAction<boolean>>;
-  betRoomID: string;
-}
-
-const BetOptionItem: React.FC<BetOptionItemProps> = ({
-  option,
-  setOpenBetting,
-  setIsreloadOption,
-  betRoomID,
-}) => {
-  const { user, checkSession } = useUser();
-  // Lấy ID user hiện tại - bạn có thể lấy từ context/localStorage
-  const currentUserID = user?._id;
-  const socket = useSocket();
-
-  // Kiểm tra xem bet option có unmatched bet nào của user hiện tại không
-  const hasUnmatchedOfCurrentUser = option?.unmatchedBets?.find(
-    (item: any) => item.creatorID === currentUserID
-  );
-
-  const handleCancleBetExGame = async (betHistory: BettingHistoryInterface) => {
-    try {
-      const response = await UpdateCancelBetExGameHistoryApi(
-        betHistory._id,
-        betHistory
-      );
-      if (response.status === 200 || response.status === 201) {
-        console.log("Hủy cược thành công", response.data);
-        toast.success("Hủy cược thành công");
-        setIsreloadOption(true);
-        if (checkSession) {
-          checkSession();
-        }
-        if (socket) {
-          socket.emit("bet-history", {
-            roomID: betRoomID,
-          });
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return (
-    <Box
-      sx={{
-        bgcolor: "#000",
-        color: "#d7b500",
-        borderRadius: 2,
-        display: "flex",
-        flexDirection: "column",
-        gap: 0.5,
-        p: 1,
-        mb: 1,
-        height: "100%",
-        border: "2px solid #d7b500",
-      }}
-    >
-      {/* Tỉ lệ cược */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 1,
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Stack direction="row" spacing={0.5} alignItems="center">
-          <Typography color="#0D85D8" fontWeight={700} fontSize={24}>
-            {option?.lost}
-          </Typography>
-          <Typography fontWeight={700} fontSize={24}>
-            :
-          </Typography>
-          <Typography color="#B6080D" fontWeight={700} fontSize={24}>
-            {option?.win}
-          </Typography>
-        </Stack>
-
-        <Box
-          sx={{
-            width: "60%",
-            textAlign: "center",
-            border: "2px solid white",
-            borderRadius: 8,
-            backgroundColor:
-              option?.teamMissing === TeamEnum.RED ? "#B6080D" : "#0E3B8A",
-          }}
-        >
-          <Typography variant="h6" fontWeight={600} fontSize={18} color="white">
-            {numberThousand(option?.profitMissing) ?? 0}
-          </Typography>
-        </Box>
-      </Box>
-
-      {/* Tổng / Chờ / Khớp */}
-      <Box sx={{ display: "flex", overflow: "hidden", alignItems: "center" }}>
-        <Box display="flex" gap={0.5}>
-          <Button
-            sx={{
-              border: "2px solid white",
-              borderRadius: "20px",
-              color: "white",
-              fontWeight: 600,
-              fontSize: 10,
-              height: "32px",
-            }}
-            onClick={() => setOpenBetting(option)}
-          >
-            Cược
-          </Button>
-
-          {hasUnmatchedOfCurrentUser && (
-            <Button
-              sx={{
-                border: "2px solid white",
-                borderRadius: "20px",
-                color: "white",
-                fontWeight: 600,
-                fontSize: 10,
-                height: "32px",
-              }}
-              onClick={() => handleCancleBetExGame(hasUnmatchedOfCurrentUser)}
-            >
-              Hủy
-            </Button>
-          )}
-        </Box>
-
-        <Box
-          display="flex"
-          justifyContent="center"
-          flexDirection="column"
-          flexGrow={1}
-        >
-          <Box display="flex" justifyContent="center" overflow="hidden">
-            <Typography fontWeight={600} color={"white"} fontSize={12}>
-              Tổng
-            </Typography>
-            <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
-            <Typography fontWeight={600} color={"white"} fontSize={12}>
-              Chờ
-            </Typography>
-            <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
-            <Typography fontWeight={600} color={"white"} fontSize={12}>
-              Khớp
-            </Typography>
-          </Box>
-
-          <Box display="flex" justifyContent="center" overflow="hidden">
-            <Typography fontWeight={600} color={"white"} fontSize={14}>
-              {numberThousand(option?.totalMoney) ?? 0}
-            </Typography>
-            <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
-            <Typography fontWeight={600} color={"white"} fontSize={14}>
-              {numberThousand(option?.moneyMissing) ?? 0}
-            </Typography>
-            <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
-            <Typography fontWeight={600} color={"white"} fontSize={14}>
-              {numberThousand(option?.moneyMatched) ?? 0}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
-  );
-};

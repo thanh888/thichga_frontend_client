@@ -118,9 +118,6 @@ const WagerModal: React.FC<WagerModalProps> = ({
           checkSession();
         }
         if (socket) {
-          if (checkSession) {
-            checkSession();
-          }
           socket.emit("bet-history", {
             roomID: betRoomID,
           });

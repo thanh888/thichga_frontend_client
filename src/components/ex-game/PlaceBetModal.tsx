@@ -123,10 +123,10 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
         onClose();
         toast.success("Đặt cược thành công");
 
+        if (checkSession) {
+          checkSession();
+        }
         if (socket) {
-          if (checkSession) {
-            checkSession();
-          }
           socket.emit("bet-history", {
             roomID: betRoomID,
           });

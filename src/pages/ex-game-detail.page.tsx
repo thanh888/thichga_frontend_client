@@ -39,6 +39,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
   );
 
   const [isReloadBetting, setIsReloadBetting] = useState<boolean>(true);
+
   const [isReloadRoom, setIsReloadRoom] = useState<boolean>(true);
 
   const [isClosed, setIsClosed] = useState<boolean>(false);
@@ -55,10 +56,11 @@ export default function ExGameDetailPage(): React.JSX.Element {
   };
 
   useEffect(() => {
-    if (roomID) {
+    if (roomID && isReloadRoom) {
       getBetRoomInfo(roomID);
+      setIsReloadRoom(false);
     }
-  }, [roomID]);
+  }, [roomID, isReloadRoom]);
 
   const socket = useSocket();
 
@@ -90,12 +92,12 @@ export default function ExGameDetailPage(): React.JSX.Element {
 
     socket.on("update-room", async (msg) => {
       await checkRoomClosed();
-      setIsReloadOption(true);
+      setIsReloadOption(!isReloadBetting);
     });
 
     socket.on("bet-history", (msg) => {
       if (msg.roomID === roomID) {
-        setIsReloadOption(true); // Add this to trigger BetInfo reload
+        setIsReloadBetting(true);
       }
     });
 
@@ -144,9 +146,10 @@ export default function ExGameDetailPage(): React.JSX.Element {
               <BetOptionTable
                 setOpenBetting={setPlaceBetModalOpen}
                 isReloadOption={isReloadOption}
-                setIsreloadOption={setIsReloadOption}
+                setIsReloadOption={setIsReloadOption}
                 sessionID={betRoom.latestSessionID}
                 betRoomID={roomID}
+                isReloadBetting={isReloadBetting}
               />
             )}
           </Grid>
