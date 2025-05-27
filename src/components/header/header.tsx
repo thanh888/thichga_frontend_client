@@ -70,7 +70,7 @@ function HeaderComponent() {
       ) {
         router.push(`/game/${response.data._id}`);
       } else {
-        toast.warning("Không có phòng được mở");
+        toast.warning("Không có trận đấu nào được mở");
       }
     } catch (error) {
       console.error("Redirect game failed:", error);

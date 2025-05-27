@@ -31,8 +31,9 @@ export default function GameDetailPage() {
 
   const userContext = useContext(UserContext);
   const user = userContext?.user;
+  const checkSession = userContext?.checkSession;
 
-  const [isCommentOpen, setIsCommentOpen] = useState<boolean>(true);
+  const [isCommentOpen, setIsCommentOpen] = useState<boolean>(false);
   const [isBetOpen, setIsBetOpen] = useState<boolean>(true);
   const [betRoom, setBetRoom] = useState<BettingRoomInterface>();
 
@@ -40,12 +41,14 @@ export default function GameDetailPage() {
 
   const [isReload, setIsReload] = useState<boolean>(true);
   const [isReloadBetting, setIsReloadBetting] = useState<boolean>(true);
+  const [isReloadRoom, setIsReloadRoom] = useState<boolean>(true);
 
   const [isClosed, setIsClosed] = useState<boolean>(false);
 
   const getBetRoomInfo = async (room_id: string) => {
     try {
       const response = await getRoomById(room_id);
+
       if (response.status === 200 || response.status === 201) {
         setBetRoom(response.data);
       }
@@ -55,14 +58,15 @@ export default function GameDetailPage() {
   };
 
   useEffect(() => {
-    if (roomID) {
+    if (roomID && isReloadRoom) {
       getBetRoomInfo(roomID);
+      setIsReloadRoom(false);
     }
-  }, [roomID]);
+  }, [roomID, isReloadRoom]);
 
   const socket = useSocket();
 
-  const getListRooms = async () => {
+  const checkRoomClosed = async () => {
     try {
       const response = await getListRoomsOpening();
       if (response.status === 200 || response.status === 201) {
@@ -74,6 +78,10 @@ export default function GameDetailPage() {
           return false;
         });
         setIsClosed(checkIsClosed);
+        if (checkSession) {
+          await checkSession(); // Update user session if needed
+        }
+        setIsReloadRoom(true);
       }
     } catch (error) {
       console.log(error);
@@ -84,11 +92,10 @@ export default function GameDetailPage() {
     if (!socket) return;
     if (!roomID) return;
 
-    socket.on("update-room", (msg) => {
-      if (!msg.roomsOpening.includes(roomID)) {
-        getListRooms();
-      }
+    socket.on("update-room", async (msg) => {
+      await checkRoomClosed();
       setIsReload(true);
+      setIsReloadBetting(true);
     });
 
     socket.on("bet-history", (msg) => {
@@ -229,7 +236,6 @@ export default function GameDetailPage() {
           <Button
             onClick={() => {
               handleCloseDialog();
-              router.push("/");
             }}
             variant="contained"
             sx={{

@@ -5,7 +5,7 @@ import { UrlTypeEnum } from "../enum/url-type.enum";
 export interface BettingRoomInterface {
   _id?: string;
   // Name of the betting room
-  roomName?: string;
+  roomName: string;
 
   // Thumbnail image URL or identifier
   thumbnail?: string;

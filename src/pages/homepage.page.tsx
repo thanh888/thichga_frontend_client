@@ -38,7 +38,7 @@ export default function Homepage() {
       ) {
         router.push(`/game/${respone.data._id}`);
       } else {
-        toast.warning("Không có phòng được mở");
+        toast.warning("Không có trận đấu nào được mở");
       }
     } catch (error) {
       console.log(error);
@@ -55,7 +55,7 @@ export default function Homepage() {
       ) {
         router.push(`/ex-game`);
       } else {
-        toast.warning("Không có phòng được mở");
+        toast.warning("Không có trận đấu nào được mở");
       }
     } catch (error) {
       console.log(error);

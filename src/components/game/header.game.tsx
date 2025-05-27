@@ -201,7 +201,7 @@ export default function GameHeader({
             {isMobile ? (
               <HeaderIconButton
                 icon={DoorSlidingOutlined}
-                label="Phòng"
+                label="Trân cược"
                 onClick={handleOpenRoomDialog}
               />
             ) : (
@@ -294,13 +294,13 @@ export default function GameHeader({
             fontSize={{ xs: "1rem", sm: "1.25rem" }}
             textAlign="center"
           >
-            Danh sách phòng
+            Danh sách trận đấu
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {listRooms.map((room, index) => (
               <Button
                 key={index}
-                variant="contained"
+                variant={room._id === id ? "contained" : "outlined"}
                 color="warning"
                 sx={{
                   color: "white",
@@ -339,7 +339,6 @@ export default function GameHeader({
         setBetHistoryDialogOpen={setBetHistoryDialogOpen}
       />
 
-      {/* Dialog for Support */}
       <Dialog
         open={supportDialogOpen}
         onClose={handleCloseSupportDialog}

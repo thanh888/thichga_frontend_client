@@ -20,7 +20,6 @@ export function AuthGuard({
     if (isLoading) return;
 
     if (error || !user || !user._id || !user.username) {
-      console.error("AuthGuard error:", error || "Invalid user data");
       setIsChecking(false);
       router.replace("/login");
       return;
@@ -35,7 +34,6 @@ export function AuthGuard({
       setIsChecking(false);
       router.replace("/login");
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, error, isLoading]);
 
   if (isChecking || isLoading) {

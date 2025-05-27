@@ -1,4 +1,5 @@
 "use client";
+
 import React, {
   Dispatch,
   SetStateAction,
@@ -20,8 +21,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  deleteBetHistoryApi,
   getHistoriesBySession,
+  UpdateDeleteBetHistoryApi,
 } from "@/services/bet-history.api";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
@@ -73,6 +74,7 @@ const BetList: React.FC<{
 }) => {
   const userContext = useContext(UserContext);
   const user = userContext?.user;
+  const checkSession = userContext?.checkSession;
 
   const socket = useSocket();
 
@@ -81,7 +83,10 @@ const BetList: React.FC<{
       return;
     }
     try {
-      const response = await deleteBetHistoryApi(bet?._id);
+      const response = await UpdateDeleteBetHistoryApi(bet?._id, {
+        betSessionID: sessionID,
+        money: bet.money,
+      });
       if (response.status === 200 || response.status === 201) {
         toast.success("Hủy thành công");
         if (socket) {
@@ -89,10 +94,16 @@ const BetList: React.FC<{
             roomID: betRoom._id,
           });
         }
+        if (checkSession) {
+          await checkSession();
+        }
       }
       setIsReloadBetting(true);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      if (error?.response?.data?.message === "Betting is disable") {
+        toast.warn("Phiên cược đã đóng, không thể hủy");
+      }
     }
   };
 
@@ -183,7 +194,7 @@ const BetList: React.FC<{
                 textAlign: "center",
               }}
             >
-              {bet?.selectedTeam === TeamEnum.RED ? "Gà đỏ" : "Gà xanh"}
+              {bet?.selectedTeam === TeamEnum.RED ? "Meron" : "Wala"}
             </Typography>
             {user?._id === bet?.creatorID._id &&
             bet?.status === BetHistoryStatusEnum.NOT_MATCHED ? (
@@ -294,11 +305,12 @@ const BetInfo: React.FC<BetInfoProps> = ({
   const socket = useSocket();
 
   const getBetHistories = async () => {
-    if (!user) {
+    if (!user || !betRoom?.latestSessionID) {
+      console.warn("User or latestSessionID is missing");
       return;
     }
     try {
-      const response = await getHistoriesBySession(sessionID);
+      const response = await getHistoriesBySession(betRoom.latestSessionID);
       if (response.status === 200 || response.status === 201) {
         setBetHistories(response.data);
         const userTotalBet = response?.data
@@ -310,27 +322,32 @@ const BetInfo: React.FC<BetInfoProps> = ({
               total + Number(item.money),
             0
           );
-
         setUserBetTotal(userTotalBet);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching bet histories:", error);
     }
   };
 
   useEffect(() => {
+    if (!betRoom?.latestSessionID || !user) return;
+    getBetHistories();
+  }, [betRoom?.latestSessionID, user]);
+
+  useEffect(() => {
     if (!socket || !betRoom?._id) return;
 
-    socket.on("bet-history", (msg) => {
+    socket.on("bet-history", async (msg) => {
       if (msg.roomID === betRoom._id) {
-        getBetHistories();
+        await getBetHistories();
+        setIsReloadBetting(false);
       }
     });
 
     return () => {
       socket.off("bet-history");
     };
-  }, [socket, betRoom?._id]);
+  }, [socket, betRoom?._id, user]);
 
   useEffect(() => {
     if (isReloadBetting) {
@@ -338,12 +355,6 @@ const BetInfo: React.FC<BetInfoProps> = ({
       setIsReloadBetting(false);
     }
   }, [isReloadBetting]);
-
-  useEffect(() => {
-    console.log("123213:");
-
-    getBetHistories();
-  }, []);
 
   return (
     <>
@@ -379,7 +390,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
                   onClick={() => setIsBetOpen(false)}
                 />
                 <BetList
-                  title="Số lượt cược đang chờ: 1 (Gà đỏ)"
+                  title="Số lượt cược đang chờ: 1 (Meron)"
                   color="#ff4242"
                   betHistories={betHistories?.filter(
                     (item) => item.selectedTeam === TeamEnum.RED && item
@@ -409,22 +420,33 @@ const BetInfo: React.FC<BetInfoProps> = ({
         </AnimatePresence>
       )}
 
-      {/* Mobile: Dialog BetInfo */}
+      {/* Mobile: Non-modal Dialog */}
       {isMobile && (
         <Dialog
-          open={isBetOpen}
-          onClose={() => setIsBetOpen(false)}
+          open={!isBetOpen}
+          onClose={() => {}} // Prevent closing on backdrop click
+          disableEscapeKeyDown
           fullWidth
-          sx={{
-            "& .MuiDialog-paper": {
-              position: "absolute",
+          PaperProps={{
+            sx: {
+              position: "fixed",
               bottom: 0,
               m: 0,
               bgcolor: "#212529",
               borderTopLeftRadius: 8,
               borderTopRightRadius: 8,
-              maxHeight: "70vh",
+              maxHeight: "50vh",
               width: "100%",
+              boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.3)",
+            },
+          }}
+          BackdropProps={{
+            sx: { backgroundColor: "transparent" }, // No backdrop
+          }}
+          sx={{
+            pointerEvents: "none", // Allow interaction with background
+            "& .MuiDialog-paper": {
+              pointerEvents: "auto", // Allow interaction with dialog content
             },
           }}
         >
@@ -443,7 +465,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
               <CloseIcon fontSize="small" />
             </IconButton>
             <BetList
-              title="Số lượt cược đang chờ: 1 (Gà đỏ)"
+              title="Số lượt cược đang chờ: 1 (Meron)"
               color="#ff4242"
               betHistories={betHistories?.filter(
                 (item) => item.selectedTeam === TeamEnum.RED && item

@@ -40,3 +40,19 @@ export const deleteBetHistoryApi = async (id: string) => {
   const res = await axiosCustomize.delete(`/bet-history/${id}`);
   return res;
 };
+
+export const UpdateCancelBetExGameHistoryApi = async (
+  id: string,
+  formData: any
+) => {
+  const res = await axiosCustomize.put(
+    `/bet-history/${id}/delete-ex-game`,
+    formData
+  );
+  return res;
+};
+
+export const UpdateDeleteBetHistoryApi = async (id: string, formData: any) => {
+  const res = await axiosCustomize.put(`/bet-history/${id}/delete`, formData);
+  return res;
+};

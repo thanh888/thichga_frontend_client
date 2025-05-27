@@ -16,12 +16,14 @@ import { createOptionExGame } from "@/services/bet-option.api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { UserContext } from "@/contexts/user-context";
+import { useSocket } from "@/socket";
 
 interface PlaceBetModalProps {
   open: any;
   onClose: () => void;
   sessionID: string;
   setIsReloadOption: React.Dispatch<React.SetStateAction<boolean>>;
+  betRoomID: string;
 }
 
 const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
@@ -29,6 +31,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
   onClose,
   sessionID,
   setIsReloadOption,
+  betRoomID,
 }) => {
   const userContext = useContext(UserContext);
   const user = userContext?.user;
@@ -47,6 +50,8 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
     win?: string;
     user?: string;
   }>({});
+
+  const socket = useSocket();
 
   useEffect(() => {
     const calculatedWinAmount =
@@ -117,8 +122,14 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
         setIsReloadOption(true);
         onClose();
         toast.success("Đặt cược thành công");
-        if (checkSession) {
-          checkSession();
+
+        if (socket) {
+          if (checkSession) {
+            checkSession();
+          }
+          socket.emit("bet-history", {
+            roomID: betRoomID,
+          });
         }
       }
     } catch (error: any) {

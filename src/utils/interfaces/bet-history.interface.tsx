@@ -9,6 +9,8 @@ export interface BettingHistoryInterface {
 
   betSessionID: any;
 
+  betRoomID: string;
+
   creatorID?: any;
 
   money?: number;

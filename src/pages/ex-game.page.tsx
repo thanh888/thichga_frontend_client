@@ -92,7 +92,7 @@ export default function ExGamePage(): React.JSX.Element {
           </Box>
         ) : rooms.length === 0 ? (
           <Typography sx={{ textAlign: "center", p: 3 }}>
-            Không có phòng nào được mở
+            Không có trận đấu nào được mở
           </Typography>
         ) : (
           <Grid

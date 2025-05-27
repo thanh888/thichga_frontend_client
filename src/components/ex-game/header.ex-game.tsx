@@ -7,9 +7,10 @@ import { SupportAgentOutlined } from "@mui/icons-material";
 
 interface HeaderProps {
   onHistoryClick: () => void;
+  roomName: string;
 }
 
-const HeaderExGame: React.FC<HeaderProps> = ({ onHistoryClick }) => {
+const HeaderExGame: React.FC<HeaderProps> = ({ onHistoryClick, roomName }) => {
   const router = useRouter();
 
   return (
@@ -60,7 +61,7 @@ const HeaderExGame: React.FC<HeaderProps> = ({ onHistoryClick }) => {
             fontSize: "18px",
           }}
         >
-          MỘC HÓA ĐỘ 1
+          {roomName ?? ""}
         </Typography>
 
         {/* Action Buttons */}

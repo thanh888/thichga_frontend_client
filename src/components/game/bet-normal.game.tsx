@@ -1,4 +1,5 @@
 "use client";
+
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   Box,
@@ -13,12 +14,11 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { AnimatePresence, motion } from "framer-motion";
-import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
+import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { useSocket } from "@/socket";
 import { getOptionsBySession } from "@/services/bet-option.api";
 import AcceptNormal from "../lib/dialogs/confirm-normal";
-import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -115,7 +115,6 @@ const OptionList: React.FC<{
             >
               {bet?.selectedTeam === TeamEnum.RED ? "Gà đỏ" : "Gà xanh"}
             </Typography>
-
             <Button
               variant="contained"
               size="small"
@@ -169,7 +168,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [betOptions, setBetOptions] = useState<BettingHistoryInterface[]>([]);
+  const [betOptions, setBetOptions] = useState<BettingOptionInterface[]>([]);
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [selectedOption, setSelectedBet] =
     useState<BettingOptionInterface | null>(null);
@@ -191,8 +190,6 @@ const BetNormal: React.FC<BetInfoProps> = ({
     if (!socket || !betRoom?._id) return;
 
     socket.on("update-option", (msg) => {
-      console.log(msg);
-
       if (msg.roomID === betRoom._id) {
         getBetOptions();
       }
@@ -212,10 +209,11 @@ const BetNormal: React.FC<BetInfoProps> = ({
 
   useEffect(() => {
     getBetOptions();
-  }, []);
+  }, [sessionID]);
 
   return (
     <>
+      {/* Desktop: Inline BetNormal */}
       {!isMobile && (
         <AnimatePresence initial={false}>
           {isBetOpen && (
@@ -271,22 +269,33 @@ const BetNormal: React.FC<BetInfoProps> = ({
         </AnimatePresence>
       )}
 
-      {/* Mobile: Dialog BetNormal */}
+      {/* Mobile: Non-modal Dialog */}
       {isMobile && (
         <Dialog
-          open={isBetOpen}
-          onClose={() => setIsBetOpen(false)}
+          open={!isBetOpen}
+          onClose={() => {}} // Prevent closing on backdrop click
+          disableEscapeKeyDown
           fullWidth
-          sx={{
-            "& .MuiDialog-paper": {
-              position: "absolute",
+          PaperProps={{
+            sx: {
+              position: "fixed",
               bottom: 0,
               m: 0,
               bgcolor: "#212529",
               borderTopLeftRadius: 8,
               borderTopRightRadius: 8,
-              maxHeight: "70vh",
+              maxHeight: "50vh",
               width: "100%",
+              boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.3)",
+            },
+          }}
+          BackdropProps={{
+            sx: { backgroundColor: "transparent" }, // No backdrop
+          }}
+          sx={{
+            pointerEvents: "none", // Allow interaction with background
+            "& .MuiDialog-paper": {
+              pointerEvents: "auto", // Allow interaction with dialog content
             },
           }}
         >
@@ -305,7 +314,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
               <CloseIcon fontSize="small" />
             </IconButton>
             <OptionList
-              title="Số lượt cược đang chờ: 1 (Gà đỏ)"
+              title="Số lượt cược đang chờ: (Gà đỏ)"
               color="#ff4242"
               betOptions={betOptions?.filter(
                 (item) => item.selectedTeam === TeamEnum.RED && item
@@ -315,7 +324,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
             />
             <Box sx={{ height: "5px", mx: 2 }} />
             <OptionList
-              title="Số lượt cược đang chờ: 1 (Gà Xanh)"
+              title="Số lượt cược đang chờ: (Gà Xanh)"
               color="#0265ff"
               betOptions={betOptions?.filter(
                 (item) => item.selectedTeam === TeamEnum.BLUE && item

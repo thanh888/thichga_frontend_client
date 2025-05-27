@@ -16,12 +16,14 @@ import { createOptionExGame } from "@/services/bet-option.api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { UserContext } from "@/contexts/user-context";
+import { useSocket } from "@/socket";
 
 interface WagerModalProps {
   open: boolean;
   onClose: () => void;
   sessionID: string;
   setIsReloadOption: React.Dispatch<React.SetStateAction<boolean>>;
+  betRoomID: string;
 }
 
 const WagerModal: React.FC<WagerModalProps> = ({
@@ -29,11 +31,13 @@ const WagerModal: React.FC<WagerModalProps> = ({
   onClose,
   sessionID,
   setIsReloadOption,
+  betRoomID,
 }) => {
   const userContext = useContext(UserContext);
   const user = userContext?.user;
   const { checkSession } = useUser();
   const router = useRouter();
+  const socket = useSocket();
 
   const [selectedTeam, setSelectedTeam] = useState<string>("");
   const [lost, setLost] = useState("10");
@@ -112,6 +116,14 @@ const WagerModal: React.FC<WagerModalProps> = ({
         toast.success("Tạo kèo thành công");
         if (checkSession) {
           checkSession();
+        }
+        if (socket) {
+          if (checkSession) {
+            checkSession();
+          }
+          socket.emit("bet-history", {
+            roomID: betRoomID,
+          });
         }
       }
     } catch (error: any) {

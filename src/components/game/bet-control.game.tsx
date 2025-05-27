@@ -316,7 +316,7 @@ export default function BetControls({
                 color="#ff4242"
                 fontWeight={500}
               >
-                Gà đỏ
+                Meron
               </Typography>
               <Typography
                 variant="body2"
@@ -336,7 +336,7 @@ export default function BetControls({
                 fontWeight={500}
                 color="#0265ff"
               >
-                Gà xanh
+                Wala
               </Typography>
             </Box>
           </Grid>

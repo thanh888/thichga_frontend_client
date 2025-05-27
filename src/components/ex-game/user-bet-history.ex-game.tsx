@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
@@ -12,6 +12,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Divider,
   SelectChangeEvent,
   Stack,
@@ -19,7 +20,6 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TablePagination,
   TableRow,
   TableSortLabel,
   TextField,
@@ -29,6 +29,8 @@ import {
   DialogContent,
   Tabs,
   Tab,
+  TablePagination,
+  Alert,
 } from "@mui/material";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
@@ -43,7 +45,6 @@ const listResultHistory = [
   { value: BetResultEnum.CANCEL, label: "Hủy" },
 ];
 
-// Define interface for table columns
 interface Column {
   id: keyof BettingHistoryInterface | "odds" | "roomName";
   label: string;
@@ -54,7 +55,7 @@ interface Column {
 
 const columns: Column[] = [
   { id: "code", label: "Mã cược", minWidth: 80, align: "left" },
-  { id: "roomName", label: "Trận đấu", minWidth: 100, align: "left" },
+  { id: "roomName", label: "Trận đấu", minWidth: 150, align: "left" },
   {
     id: "money",
     label: "Số tiền (VND)",
@@ -64,16 +65,16 @@ const columns: Column[] = [
       value != null ? value.toLocaleString("vi-VN") : "N/A",
   },
   { id: "odds", label: "Tỷ lệ cược", minWidth: 100, align: "right" },
-  { id: "selectedTeam", label: "Đội chọn", minWidth: 150, align: "left" },
+  { id: "selectedTeam", label: "Đội chọn", minWidth: 120, align: "left" },
   {
     id: "userProfit",
     label: "Lợi nhuận",
     minWidth: 120,
     align: "left",
   },
-  { id: "userResult", label: "Kết quả", minWidth: 150, align: "left" },
-  { id: "status", label: "Trạng thái", minWidth: 150, align: "left" },
-  { id: "createdAt", label: "Thời gian", minWidth: 120, align: "center" },
+  { id: "userResult", label: "Kết quả", minWidth: 120, align: "left" },
+  { id: "status", label: "Trạng thái", minWidth: 120, align: "left" },
+  { id: "createdAt", label: "Thời gian", minWidth: 150, align: "center" },
 ];
 
 export default function UserBetHistories({
@@ -110,7 +111,7 @@ export default function UserBetHistories({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const fetchBets = async () => {
+  const fetchBets = useCallback(async () => {
     if (!user?._id) {
       setError("Vui lòng đăng nhập để xem lịch sử cược.");
       return;
@@ -120,9 +121,11 @@ export default function UserBetHistories({
     try {
       const sortQuery =
         order === "asc" ? String(orderBy) : `-${String(orderBy)}`;
-      const query = `limit=${rowsPerPage}&skip=${page * rowsPerPage}&search=${
-        filter.roomName
-      }&status=${filter.status}&sort=${sortQuery}`;
+      const query = `limit=${rowsPerPage}&skip=${page + 1}&user_id=${
+        user._id
+      }&search=${encodeURIComponent(filter.roomName)}&status=${
+        filter.status
+      }&type=${tabValue}&sort=${sortQuery}`;
       const response = await paginateBetHistoryByUserIDApi(user._id, query);
       if (response.status === 200 || response.status === 201) {
         setBets(response.data);
@@ -138,18 +141,21 @@ export default function UserBetHistories({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?._id, filter, page, rowsPerPage, order, orderBy, tabValue]);
+
+  // Debounce fetchBets to avoid excessive API calls
 
   useEffect(() => {
-    if (betHistoryDialogOpen) {
+    if (betHistoryDialogOpen && user) {
       fetchBets();
     }
-  }, [betHistoryDialogOpen, filter, page, rowsPerPage, order, orderBy]);
+  }, [betHistoryDialogOpen, page, rowsPerPage, order, orderBy, tabValue, user]);
 
   const handleRequestSort = (property: keyof BettingHistoryInterface) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
+    setPage(0); // Reset to first page on sort
   };
 
   const handleFilterChange = (
@@ -173,24 +179,51 @@ export default function UserBetHistories({
     setPage(0);
   };
 
+  const handleTabChange = (
+    event: React.SyntheticEvent,
+    newValue: TypeBetRoomEnum
+  ) => {
+    setTabValue(newValue);
+    setPage(0);
+  };
+
   const handleCloseBetHistoryDialog = () => {
     setBetHistoryDialogOpen(false);
     setFilter({ roomName: "", status: "" });
-    setTabValue(TypeBetRoomEnum.SOLO);
     setPage(0);
     setBets({ docs: [], totalDocs: 0 });
   };
 
-  // Filter bets by typeRoom and roomName on the frontend
-  const filteredBets = bets.docs.filter((bet) => {
-    const matchesTypeRoom = bet.betSessionID?.betRoomID?.typeRoom === tabValue;
-    const matchesRoomName =
-      filter.roomName === "" ||
-      bet.betSessionID?.betRoomID?.roomName
-        ?.toLowerCase()
-        .includes(filter.roomName.toLowerCase());
-    return matchesTypeRoom && matchesRoomName;
-  });
+  if (error) {
+    return (
+      <Card
+        sx={{
+          p: 2,
+          textAlign: "center",
+          bgcolor: "#2D3748",
+          borderRadius: "12px",
+        }}
+      >
+        <Alert
+          severity="error"
+          sx={{ m: 2, bgcolor: "#4A5568", color: "#FFFFFF" }}
+        >
+          {error}
+        </Alert>
+        <Button
+          variant="contained"
+          onClick={() => fetchBets()}
+          sx={{
+            bgcolor: "#d7b500",
+            color: "#1E2A44",
+            "&:hover": { bgcolor: "#ECC94B" },
+          }}
+        >
+          Thử lại
+        </Button>
+      </Card>
+    );
+  }
 
   return (
     <Dialog
@@ -200,130 +233,179 @@ export default function UserBetHistories({
       maxWidth="xl"
       sx={{
         "& .MuiDialog-paper": {
-          bgcolor: "white",
-          color: "black",
-          borderRadius: { xs: 0, sm: "8px" },
-          maxWidth: "100%",
+          bgcolor: "#1E2A44",
+          color: "#FFFFFF",
+          borderRadius: { xs: 0, sm: "12px" },
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
         },
       }}
     >
-      <DialogContent sx={{ p: { xs: 1, sm: 2 } }}>
+      <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
         <Typography
-          variant="h6"
-          fontWeight={500}
-          mb={{ xs: 1, sm: 2 }}
-          fontSize={{ xs: "1rem", sm: "1.25rem" }}
+          variant="h5"
+          fontWeight={600}
+          mb={{ xs: 2, sm: 3 }}
           textAlign="center"
+          sx={{ color: "#d7b500" }}
         >
-          Lịch sử cược
+          Lịch Sử Cược
         </Typography>
 
-        <Card sx={{ bgcolor: "white" }}>
+        <Card
+          sx={{
+            bgcolor: "#2D3748",
+            borderRadius: "12px",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+          }}
+        >
           <Box
-            sx={{ p: 2, display: "flex", gap: 2, justifyContent: "flex-end" }}
+            sx={{
+              p: 2,
+              display: "flex",
+              gap: 2,
+              justifyContent: "flex-end",
+              alignItems: "center",
+            }}
           >
             <TextField
-              label="Tìm theo tên phòng"
+              label="Tìm kiếm trận đấu"
               name="roomName"
               value={filter.roomName}
               onChange={handleFilterChange}
               size="small"
               sx={{
-                width: "50%",
-                "& .MuiInputBase-input": { color: "black" },
-                "& .MuiInputLabel-root": { color: "black" },
+                width: { xs: "100%", sm: "300px" },
+                "& .MuiInputBase-root": {
+                  bgcolor: "#4A5568",
+                  color: "#FFFFFF",
+                  borderRadius: "8px",
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#A0AEC0",
+                  "&.Mui-focused": { color: "#d7b500" },
+                },
                 "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "black" },
-                  "&:hover fieldset": { borderColor: "black" },
-                  "&.Mui-focused fieldset": { borderColor: "black" },
+                  "& fieldset": { borderColor: "#4A5568" },
+                  "&:hover fieldset": { borderColor: "#d7b500" },
+                  "&.Mui-focused fieldset": { borderColor: "#d7b500" },
                 },
               }}
             />
           </Box>
-          <Box sx={{ overflowX: "auto" }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  {columns.map((column, index) => (
-                    <TableCell
-                      key={+index}
-                      align={column.align}
-                      sx={{ minWidth: column.minWidth, color: "black" }}
-                    >
-                      <TableSortLabel
-                        active={orderBy === column.id}
-                        direction={orderBy === column.id ? order : "asc"}
-                        onClick={() =>
-                          handleRequestSort(
-                            column.id as keyof BettingHistoryInterface
-                          )
-                        }
+
+          {bets.docs.length === 0 && !isLoading && !error && (
+            <Box sx={{ p: 2, textAlign: "center" }}>
+              <Typography sx={{ color: "#FFFFFF" }}>
+                Không có cược nào để hiển thị
+              </Typography>
+            </Box>
+          )}
+
+          {isLoading && (
+            <Card
+              sx={{
+                p: 4,
+                display: "flex",
+                justifyContent: "center",
+                bgcolor: "#2D3748",
+                borderRadius: "12px",
+              }}
+            >
+              <CircularProgress sx={{ color: "#d7b500" }} />
+            </Card>
+          )}
+
+          {bets.docs.length > 0 && (
+            <Box sx={{ overflowX: "auto" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column, index) => (
+                      <TableCell
+                        key={index}
+                        align={column.align}
                         sx={{
-                          color: "black",
-                          "&.Mui-active": { color: "black" },
+                          minWidth: column.minWidth,
+                          color: "#d7b500",
+                          fontWeight: 600,
+                          bgcolor: "#1E2A44",
                         }}
                       >
-                        {column.label}
-                      </TableSortLabel>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredBets.length > 0 ? (
-                  filteredBets.map((row: BettingHistoryInterface) => (
-                    <TableRow hover key={row._id}>
-                      <TableCell sx={{ color: "black" }}>
-                        <Stack
-                          sx={{ alignItems: "center" }}
-                          direction="row"
-                          spacing={2}
+                        <TableSortLabel
+                          active={orderBy === column.id}
+                          direction={orderBy === column.id ? order : "asc"}
+                          onClick={() =>
+                            handleRequestSort(
+                              column.id as keyof BettingHistoryInterface
+                            )
+                          }
+                          sx={{
+                            color: "#d7b500",
+                            "&.Mui-active": { color: "#d7b500" },
+                            "&:hover": { color: "#FFFFFF" },
+                          }}
                         >
-                          <Typography variant="subtitle2">
-                            {row?.code}
-                          </Typography>
-                        </Stack>
+                          {column.label}
+                        </TableSortLabel>
                       </TableCell>
-                      <TableCell sx={{ color: "black" }}>
-                        {row?.betSessionID?.betRoomID?.roomName ?? "NaN"}
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {bets.docs.map((row: BettingHistoryInterface) => (
+                    <TableRow
+                      hover
+                      key={row._id}
+                      sx={{
+                        "&:hover": {
+                          bgcolor: "#3B4A68",
+                          transition: "background-color 0.2s",
+                        },
+                      }}
+                    >
+                      <TableCell sx={{ color: "#FFFFFF" }}>
+                        <Typography variant="subtitle2">{row?.code}</Typography>
                       </TableCell>
-                      <TableCell align="right" sx={{ color: "black" }}>
+                      <TableCell sx={{ color: "#FFFFFF" }}>
+                        {row?.betSessionID?.betRoomID?.roomName ?? "N/A"}
+                      </TableCell>
+                      <TableCell align="right" sx={{ color: "#FFFFFF" }}>
                         {columns
                           .find((col) => col.id === "money")
-                          ?.format?.(row?.money) || row?.money}
+                          ?.format?.(row?.money) || "N/A"}
                       </TableCell>
-                      <TableCell align="right" sx={{ color: "black" }}>
+                      <TableCell align="right" sx={{ color: "#FFFFFF" }}>
                         {row?.win}:{row?.lost}
                       </TableCell>
-                      <TableCell sx={{ color: "black" }}>
+                      <TableCell sx={{ color: "#FFFFFF" }}>
                         <Typography
                           variant="caption"
                           bgcolor={
                             row?.selectedTeam === TeamEnum.BLUE
-                              ? "#33bfff"
-                              : "#e57373"
+                              ? "#2B6CB0"
+                              : "#C53030"
                           }
                           sx={{
                             p: 1,
-                            borderRadius: 1,
+                            borderRadius: "6px",
                             fontWeight: 500,
                             fontSize: 14,
                           }}
                         >
                           {row?.selectedTeam === TeamEnum.BLUE
-                            ? "Gà xanh"
-                            : "Gà đỏ"}
+                            ? "Wala"
+                            : "Meron"}
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ color: "black" }}>
+                      <TableCell sx={{ color: "#FFFFFF" }}>
                         <Typography
                           variant="caption"
                           bgcolor={
-                            (row?.userProfit ?? 0) >= 0 ? "#1de9b6" : "#e57373"
+                            (row?.userProfit ?? 0) >= 0 ? "#38A169" : "#C53030"
                           }
                           sx={{
                             p: 1,
-                            borderRadius: 1,
+                            borderRadius: "6px",
                             fontWeight: 500,
                             fontSize: 14,
                           }}
@@ -331,14 +413,22 @@ export default function UserBetHistories({
                           {ConvertMoneyVND(row?.userProfit ?? 0)}
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ color: "black" }}>
+                      <TableCell sx={{ color: "#FFFFFF" }}>
                         <Typography
                           variant="caption"
                           sx={{
                             p: 1,
-                            borderRadius: 1,
+                            borderRadius: "6px",
                             fontWeight: 500,
                             fontSize: 14,
+                            bgcolor:
+                              row?.userResult === BetResultEnum.WIN
+                                ? "#38A169"
+                                : row?.userResult === BetResultEnum.LOSE
+                                ? "#C53030"
+                                : row?.userResult === BetResultEnum.DRAW
+                                ? "#718096"
+                                : "#ECC94B",
                           }}
                         >
                           {listResultHistory.find(
@@ -346,14 +436,19 @@ export default function UserBetHistories({
                           )?.label || "Đang chờ"}
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ color: "black" }}>
+                      <TableCell sx={{ color: "#FFFFFF" }}>
                         <Typography
                           variant="caption"
                           sx={{
                             p: 1,
-                            borderRadius: 1,
+                            borderRadius: "6px",
                             fontWeight: 500,
                             fontSize: 14,
+                            textWrap: "nowrap",
+                            bgcolor:
+                              row?.status === BetHistoryStatusEnum.MATCHED
+                                ? "#3182CE"
+                                : "#A0AEC0",
                           }}
                         >
                           {row?.status === BetHistoryStatusEnum.MATCHED
@@ -361,38 +456,31 @@ export default function UserBetHistories({
                             : "Chưa khớp"}
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ color: "black" }}>
+                      <TableCell sx={{ color: "#FFFFFF" }}>
                         {convertDateTime(row?.createdAt?.toString() || "")}
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={9}
-                      sx={{ color: "white", textAlign: "center" }}
-                    >
-                      Không có cược nào để hiển thị
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Box>
-          <Divider sx={{ borderColor: "black" }} />
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          )}
+          <Divider sx={{ borderColor: "#4A5568" }} />
           <TablePagination
             component="div"
-            count={filteredBets.length || 0}
+            count={bets.totalDocs || 0}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             rowsPerPageOptions={[5, 10, 25]}
             sx={{
-              color: "black",
-              "& .MuiTablePagination-selectLabel": { color: "#black" },
-              "& .MuiTablePagination-displayedRows": { color: "black" },
-              "& .MuiTablePagination-actions button": { color: "#black" },
+              color: "#FFFFFF",
+              "& .MuiTablePagination-selectLabel": { color: "#FFFFFF" },
+              "& .MuiTablePagination-displayedRows": { color: "#FFFFFF" },
+              "& .MuiTablePagination-actions button": { color: "#FFFFFF" },
+              "& .MuiTablePagination-select": { color: "#FFFFFF" },
+              "& .MuiSvgIcon-root": { color: "#FFFFFF" },
             }}
           />
         </Card>
@@ -400,13 +488,16 @@ export default function UserBetHistories({
       <DialogActions sx={{ justifyContent: "center", pb: { xs: 2, sm: 3 } }}>
         <Button
           onClick={handleCloseBetHistoryDialog}
-          variant="outlined"
+          variant="contained"
           sx={{
-            color: "black",
-            borderColor: "black",
-            fontSize: { xs: "12px", sm: "14px" },
-            px: { xs: 2, sm: 3 },
-            "&:hover": { borderColor: "#black", color: "#black" },
+            bgcolor: "#d7b500",
+            color: "#1E2A44",
+            fontWeight: 600,
+            borderRadius: "8px",
+            px: { xs: 3, sm: 4 },
+            "&:hover": {
+              bgcolor: "#ECC94B",
+            },
           }}
         >
           Đóng
