@@ -49,6 +49,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
       const response = await getRoomById(room_id);
       if (response.status === 200 || response.status === 201) {
         setBetRoom(response.data);
+        setIsReloadBetting(!isReloadBetting);
       }
     } catch (error) {
       console.log(error);
@@ -92,12 +93,13 @@ export default function ExGameDetailPage(): React.JSX.Element {
 
     socket.on("update-room", async (msg) => {
       await checkRoomClosed();
-      setIsReloadOption(!isReloadBetting);
+      setIsReloadOption(true);
+      setIsReloadBetting(!isReloadBetting);
     });
 
     socket.on("bet-history", (msg) => {
       if (msg.roomID === roomID) {
-        setIsReloadBetting(true);
+        setIsReloadBetting(!isReloadBetting);
       }
     });
 

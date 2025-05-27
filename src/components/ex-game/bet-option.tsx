@@ -60,8 +60,6 @@ const BetOptionTable = ({
   };
 
   useEffect(() => {
-    console.log(isReloadOption);
-
     if (isReloadOption) {
       getBetOptions();
       setIsReloadOption(false);
