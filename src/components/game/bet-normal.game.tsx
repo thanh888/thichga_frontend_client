@@ -19,6 +19,8 @@ import { TeamEnum } from "@/utils/enum/team.enum";
 import { useSocket } from "@/socket";
 import { getOptionsBySession } from "@/services/bet-option.api";
 import AcceptNormal from "../lib/dialogs/confirm-normal";
+import { toast } from "react-toastify";
+import { LoadingSpinner } from "../lib/spinner/LoadingSpinner";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -157,6 +159,7 @@ const slideVariants = {
   exit: { height: 0, opacity: 0 },
 };
 
+// BetNormal.tsx
 const BetNormal: React.FC<BetInfoProps> = ({
   sessionID,
   isBetOpen,
@@ -172,29 +175,28 @@ const BetNormal: React.FC<BetInfoProps> = ({
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [selectedOption, setSelectedBet] =
     useState<BettingOptionInterface | null>(null);
-
+  const [loading, setLoading] = useState<boolean>(false);
   const socket = useSocket();
 
   const getBetOptions = async () => {
     try {
+      setLoading(true);
       const response = await getOptionsBySession(sessionID);
       if (response.status === 200 || response.status === 201) {
         setBetOptions(response.data);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     if (!socket || !betRoom?._id) return;
-
     socket.on("update-option", (msg) => {
-      if (msg.roomID === betRoom._id) {
-        getBetOptions();
-      }
+      if (msg.roomID === betRoom._id) getBetOptions();
     });
-
     return () => {
       socket.off("update-option");
     };
@@ -213,42 +215,107 @@ const BetNormal: React.FC<BetInfoProps> = ({
 
   return (
     <>
-      {/* Desktop: Inline BetNormal */}
-      {!isMobile && (
-        <AnimatePresence initial={false}>
-          {isBetOpen && (
-            <motion.div
-              variants={slideVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-              <Box
-                sx={{
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <>
+          {!isMobile && (
+            <AnimatePresence initial={false}>
+              {isBetOpen && (
+                <motion.div
+                  variants={slideVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      backgroundColor: "#212529",
+                      position: "relative",
+                      borderRadius: 2,
+                    }}
+                  >
+                    <CloseIcon
+                      sx={{
+                        fontSize: 24,
+                        position: "absolute",
+                        top: -8,
+                        right: -8,
+                        backgroundColor: "white",
+                        borderRadius: "50%",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setIsBetOpen(false)}
+                    />
+                    <OptionList
+                      title="Số lượt cược đang chờ: (Gà đỏ)"
+                      color="#ff4242"
+                      betOptions={betOptions?.filter(
+                        (item) => item.selectedTeam === TeamEnum.RED
+                      )}
+                      setAcceptDialogOpen={setAcceptDialogOpen}
+                      setSelectedBet={setSelectedBet}
+                    />
+                    <Box sx={{ height: "5px", mx: 2 }} />
+                    <OptionList
+                      title="Số lượt cược đang chờ: (Gà Xanh)"
+                      color="#0265ff"
+                      betOptions={betOptions?.filter(
+                        (item) => item.selectedTeam === TeamEnum.BLUE
+                      )}
+                      setAcceptDialogOpen={setAcceptDialogOpen}
+                      setSelectedBet={setSelectedBet}
+                    />
+                  </Box>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
+          {isMobile && (
+            <Dialog
+              open={!isBetOpen}
+              disableEscapeKeyDown
+              fullWidth
+              PaperProps={{
+                sx: {
+                  position: "fixed",
+                  bottom: 0,
+                  m: 0,
+                  bgcolor: "#212529",
+                  borderTopLeftRadius: 8,
+                  borderTopRightRadius: 8,
+                  maxHeight: "50vh",
                   width: "100%",
-                  backgroundColor: "#212529",
-                  position: "relative",
-                  borderRadius: 2,
-                }}
-              >
-                <CloseIcon
+                  boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.3)",
+                },
+              }}
+              BackdropProps={{ sx: { backgroundColor: "transparent" } }}
+              sx={{
+                pointerEvents: "none",
+                "& .MuiDialog-paper": { pointerEvents: "auto" },
+              }}
+            >
+              <DialogContent sx={{ p: { xs: 1, sm: 2 }, position: "relative" }}>
+                <IconButton
+                  onClick={() => setIsBetOpen(!isBetOpen)}
                   sx={{
-                    fontSize: 24,
                     position: "absolute",
-                    top: -8,
-                    right: -8,
-                    backgroundColor: "white",
-                    borderRadius: "50%",
-                    cursor: "pointer",
+                    top: 8,
+                    right: 8,
+                    color: "white",
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
                   }}
-                  onClick={() => setIsBetOpen(false)}
-                />
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
                 <OptionList
                   title="Số lượt cược đang chờ: (Gà đỏ)"
                   color="#ff4242"
                   betOptions={betOptions?.filter(
-                    (item) => item.selectedTeam === TeamEnum.RED && item
+                    (item) => item.selectedTeam === TeamEnum.RED
                   )}
                   setAcceptDialogOpen={setAcceptDialogOpen}
                   setSelectedBet={setSelectedBet}
@@ -258,97 +325,27 @@ const BetNormal: React.FC<BetInfoProps> = ({
                   title="Số lượt cược đang chờ: (Gà Xanh)"
                   color="#0265ff"
                   betOptions={betOptions?.filter(
-                    (item) => item.selectedTeam === TeamEnum.BLUE && item
+                    (item) => item.selectedTeam === TeamEnum.BLUE
                   )}
                   setAcceptDialogOpen={setAcceptDialogOpen}
                   setSelectedBet={setSelectedBet}
                 />
-              </Box>
-            </motion.div>
+              </DialogContent>
+            </Dialog>
           )}
-        </AnimatePresence>
+          <AcceptNormal
+            open={acceptDialogOpen}
+            onClose={() => {
+              setAcceptDialogOpen(false);
+              setSelectedBet(null);
+            }}
+            selectedOption={selectedOption}
+            betRoom={betRoom}
+            setUserBetTotal={setUserBetTotal}
+          />
+        </>
       )}
-
-      {/* Mobile: Non-modal Dialog */}
-      {isMobile && (
-        <Dialog
-          open={!isBetOpen}
-          onClose={() => {}} // Prevent closing on backdrop click
-          disableEscapeKeyDown
-          fullWidth
-          PaperProps={{
-            sx: {
-              position: "fixed",
-              bottom: 0,
-              m: 0,
-              bgcolor: "#212529",
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-              maxHeight: "50vh",
-              width: "100%",
-              boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.3)",
-            },
-          }}
-          BackdropProps={{
-            sx: { backgroundColor: "transparent" }, // No backdrop
-          }}
-          sx={{
-            pointerEvents: "none", // Allow interaction with background
-            "& .MuiDialog-paper": {
-              pointerEvents: "auto", // Allow interaction with dialog content
-            },
-          }}
-        >
-          <DialogContent sx={{ p: { xs: 1, sm: 2 }, position: "relative" }}>
-            <IconButton
-              onClick={() => setIsBetOpen(false)}
-              sx={{
-                position: "absolute",
-                top: 8,
-                right: 8,
-                color: "white",
-                bgcolor: "rgba(255,255,255,0.2)",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-              }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-            <OptionList
-              title="Số lượt cược đang chờ: (Gà đỏ)"
-              color="#ff4242"
-              betOptions={betOptions?.filter(
-                (item) => item.selectedTeam === TeamEnum.RED && item
-              )}
-              setAcceptDialogOpen={setAcceptDialogOpen}
-              setSelectedBet={setSelectedBet}
-            />
-            <Box sx={{ height: "5px", mx: 2 }} />
-            <OptionList
-              title="Số lượt cược đang chờ: (Gà Xanh)"
-              color="#0265ff"
-              betOptions={betOptions?.filter(
-                (item) => item.selectedTeam === TeamEnum.BLUE && item
-              )}
-              setAcceptDialogOpen={setAcceptDialogOpen}
-              setSelectedBet={setSelectedBet}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Accept Bet Dialog */}
-      <AcceptNormal
-        open={acceptDialogOpen}
-        onClose={() => {
-          setAcceptDialogOpen(false);
-          setSelectedBet(null);
-        }}
-        selectedOption={selectedOption}
-        betRoom={betRoom}
-        setUserBetTotal={setUserBetTotal}
-      />
     </>
   );
 };
-
 export default BetNormal;

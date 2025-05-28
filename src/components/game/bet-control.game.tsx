@@ -11,6 +11,7 @@ import {
   SelectChangeEvent,
   TextField,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import { rates } from "@/utils/constans";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
@@ -28,6 +29,7 @@ interface Props {
   betRoom: BettingRoomInterface;
 }
 
+// BetControls.tsx
 export default function BetControls({
   setIsReloadBetting,
   sessionID,
@@ -39,26 +41,20 @@ export default function BetControls({
   const [formData, setFormData] = useState({
     win: "10",
     lost: "10",
-    money: "100000",
+    money: "100",
     selectedTeam: null as TeamEnum | null,
   });
+  const [loading, setLoading] = useState<boolean>(false);
+  const socket = useSocket();
 
   const handleSelect = (event: SelectChangeEvent) => {
     const { name, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleTeamSelect = (team: TeamEnum) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      selectedTeam: team,
-    }));
+    setFormData((prevData) => ({ ...prevData, selectedTeam: team }));
   };
-
-  const socket = useSocket();
 
   const handleCreateBetHistory = async () => {
     if (!formData.selectedTeam) {
@@ -86,24 +82,27 @@ export default function BetControls({
     };
 
     try {
+      setLoading(true);
       const response = await createBetHistoryApi(newData);
       if (response.status === 200 || response.status === 201) {
         toast.success("Đặt cược thành công");
         setIsReloadBetting(true);
         if (socket) {
-          if (checkSession) {
-            checkSession();
-          }
-          socket.emit("bet-history", {
-            roomID: betRoom._id,
-          });
+          if (checkSession) await checkSession();
+          socket.emit("bet-history", { roomID: betRoom._id });
         }
+      } else {
+        toast.error("Failed to place bet");
       }
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
       if (error?.response?.data?.message === "Betting is disable") {
-        toast.warning("Phòng đã đóng cược");
+        toast.warn("Phòng đã đóng cược");
+      } else {
+        toast.error("Error placing bet");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -128,8 +127,8 @@ export default function BetControls({
                   variant="body2"
                   id="lable_ratio"
                   sx={{ color: "black" }}
-                  textAlign={"center"}
-                  width={"100%"}
+                  textAlign="center"
+                  width="100%"
                 >
                   Đặt
                 </Typography>
@@ -140,9 +139,7 @@ export default function BetControls({
                   sx={{
                     bgcolor: "white",
                     color: "black",
-                    "& .MuiSelect-select": {
-                      py: 1,
-                    },
+                    "& .MuiSelect-select": { py: 1 },
                   }}
                   onChange={handleSelect}
                 >
@@ -172,8 +169,8 @@ export default function BetControls({
                   variant="body2"
                   id="lable_ratio"
                   sx={{ color: "black" }}
-                  textAlign={"center"}
-                  width={"100%"}
+                  textAlign="center"
+                  width="100%"
                 >
                   Ăn
                 </Typography>
@@ -184,9 +181,7 @@ export default function BetControls({
                   sx={{
                     bgcolor: "white",
                     color: "black",
-                    "& .MuiSelect-select": {
-                      py: 1,
-                    },
+                    "& .MuiSelect-select": { py: 1 },
                   }}
                   onChange={handleSelect}
                 >
@@ -216,9 +211,9 @@ export default function BetControls({
                   variant="body2"
                   id="lable_money"
                   sx={{ color: "black" }}
-                  textAlign={"center"}
-                  width={"auto"}
-                  whiteSpace={"nowrap"}
+                  textAlign="center"
+                  width="auto"
+                  whiteSpace="nowrap"
                   px={1}
                 >
                   Số tiền
@@ -241,9 +236,7 @@ export default function BetControls({
                     color: "black",
                     border: "none",
                     outline: "none",
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
-                    },
+                    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
                       border: "none",
                     },
@@ -254,21 +247,11 @@ export default function BetControls({
                       textAlign: "center",
                       border: "none",
                       outline: "none",
-                      "&:focus": {
-                        outline: "none",
-                      },
+                      "&:focus": { outline: "none" },
                     },
-                    "& .MuiInputBase-root": {
-                      border: "none",
-                    },
+                    "& .MuiInputBase-root": { border: "none" },
                   }}
-                  InputProps={{
-                    sx: {
-                      "& input": {
-                        textAlign: "center",
-                      },
-                    },
-                  }}
+                  InputProps={{ sx: { "& input": { textAlign: "center" } } }}
                 />
                 <Select
                   id="money"
@@ -278,12 +261,10 @@ export default function BetControls({
                     color: "black",
                     m: 0,
                     p: 0,
-                    "& .MuiSelect-select": {
-                      py: 1,
-                    },
+                    "& .MuiSelect-select": { py: 1 },
                   }}
                   onChange={handleSelect}
-                  value={" "}
+                  value=" "
                 >
                   {sampleMoneys.map((item, index) => (
                     <MenuItem key={+index} value={item.value}>
@@ -311,8 +292,8 @@ export default function BetControls({
               <Typography
                 variant="body2"
                 id="lable_ratio"
-                textAlign={"left"}
-                width={"100%"}
+                textAlign="left"
+                width="100%"
                 color="#ff4242"
                 fontWeight={500}
               >
@@ -322,8 +303,8 @@ export default function BetControls({
                 variant="body2"
                 id="lable_ratio"
                 sx={{ color: "black" }}
-                textAlign={"center"}
-                width={"100%"}
+                textAlign="center"
+                width="100%"
                 fontSize={14}
               >
                 {betRoom?.redOdds} : {betRoom?.blueOdds}
@@ -331,8 +312,8 @@ export default function BetControls({
               <Typography
                 variant="body2"
                 id="lable_ratio"
-                textAlign={"right"}
-                width={"100%"}
+                textAlign="right"
+                width="100%"
                 fontWeight={500}
                 color="#0265ff"
               >
@@ -367,6 +348,7 @@ export default function BetControls({
                 },
               }}
               onClick={() => handleTeamSelect(TeamEnum.RED)}
+              disabled={loading}
             >
               {betRoom?.redName}
             </Button>
@@ -395,24 +377,20 @@ export default function BetControls({
                 },
               }}
               onClick={() => handleTeamSelect(TeamEnum.BLUE)}
+              disabled={loading}
             >
               {betRoom?.blueName}
             </Button>
           </Grid>
         </Grid>
       </CardContent>
-      <Box
-        sx={{
-          width: "100%",
-          textAlign: "center",
-          my: 2,
-        }}
-      >
+      <Box sx={{ width: "100%", textAlign: "center", my: 2 }}>
         <Button
           variant="contained"
           color="primary"
           size="large"
           onClick={handleCreateBetHistory}
+          disabled={loading}
           sx={{
             width: "60%",
             textAlign: "center",
@@ -421,98 +399,22 @@ export default function BetControls({
             backgroundColor: "#ffeb3b",
             fontWeight: 600,
             color: "black",
-            "&:hover": {
-              backgroundColor: "#ffeb3b",
-              color: "black",
-            },
-            animation: "beat .25s infinite alternate",
+            "&:hover": { backgroundColor: "#ffeb3b", color: "black" },
+            animation: loading ? "none" : "beat .25s infinite alternate",
             transformOrigin: "center",
             "@keyframes beat": {
-              "0%": {
-                transform: "scale(1)",
-              },
-              "100%": {
-                transform: "scale(1.05)",
-              },
+              "0%": { transform: "scale(1)" },
+              "100%": { transform: "scale(1.05)" },
             },
           }}
         >
-          Đặt cược
+          {loading ? (
+            <CircularProgress size={24} sx={{ color: "black" }} />
+          ) : (
+            "Đặt cược"
+          )}
         </Button>
       </Box>
-
-      {/* <AnimatePresence initial={false}>
-        {isCommentOpen && (
-          <motion.div
-            variants={slideVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
-            <Box
-              sx={{
-                backgroundColor: "#212121",
-                borderRadius: 2,
-                height: { xs: "300px", sm: "400px" },
-                position: "relative",
-              }}
-            >
-              <CloseIcon
-                sx={{
-                  position: "absolute",
-                  top: -8,
-                  right: -8,
-                  cursor: "pointer",
-                  color: "black",
-                  fontSize: 24,
-                  zIndex: 2,
-                  backgroundColor: "white",
-                  borderRadius: "50%",
-                }}
-                onClick={() => setIsCommentOpen(false)}
-                fontSize="large"
-              />
-              <Typography
-                variant="h6"
-                sx={{
-                  position: "absolute",
-                  height: "54px",
-                  zIndex: 1,
-                  bgcolor: "#212121",
-                  width: "100%",
-                  px: 2,
-                  py: 1,
-                  color: "white",
-                  borderBottom: "1px solid white",
-                  fontSize: { xs: "1rem", sm: "1.25rem" },
-                }}
-              >
-                Bình luận trực tuyến
-              </Typography>
-              {betRoom.chattingJframe && (
-                <Box
-                  sx={{
-                    paddingTop: "54px",
-                    height: "100%",
-                    overflow: "hidden",
-                  }}
-                >
-                  <iframe
-                    src={betRoom.chattingJframe}
-                    width="100%"
-                    height={isMobile ? "246px" : "346px"}
-                    allow="autoplay"
-                    frameBorder="0"
-                    scrolling="auto"
-                    title="Live Comments"
-                  />
-                </Box>
-              )}
-            </Box>
-          </motion.div>
-        )}
-      </AnimatePresence> */}
     </Box>
   );
 }

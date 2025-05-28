@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { UserContext } from "@/contexts/user-context";
 import { useSocket } from "@/socket";
+import { numberThousandFload } from "@/utils/function-convert.util";
 
 interface PlaceBetModalProps {
   open: any;
@@ -82,8 +83,8 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
     if (!selectedTeam) {
       newErrors.team = "Vui lòng chọn một đội.";
     }
-    if (!money || parseFloat(money) < 100000) {
-      newErrors.money = "Số tiền đặt phải lớn hơn hoặc bằng 100.000.";
+    if (!money || parseFloat(money) < 100) {
+      newErrors.money = "Số tiền đặt phải lớn hơn hoặc bằng 100";
     }
     if (!lost || isNaN(parseFloat(lost))) {
       newErrors.lost = "Vui lòng chọn tỷ lệ đặt hợp lệ.";
@@ -115,6 +116,8 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
     formData.append("money", money);
     formData.append("betSessionID", sessionID);
     formData.append("makerID", user._id);
+    formData.append("creatorID", user._id);
+    formData.append("betRoomID", betRoomID);
 
     try {
       const response = await createOptionExGame(formData);
@@ -393,7 +396,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               onChange={handleAmountChange}
               fullWidth
               required
-              inputProps={{ min: 100000 }}
+              inputProps={{ min: 100 }}
               InputProps={{
                 inputProps: {
                   list: "amountSuggestions",
@@ -409,13 +412,13 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               sx={{ "& .MuiInputBase-input": { padding: "10px" } }}
             />
             <datalist id="amountSuggestions">
-              <option value="100000">100K</option>
-              <option value="200000">200K</option>
-              <option value="500000">500K</option>
-              <option value="1000000">1M</option>
-              <option value="2000000">2M</option>
-              <option value="5000000">5M</option>
-              <option value="10000000">10M</option>
+              <option value="100">100K</option>
+              <option value="200">200K</option>
+              <option value="500">500K</option>
+              <option value="1000">1M</option>
+              <option value="2000">2M</option>
+              <option value="5000">5M</option>
+              <option value="10000">10M</option>
             </datalist>
             {errors.money && (
               <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
@@ -495,10 +498,9 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               SỐ TIỀN ĂN
             </Typography>
             <TextField
-              type="number"
-              value={winAmount}
+              type="text"
+              value={numberThousandFload(winAmount)}
               fullWidth
-              required
               InputProps={{
                 sx: {
                   bgcolor: "#333",

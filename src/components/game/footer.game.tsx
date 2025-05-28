@@ -8,7 +8,10 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { numberThousand } from "@/utils/function-convert.util";
+import {
+  numberThousand,
+  numberThousandFload,
+} from "@/utils/function-convert.util";
 import Link from "next/link";
 import { UserContext } from "@/contexts/user-context";
 
@@ -70,7 +73,7 @@ export default function GameFooter({
               color="white"
               fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
             >
-              {numberThousand(user?.money?.toString() || "0")}{" "}
+              {numberThousandFload(user?.money?.toString() || "0")}{" "}
               <Link
                 href="/"
                 style={{

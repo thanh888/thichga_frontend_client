@@ -5,7 +5,10 @@ import { CampaignOutlined, PersonOutlineOutlined } from "@mui/icons-material";
 import Marquee from "react-fast-marquee";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { useUser } from "@/hooks/use-user";
-import { ConvertMoneyVND } from "@/utils/function-convert.util";
+import {
+  ConvertMoneyVND,
+  numberThousandFload,
+} from "@/utils/function-convert.util";
 import { UserContext } from "@/contexts/user-context";
 
 interface BetContainerProps {
@@ -127,7 +130,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
       <Box
         sx={{
           position: "relative",
-          paddingTop: "56.25%",
+          paddingTop: "46.25%",
           borderRadius: 2,
           border: "4px solid #d7b500",
           mb: 2,
@@ -159,7 +162,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          height: 56,
+          height: { xs: 40, md: 56 },
         }}
       >
         <Box
@@ -169,7 +172,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
             gap: 1,
             borderRadius: 2,
             border: "2px solid #d7b500",
-            padding: 1,
+            padding: { xs: 0.2, sm: 1 },
             bgcolor: "#3a2014",
             justifyContent: "space-between",
           }}
@@ -201,7 +204,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
                   color: "#d7b500",
                 }}
               >
-                {ConvertMoneyVND(Number(user?.money))}
+                {numberThousandFload(Number(user?.money))}
               </strong>{" "}
             </Typography>
           </Box>
@@ -218,7 +221,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
             },
             borderRadius: 2,
             padding: "6px 16px",
-            fontSize: 20,
+            fontSize: { xs: 16, sm: 20 },
             fontWeight: 600,
           }}
           onClick={onWagerClick}

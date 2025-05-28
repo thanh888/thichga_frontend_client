@@ -5,7 +5,10 @@ import NotificationRealtime from "@/components/lib/dialogs/notification-realtime
 import { UserContext, UserProvider } from "@/contexts/user-context";
 import { useSocket } from "@/socket";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
-import { ConvertMoneyVND } from "@/utils/function-convert.util";
+import {
+  ConvertMoneyVND,
+  numberThousandFload,
+} from "@/utils/function-convert.util";
 import { useContext, useEffect, useState } from "react";
 
 export default function ClientLayout({
@@ -34,7 +37,7 @@ export default function ClientLayout({
       if (msg?.data?.userID === user._id && checkSession) {
         checkSession();
         const title = "Thông báo nạp tiền";
-        const content = `Yêu cầu nạp ${ConvertMoneyVND(
+        const content = `Yêu cầu nạp ${numberThousandFload(
           msg?.data?.money ?? 0
         )} của bạn đã ${statusLabels[msg?.data?.status as DepositStatusEnum]}`;
         setNotification({ title, content });
@@ -44,7 +47,7 @@ export default function ClientLayout({
     socket.on("withdraw-money", (msg) => {
       if (msg?.data?.userID === user._id && checkSession) {
         const title = "Thông báo rút tiền";
-        const content = `Yêu cầu rút ${ConvertMoneyVND(
+        const content = `Yêu cầu rút ${numberThousandFload(
           msg?.data?.money ?? 0
         )} của bạn đã ${statusLabels[msg?.data?.status as DepositStatusEnum]}`;
         setNotification({ title, content });

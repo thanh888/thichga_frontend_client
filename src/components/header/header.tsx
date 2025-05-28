@@ -20,7 +20,10 @@ import { getRoomIsOpenedApi } from "@/services/room.api";
 import { SignOutApi } from "@/services/auth/auth.api";
 import { UserContext } from "@/contexts/user-context";
 import { LogoutOutlined } from "@mui/icons-material";
-import { numberThousand } from "@/utils/function-convert.util";
+import {
+  numberThousand,
+  numberThousandFload,
+} from "@/utils/function-convert.util";
 
 function HeaderComponent() {
   const router = useRouter();
@@ -187,7 +190,7 @@ function HeaderComponent() {
                   fontWeight={500}
                   sx={{ textWrap: "nowrap", color: "black", ml: 0.5, mr: 1 }}
                 >
-                  {numberThousand(user?.money?.toString() ?? "0") ?? 0}
+                  {numberThousandFload(user?.money?.toString() ?? "0") ?? 0}
                 </Typography>
               </Box>
               <Box

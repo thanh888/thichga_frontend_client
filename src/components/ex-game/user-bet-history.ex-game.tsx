@@ -7,6 +7,7 @@ import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
 import {
   convertDateTime,
   ConvertMoneyVND,
+  numberThousandFload,
 } from "@/utils/function-convert.util";
 import {
   Box,
@@ -77,7 +78,7 @@ const columns: Column[] = [
   { id: "createdAt", label: "Thời gian", minWidth: 150, align: "center" },
 ];
 
-export default function UserBetHistories({
+export default function UserBetExGameHistories({
   betHistoryDialogOpen,
   setBetHistoryDialogOpen,
 }: Readonly<{
@@ -105,9 +106,7 @@ export default function UserBetHistories({
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [orderBy, setOrderBy] =
     useState<keyof BettingHistoryInterface>("createdAt");
-  const [tabValue, setTabValue] = useState<TypeBetRoomEnum>(
-    TypeBetRoomEnum.OTHER
-  );
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
@@ -121,11 +120,11 @@ export default function UserBetHistories({
     try {
       const sortQuery =
         order === "asc" ? String(orderBy) : `-${String(orderBy)}`;
-      const query = `limit=${rowsPerPage}&skip=${page + 1}&user_id=${
-        user._id
+      const query = `limit=${rowsPerPage}&skip=${
+        page + 1
       }&search=${encodeURIComponent(filter.roomName)}&status=${
         filter.status
-      }&type=${tabValue}&sort=${sortQuery}`;
+      }&type=${TypeBetRoomEnum.OTHER}&sort=${sortQuery}`;
       const response = await paginateBetHistoryByUserIDApi(user._id, query);
       if (response.status === 200 || response.status === 201) {
         setBets(response.data);
@@ -141,7 +140,7 @@ export default function UserBetHistories({
     } finally {
       setIsLoading(false);
     }
-  }, [user?._id, filter, page, rowsPerPage, order, orderBy, tabValue]);
+  }, [user?._id, filter, page, rowsPerPage, order, orderBy]);
 
   // Debounce fetchBets to avoid excessive API calls
 
@@ -149,7 +148,7 @@ export default function UserBetHistories({
     if (betHistoryDialogOpen && user) {
       fetchBets();
     }
-  }, [betHistoryDialogOpen, page, rowsPerPage, order, orderBy, tabValue, user]);
+  }, [betHistoryDialogOpen, page, rowsPerPage, order, orderBy, user]);
 
   const handleRequestSort = (property: keyof BettingHistoryInterface) => {
     const isAsc = orderBy === property && order === "asc";
@@ -176,14 +175,6 @@ export default function UserBetHistories({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleTabChange = (
-    event: React.SyntheticEvent,
-    newValue: TypeBetRoomEnum
-  ) => {
-    setTabValue(newValue);
     setPage(0);
   };
 
@@ -410,7 +401,7 @@ export default function UserBetHistories({
                             fontSize: 14,
                           }}
                         >
-                          {ConvertMoneyVND(row?.userProfit ?? 0)}
+                          {numberThousandFload(row?.userProfit ?? 0)}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ color: "#FFFFFF" }}>

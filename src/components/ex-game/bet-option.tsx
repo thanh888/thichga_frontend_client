@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Paper, Stack, Box, Typography, Button } from "@mui/material";
 import { getOptionsExGameBySession } from "@/services/bet-option.api";
-import { numberThousand } from "@/utils/function-convert.util";
+import {
+  numberThousand,
+  numberThousandFload,
+} from "@/utils/function-convert.util";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
 import { UpdateCancelBetExGameHistoryApi } from "@/services/bet-history.api";
@@ -81,9 +84,9 @@ const BetOptionTable = ({
         overflowY: "auto",
         overflowX: "auto",
         maxHeight: {
-          xs: "calc(100vh - 200px)",
-          sm: "calc(100vh - 150px)",
-          lg: "calc(100vh - 100px)",
+          xs: "calc(100vh - 50vh)",
+          sm: "calc(100vh - 70vh)",
+          md: "calc(100vh - 100px)",
         },
         "&::-webkit-scrollbar": {
           width: "6px",
@@ -98,6 +101,21 @@ const BetOptionTable = ({
         },
       }}
     >
+      {options.length === 0 && (
+        <Box
+          sx={{
+            color: "#d7b500",
+            display: "flex",
+            flexDirection: "column",
+            gap: 0.5,
+            p: 1,
+            mb: 1,
+            height: "100%",
+          }}
+        >
+          <Typography variant="body1">Không có kèo nào được tạo</Typography>
+        </Box>
+      )}
       {options?.map((option, idx) => {
         const hasUnmatchedOfCurrentUser = option?.unmatchedBets?.find(
           (item: any) => item.creatorID === currentUserID
@@ -105,7 +123,7 @@ const BetOptionTable = ({
 
         return (
           <Box
-            key={idx}
+            key={+idx}
             sx={{
               bgcolor: "#000",
               color: "#d7b500",
@@ -223,15 +241,15 @@ const BetOptionTable = ({
 
                 <Box display="flex" justifyContent="center" overflow="hidden">
                   <Typography fontWeight={600} color={"white"} fontSize={14}>
-                    {numberThousand(option?.totalMoney) ?? 0}
+                    {numberThousandFload(option?.totalMoney) ?? 0}
                   </Typography>
                   <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
                   <Typography fontWeight={600} color={"white"} fontSize={14}>
-                    {numberThousand(option?.moneyMissing) ?? 0}
+                    {numberThousandFload(option?.moneyMissing) ?? 0}
                   </Typography>
                   <Box sx={{ width: "2px", bgcolor: "white", m: "2px" }} />
                   <Typography fontWeight={600} color={"white"} fontSize={14}>
-                    {numberThousand(option?.moneyMatched) ?? 0}
+                    {numberThousandFload(option?.moneyMatched) ?? 0}
                   </Typography>
                 </Box>
               </Box>

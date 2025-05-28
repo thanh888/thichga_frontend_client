@@ -42,7 +42,7 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
   const user = userContext?.user;
 
   const checkSession = userContext?.checkSession;
-  const [money, setMoney] = useState<string>("100000");
+  const [money, setMoney] = useState<string>("100");
 
   const handleAcceptBet = async () => {
     if (!selectedOption || !user) return;

@@ -15,7 +15,7 @@ const HeaderExGame: React.FC<HeaderProps> = ({ onHistoryClick, roomName }) => {
 
   return (
     <AppBar
-      position="static"
+      position="fixed"
       color="default"
       elevation={0}
       sx={{ bgcolor: "#000" }}

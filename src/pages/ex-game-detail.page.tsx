@@ -18,9 +18,9 @@ import PlaceBetModal from "@/components/ex-game/PlaceBetModal";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { getListOtherRoomsOpening, getRoomById } from "@/services/room.api";
 import { useParams } from "next/navigation";
-import UserBetHistories from "@/components/ex-game/user-bet-history.ex-game";
 import { useSocket } from "@/socket";
 import { UserContext } from "@/contexts/user-context";
+import UserBetExGameHistories from "@/components/ex-game/user-bet-history.ex-game";
 
 export default function ExGameDetailPage(): React.JSX.Element {
   const [isReloadOption, setIsReloadOption] = useState<boolean>(true);
@@ -126,14 +126,21 @@ export default function ExGameDetailPage(): React.JSX.Element {
           p: 1,
           mx: "auto",
           maxWidth: "xl",
-          maxHeight: "calc(100vh - 64px)", // Subtract header height
-          overflowY: "auto", // Enable vertical scrolling if needed
+          maxHeight: "calc(100vh)", // Subtract header height
+          overflow: "hidden", // Enable vertical scrolling if needed
+          pt: "64px",
         }}
       >
         <Grid container spacing={2}>
           <Grid
             size={{ xs: 12, sm: 12, md: 6, lg: 8, xl: 9 }}
-            sx={{ height: "100%" }}
+            sx={{
+              height: {
+                // xs: "calc(100vh - 50vh)",
+                sm: "calc(100vh - 40vh)",
+                md: "100%",
+              },
+            }}
           >
             <LiveStreamContainer
               betRoom={betRoom}
@@ -142,7 +149,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
           </Grid>
           <Grid
             size={{ xs: 12, sm: 12, md: 6, lg: 4, xl: 3 }}
-            sx={{ maxHeight: "calc(100vh - 80px)", overflowY: "auto" }}
+            sx={{ overflowY: "auto" }}
           >
             {betRoom.latestSessionID && roomID && (
               <BetOptionTable
@@ -176,7 +183,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
         />
       )}
       {betRoom.latestSessionID && (
-        <UserBetHistories
+        <UserBetExGameHistories
           betHistoryDialogOpen={isHistoryModalOpen}
           setBetHistoryDialogOpen={setHistoryModalOpen}
         />

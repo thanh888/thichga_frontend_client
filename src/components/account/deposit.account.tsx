@@ -52,8 +52,8 @@ export default function DepositComponent() {
       if (numericValue <= 0) {
         errorMessage = "Số tiền phải lớn hơn 0";
         isValid = false;
-      } else if (numericValue < 50000) {
-        errorMessage = "Số tiền tối thiểu là 50.000 VND";
+      } else if (numericValue < 50) {
+        errorMessage = "Số tiền tối thiểu là 50";
         isValid = false;
       }
     }
@@ -185,7 +185,7 @@ export default function DepositComponent() {
           Nhập số tiền
         </Typography>
         <TextField
-          placeholder="1.000 VND"
+          placeholder="0"
           name="money"
           value={money}
           onChange={handleInputChange}
@@ -220,7 +220,7 @@ export default function DepositComponent() {
           fontWeight={600}
           fontSize={{ xs: "0.875rem", sm: "1rem" }}
         >
-          = {money ? numberThousand(money) : "0"} VND
+          = {money ? numberThousand(String(Number(money) * 1000)) : "0"} VND
         </Typography>
         <Box
           display="flex"
