@@ -201,7 +201,7 @@ export default function GameHeader({
             {isMobile ? (
               <HeaderIconButton
                 icon={DoorSlidingOutlined}
-                label="Trận cược"
+                label="Chọn trận"
                 onClick={handleOpenRoomDialog}
               />
             ) : (

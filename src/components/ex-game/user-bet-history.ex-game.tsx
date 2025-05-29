@@ -384,8 +384,8 @@ export default function UserBetExGameHistories({
                           }}
                         >
                           {row?.selectedTeam === TeamEnum.BLUE
-                            ? "Wala"
-                            : "Meron"}
+                            ? "Gà xanh"
+                            : "Gà đỏ"}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ color: "#FFFFFF" }}>
