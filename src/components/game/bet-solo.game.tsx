@@ -330,7 +330,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
         toast.error("Failed to fetch bet histories");
       }
     } catch (error) {
-      console.error("Error fetching bet histories:", error);
+      console.log("Error fetching bet histories:", error);
       toast.error("Error fetching bet histories");
     } finally {
       setLoading(false);
@@ -354,7 +354,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
         toast.error("Failed to cancel bet");
       }
     } catch (error: any) {
-      console.error(error);
+      console.log(error);
       if (error?.response?.data?.message === "Betting is disable") {
         toast.warn("Phiên cược đã đóng, không thể hủy");
       } else {

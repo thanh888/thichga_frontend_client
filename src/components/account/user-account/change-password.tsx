@@ -93,7 +93,7 @@ export default function ChangePasswordForm() {
         });
       }
     } catch (error: any) {
-      console.error("Error changing password:", error);
+      console.log("Error changing password:", error);
       toast.error(
         error.response?.data?.message ||
           "Lỗi khi đổi mật khẩu, vui lòng thử lại"

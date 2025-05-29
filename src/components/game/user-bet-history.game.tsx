@@ -133,7 +133,7 @@ export default function UserBetHistories({
         setError("Không thể tải lịch sử cược, vui lòng thử lại.");
       }
     } catch (err: any) {
-      console.error("Failed to fetch bet history:", err);
+      console.log("Failed to fetch bet history:", err);
       setError(
         err.response?.data?.message ||
           "Không thể tải lịch sử cược, vui lòng thử lại."

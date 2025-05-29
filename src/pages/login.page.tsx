@@ -68,7 +68,7 @@ const LoginPage: React.FC = () => {
         toast.error("Tài khoản hoặc mật khẩu không đúng");
       }
     } catch (error: any) {
-      console.error("Login failed:", error);
+      console.log("Login failed:", error);
       if (
         error?.response?.data?.message === "Username or password is incorrect"
       ) {

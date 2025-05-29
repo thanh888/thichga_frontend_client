@@ -186,7 +186,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
         setBetOptions(response.data);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     } finally {
       setLoading(false);
     }

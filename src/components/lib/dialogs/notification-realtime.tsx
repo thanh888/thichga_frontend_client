@@ -1,3 +1,4 @@
+import { useUser } from "@/hooks/use-user";
 import {
   Button,
   Dialog,
@@ -16,8 +17,12 @@ export default function NotificationRealtime({
   notification,
   setNotification,
 }: Readonly<Props>) {
+  const { checkSession } = useUser();
   const handleCloseDialog = async () => {
     setNotification(null);
+    if (checkSession) {
+      checkSession();
+    }
   };
   return (
     <Dialog

@@ -55,7 +55,7 @@ function HeaderComponent() {
       router.push("/");
       toast.success("Đăng xuất thành công");
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.log("Logout failed:", error);
       toast.error("Đăng xuất thất bại, vui lòng thử lại");
     }
   };
@@ -76,7 +76,7 @@ function HeaderComponent() {
         toast.warning("Không có trận đấu nào được mở");
       }
     } catch (error) {
-      console.error("Redirect game failed:", error);
+      console.log("Redirect game failed:", error);
       router.push("/login");
     }
   };

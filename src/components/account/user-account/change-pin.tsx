@@ -92,7 +92,7 @@ export default function ChangePinForm() {
         });
       }
     } catch (error: any) {
-      console.error("Error changing PIN:", error);
+      console.log("Error changing PIN:", error);
       toast.error(
         error.response?.data?.message === "Pin is incorrect" &&
           "Mã pin không đúng"

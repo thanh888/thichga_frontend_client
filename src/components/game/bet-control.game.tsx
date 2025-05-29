@@ -95,7 +95,7 @@ export default function BetControls({
         toast.error("Failed to place bet");
       }
     } catch (error: any) {
-      console.error(error);
+      console.log(error);
       if (error?.response?.data?.message === "Betting is disable") {
         toast.warn("Phòng đã đóng cược");
       } else {

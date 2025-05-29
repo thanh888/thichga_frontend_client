@@ -108,7 +108,7 @@ export default function HistoryTableComponent({
         setIsReload(false);
       }
     } catch (err: any) {
-      console.error(`Failed to fetch ${type} transactions:`, err);
+      console.log(`Failed to fetch ${type} transactions:`, err);
       setError(
         err.response?.data?.message ||
           `Không thể tải lịch sử ${

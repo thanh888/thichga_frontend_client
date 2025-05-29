@@ -30,7 +30,7 @@ export function AuthGuard({
 
   React.useEffect(() => {
     checkPermissions().catch((err) => {
-      console.error("Check permissions failed:", err);
+      console.log("Check permissions failed:", err);
       setIsChecking(false);
       router.replace("/login");
     });

@@ -36,7 +36,7 @@ export default function ExGamePage(): React.JSX.Element {
         setRooms(response.data);
       }
     } catch (error) {
-      console.error("Failed to fetch rooms:", error);
+      console.log("Failed to fetch rooms:", error);
     } finally {
       setIsLoading(false);
     }

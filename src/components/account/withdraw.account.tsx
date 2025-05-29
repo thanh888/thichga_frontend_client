@@ -120,7 +120,7 @@ export default function WithdrawComponent() {
         toast.warning("Mã pin không chính xác");
       } else toast.warning("Yêu cầu thất bạn, vui lòng thử lại sau");
     } catch (error: any) {
-      console.error("Error withdrawing money:", error);
+      console.log("Error withdrawing money:", error);
       console.log(error?.response?.data?.message);
 
       if (error?.response?.data?.message === "Pin is incorrect") {

@@ -102,7 +102,7 @@ export default function DepositComponent() {
         setError("");
       }
     } catch (error: any) {
-      console.error("Error depositing money:", error);
+      console.log("Error depositing money:", error);
       toast.warning("Yêu cầu thất bạn, vui lòng thử lại sau");
     } finally {
       setIsSubmitting(false);

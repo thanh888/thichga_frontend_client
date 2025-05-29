@@ -49,7 +49,7 @@ export default function BankInfoForm() {
       );
       setBanks(response.data.data);
     } catch (error) {
-      console.error("Error fetching banks:", error);
+      console.log("Error fetching banks:", error);
       alert("Không thể tải danh sách ngân hàng, vui lòng thử lại");
     } finally {
       setIsLoadingBanks(false);
@@ -121,7 +121,7 @@ export default function BankInfoForm() {
         toast.success("Cập nhật thông tin ngân hàng thành công");
       }
     } catch (error: any) {
-      console.error("Error updating bank info:", error);
+      console.log("Error updating bank info:", error);
     } finally {
       setIsSubmitting(false);
     }
