@@ -8,6 +8,7 @@ import {
   TextField,
   Button,
   SelectChangeEvent,
+  CircularProgress, // Added for loading indicator
 } from "@mui/material";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { exRates } from "@/utils/constans";
@@ -45,6 +46,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
   const [win, setWin] = useState("10");
   const [betAmount, setBetAmount] = useState("");
   const [winAmount, setWinAmount] = useState(0);
+  const [loading, setLoading] = useState(false); // Added loading state
   const [errors, setErrors] = useState<{
     team?: string;
     betAmount?: string;
@@ -100,6 +102,8 @@ const WagerModal: React.FC<WagerModalProps> = ({
       return;
     }
 
+    setLoading(true); // Set loading to true when submission starts
+
     const formData = new FormData();
     formData.append("selectedTeam", selectedTeam);
     formData.append("lost", lost);
@@ -110,7 +114,6 @@ const WagerModal: React.FC<WagerModalProps> = ({
     formData.append("creatorID", user._id);
     formData.append("betRoomID", betRoomID);
 
-    // Proceed with form submission (e.g., API call)
     try {
       const response = await createOptionExGame(formData);
       if (response.status === 200 || response.status === 201) {
@@ -129,33 +132,37 @@ const WagerModal: React.FC<WagerModalProps> = ({
     } catch (error: any) {
       if (error?.response?.data?.message === "Betting is disable") {
         toast.warning("Phòng đã đóng cược");
-      } else toast.warning("Tạo kèo thất bại, vui lòng thử lại sau");
+      } else {
+        toast.warning("Tạo kèo thất bại, vui lòng thử lại sau");
+      }
       console.log(error);
+    } finally {
+      setLoading(false); // Reset loading state when submission completes or fails
     }
   };
 
   const handleTeamSelect = (team: string) => {
     setSelectedTeam(team === selectedTeam ? "" : team);
-    setErrors({ ...errors, team: undefined }); // Clear team error on selection
+    setErrors({ ...errors, team: undefined });
   };
 
   const handleBetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBetAmount(e.target.value);
-    setErrors({ ...errors, betAmount: undefined }); // Clear bet amount error on change
+    setErrors({ ...errors, betAmount: undefined });
   };
 
   const handleLostChange = (
     e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
   ) => {
     setLost(e.target.value);
-    setErrors({ ...errors, lost: undefined }); // Clear lost error on change
+    setErrors({ ...errors, lost: undefined });
   };
 
   const handleWinChange = (
     e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
   ) => {
     setWin(e.target.value);
-    setErrors({ ...errors, win: undefined }); // Clear win error on change
+    setErrors({ ...errors, win: undefined });
   };
 
   return (
@@ -198,6 +205,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
               minWidth: "auto",
               px: 1,
             }}
+            disabled={loading} // Disable close button while loading
           >
             ×
           </Button>
@@ -214,6 +222,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
             <Button
               onClick={() => handleTeamSelect(TeamEnum.BLUE)}
               variant="outlined"
+              disabled={loading} // Disable team selection while loading
               sx={{
                 bgcolor: selectedTeam === TeamEnum.BLUE ? "#005FA7" : "#333",
                 color: "#d7b500",
@@ -234,6 +243,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
             <Button
               onClick={() => handleTeamSelect(TeamEnum.RED)}
               variant="outlined"
+              disabled={loading} // Disable team selection while loading
               sx={{
                 bgcolor: selectedTeam === TeamEnum.RED ? "#B6080D" : "#333",
                 color: "#F6D02F",
@@ -269,6 +279,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
                 onChange={handleLostChange}
                 fullWidth
                 required
+                disabled={loading} // Disable select while loading
                 sx={{
                   bgcolor: "#333",
                   color: "#d7b500",
@@ -305,6 +316,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
                 onChange={handleWinChange}
                 fullWidth
                 required
+                disabled={loading} // Disable select while loading
                 sx={{
                   bgcolor: "#333",
                   color: "#d7b500",
@@ -344,6 +356,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
               fullWidth
               required
               inputProps={{ min: 100 }}
+              disabled={loading} // Disable input while loading
               InputProps={{
                 inputProps: {
                   list: "amountSuggestions",
@@ -402,6 +415,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
             type="submit"
             variant="contained"
             fullWidth
+            disabled={loading} // Disable button while loading
             sx={{
               bgcolor: "#d7b500",
               color: "#000",
@@ -409,9 +423,14 @@ const WagerModal: React.FC<WagerModalProps> = ({
               fontSize: 16,
               borderRadius: "20px",
               "&:hover": { bgcolor: "#FFC107" },
+              position: "relative",
             }}
           >
-            TẠO
+            {loading ? (
+              <CircularProgress size={24} sx={{ color: "#000" }} />
+            ) : (
+              "TẠO"
+            )}
           </Button>
         </form>
       </Box>

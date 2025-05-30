@@ -27,7 +27,27 @@ export default function RootLayout({
           <UserProvider>
             <SettingProvider>
               {children}
-              <ToastContainer />
+              <ToastContainer
+                autoClose={2000}
+                position="top-right" // Keep the position
+                hideProgressBar={false}
+                newestOnTop={true}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light" // Match your app's dark theme
+                toastStyle={{
+                  backgroundColor: "white", // Match your app's background
+                  color: "black", // Match your app's text color
+                  width: "300px",
+                  margin: "16px",
+                  borderRadius: "10px",
+                  paddingTop: "0",
+                  paddingBottom: "0",
+                }}
+              />
             </SettingProvider>
           </UserProvider>
         </AppRouterCacheProvider>

@@ -38,7 +38,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
     {} as BettingRoomInterface
   );
 
-  const [isReloadBetting, setIsReloadBetting] = useState<boolean>(true);
+  const [bettingVersion, setBettingVerion] = useState<number>(0);
 
   const [isReloadRoom, setIsReloadRoom] = useState<boolean>(true);
 
@@ -49,7 +49,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
       const response = await getRoomById(room_id);
       if (response.status === 200 || response.status === 201) {
         setBetRoom(response.data);
-        setIsReloadBetting(!isReloadBetting);
+        setBettingVerion((prev) => prev + 1);
       }
     } catch (error) {
       console.log(error);
@@ -94,12 +94,14 @@ export default function ExGameDetailPage(): React.JSX.Element {
     socket.on("update-room", async (msg) => {
       await checkRoomClosed();
       setIsReloadOption(true);
-      setIsReloadBetting(!isReloadBetting);
+      setBettingVerion((prev) => prev + 1);
     });
 
     socket.on("bet-history", (msg) => {
+      console.log("room: ", msg.roomID === roomID);
+
       if (msg.roomID === roomID) {
-        setIsReloadBetting(!isReloadBetting);
+        setBettingVerion((prev) => prev + 1);
       }
     });
 
@@ -158,7 +160,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
                 setIsReloadOption={setIsReloadOption}
                 sessionID={betRoom.latestSessionID}
                 betRoomID={roomID}
-                isReloadBetting={isReloadBetting}
+                bettingVersion={bettingVersion}
               />
             )}
           </Grid>
@@ -212,12 +214,12 @@ export default function ExGameDetailPage(): React.JSX.Element {
             pt: 3,
           }}
         >
-          Phòng cược đã đóng
+          Phòng cược kết thúc
         </DialogTitle>
         <DialogContent sx={{ textAlign: "center", px: 4, py: 2 }}>
-          <Typography sx={{ color: "#E0E0E0", fontSize: "1rem" }}>
+          {/* <Typography sx={{ color: "#E0E0E0", fontSize: "1rem" }}>
             Phòng cược hiện tại đã đóng. Vui lòng rời khỏi và quay lại sau
-          </Typography>
+          </Typography> */}
         </DialogContent>
         <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
           <Button

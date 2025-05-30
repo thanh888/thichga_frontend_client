@@ -39,13 +39,14 @@ export interface BettingHistoryInterface {
 
   systemProfit?: number;
 
-  userProfit?: number;
+  userProfit: number;
 
   systemRevenue?: number;
 
   userRevenue?: number;
 
   moneyWin?: number;
+  statusSession?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

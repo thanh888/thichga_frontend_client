@@ -13,11 +13,12 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Marquee from "react-fast-marquee";
 import { toast } from "react-toastify";
 import Grid from "@mui/material/Grid";
 import { UserContext } from "@/contexts/user-context";
+import { useUser } from "@/hooks/use-user";
 
 export default function Homepage() {
   const router = useRouter();
@@ -27,7 +28,8 @@ export default function Homepage() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const userContext = useContext(UserContext);
-  const user = userContext?.user;
+
+  const { checkSession } = useUser();
 
   const handleRedirectGame = async () => {
     try {
@@ -62,6 +64,12 @@ export default function Homepage() {
       router.push("/login");
     }
   };
+
+  useEffect(() => {
+    if (checkSession) {
+      checkSession();
+    }
+  }, []);
 
   return (
     <Container

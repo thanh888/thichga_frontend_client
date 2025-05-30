@@ -18,7 +18,7 @@ interface Props {
   setOpenBetting: React.Dispatch<any>;
   sessionID: string;
   betRoomID: string;
-  isReloadBetting: boolean;
+  bettingVersion: number;
 }
 
 const BetOptionTable = ({
@@ -27,7 +27,7 @@ const BetOptionTable = ({
   sessionID,
   setOpenBetting,
   betRoomID,
-  isReloadBetting,
+  bettingVersion,
 }: Readonly<Props>) => {
   const [options, setOptions] = useState<any[]>([]);
   const { user, checkSession } = useUser();
@@ -71,7 +71,7 @@ const BetOptionTable = ({
 
   useEffect(() => {
     getBetOptions();
-  }, [isReloadBetting]);
+  }, [bettingVersion]);
 
   return (
     <Paper

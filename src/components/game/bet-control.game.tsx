@@ -91,15 +91,12 @@ export default function BetControls({
           if (checkSession) await checkSession();
           socket.emit("bet-history", { roomID: betRoom._id });
         }
-      } else {
-        toast.error("Failed to place bet");
       }
     } catch (error: any) {
-      console.log(error);
       if (error?.response?.data?.message === "Betting is disable") {
         toast.warn("Phòng đã đóng cược");
       } else {
-        toast.error("Error placing bet");
+        console.log(error);
       }
     } finally {
       setLoading(false);

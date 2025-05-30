@@ -73,10 +73,12 @@ export default function GameHeader({
     icon: Icon,
     label,
     onClick,
+    backcl,
   }: {
     icon: any;
     label: string;
     onClick?: () => void;
+    backcl: string;
   }) => (
     <Button
       variant="text"
@@ -96,7 +98,7 @@ export default function GameHeader({
           color: "white",
           p: { xs: 0.5, sm: 1 },
           fontSize: { xs: 30, sm: 40 },
-          backgroundColor: "#ed6c02",
+          backgroundColor: backcl ?? "#FFBC0A",
           borderRadius: "50%",
         }}
       />
@@ -180,11 +182,13 @@ export default function GameHeader({
               icon={HomeOutlined}
               label="Trang chủ"
               onClick={() => router.push("/")}
+              backcl="#ed6c02"
             />
             <HeaderIconButton
               icon={ListAltOutlined}
               label="DS Cược"
               onClick={() => setIsBetOpen(!isBetOpen)}
+              backcl={"#FBCF00"}
             />
           </Box>
 
@@ -203,6 +207,7 @@ export default function GameHeader({
                 icon={DoorSlidingOutlined}
                 label="Chọn trận"
                 onClick={handleOpenRoomDialog}
+                backcl="#ed6c02"
               />
             ) : (
               <Box
@@ -234,6 +239,7 @@ export default function GameHeader({
                       px: { xs: 1, sm: 2 },
                       py: { xs: 0.5, sm: 1 },
                       minWidth: { xs: "100px", sm: "120px" },
+                      // bgcolor: Number(index) % 2 === 0 ? "#ed6c02" : "#FFBC0A",
                     }}
                   >
                     {room?.roomName}
@@ -256,16 +262,19 @@ export default function GameHeader({
               icon={MarkUnreadChatAltOutlined}
               label="Bình luận"
               onClick={() => setIsCommentOpen(!isCommentOpen)}
+              backcl="#FBCF00"
             />
             <HeaderIconButton
               icon={HistoryOutlined}
               label="LS Cược"
               onClick={handleOpenBetHistoryDialog}
+              backcl="#ed6c02"
             />
             <HeaderIconButton
               icon={SupportAgentOutlined}
               label="Hỗ trợ"
               onClick={handleOpenSupportDialog}
+              backcl="#FBCF00"
             />
           </Box>
         </Toolbar>

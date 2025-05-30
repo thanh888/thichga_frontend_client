@@ -8,6 +8,7 @@ import {
   TextField,
   Button,
   SelectChangeEvent,
+  CircularProgress, // Added for loading indicator
 } from "@mui/material";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { exRates } from "@/utils/constans";
@@ -44,6 +45,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
   const [win, setWin] = useState("10");
   const [money, setMoney] = useState("0");
   const [winAmount, setWinAmount] = useState(0);
+  const [loading, setLoading] = useState(false); // Added loading state
   const [errors, setErrors] = useState<{
     team?: string;
     money?: string;
@@ -109,6 +111,8 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
       return;
     }
 
+    setLoading(true); // Set loading to true when submission starts
+
     const formData = new FormData();
     formData.append("selectedTeam", selectedTeam);
     formData.append("lost", lost);
@@ -142,6 +146,8 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
         toast.warning("Đặt cược thất bại, vui lòng thử lại sau");
       }
       console.log(error);
+    } finally {
+      setLoading(false); // Reset loading state when submission completes or fails
     }
   };
 
@@ -206,6 +212,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               minWidth: "auto",
               px: 1,
             }}
+            disabled={loading} // Disable close button while loading
           >
             ×
           </Button>
@@ -264,6 +271,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
             <Button
               onClick={() => handleTeamSelect(TeamEnum.BLUE)}
               variant="outlined"
+              disabled={loading} // Disable team selection while loading
               sx={{
                 bgcolor: selectedTeam === TeamEnum.BLUE ? "#005FA7" : "#333",
                 color: "#d7b500",
@@ -284,6 +292,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
             <Button
               onClick={() => handleTeamSelect(TeamEnum.RED)}
               variant="outlined"
+              disabled={loading} // Disable team selection while loading
               sx={{
                 bgcolor: selectedTeam === TeamEnum.RED ? "#B6080D" : "#333",
                 color: "#F6D02F",
@@ -318,6 +327,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
                 value={lost}
                 fullWidth
                 required
+                disabled={loading} // Disable select while loading
                 sx={{
                   bgcolor: "#333",
                   color: "#d7b500",
@@ -356,6 +366,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
                 onChange={handleWinRateChange}
                 fullWidth
                 required
+                disabled={loading} // Disable select while loading
                 sx={{
                   bgcolor: "#333",
                   color: "#d7b500",
@@ -397,6 +408,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               fullWidth
               required
               inputProps={{ min: 100 }}
+              disabled={loading} // Disable input while loading
               InputProps={{
                 inputProps: {
                   list: "amountSuggestions",
@@ -437,6 +449,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
             >
               <Button
                 variant="outlined"
+                disabled={loading} // Disable buttons while loading
                 sx={{
                   color: "white",
                   border: "1px solid #d7b500",
@@ -451,6 +464,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               </Button>
               <Button
                 variant="outlined"
+                disabled={loading} // Disable buttons while loading
                 sx={{
                   color: "white",
                   border: "1px solid #d7b500",
@@ -465,6 +479,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               </Button>
               <Button
                 variant="outlined"
+                disabled={loading} // Disable buttons while loading
                 sx={{
                   color: "white",
                   border: "1px solid #d7b500",
@@ -479,6 +494,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               </Button>
               <Button
                 variant="outlined"
+                disabled={loading} // Disable buttons while loading
                 sx={{
                   color: "white",
                   border: "1px solid #d7b500",
@@ -520,6 +536,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
             type="submit"
             variant="contained"
             fullWidth
+            disabled={loading} // Disable button while loading
             sx={{
               bgcolor: "#d7b500",
               color: "#000",
@@ -527,9 +544,14 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               fontSize: 16,
               borderRadius: "20px",
               "&:hover": { bgcolor: "#FFC107" },
+              position: "relative",
             }}
           >
-            ĐẶT CƯỢC
+            {loading ? (
+              <CircularProgress size={24} sx={{ color: "#000" }} />
+            ) : (
+              "ĐẶT CƯỢC"
+            )}
           </Button>
         </form>
       </Box>

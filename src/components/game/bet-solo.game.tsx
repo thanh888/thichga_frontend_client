@@ -326,40 +326,9 @@ const BetInfo: React.FC<BetInfoProps> = ({
             0
           );
         setUserBetTotal(userTotalBet);
-      } else {
-        toast.error("Failed to fetch bet histories");
       }
     } catch (error) {
       console.log("Error fetching bet histories:", error);
-      toast.error("Error fetching bet histories");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancelBet = async (bet: BettingHistoryInterface) => {
-    if (!bet._id) return;
-    try {
-      setLoading(true);
-      const response = await UpdateDeleteBetHistoryApi(bet._id, {
-        betSessionID: sessionID,
-        money: bet.money,
-      });
-      if (response.status === 200 || response.status === 201) {
-        toast.success("Hủy thành công");
-        if (socket) socket.emit("bet-history", { roomID: betRoom._id });
-        if (userContext?.checkSession) await userContext.checkSession();
-        setIsReloadBetting(true);
-      } else {
-        toast.error("Failed to cancel bet");
-      }
-    } catch (error: any) {
-      console.log(error);
-      if (error?.response?.data?.message === "Betting is disable") {
-        toast.warn("Phiên cược đã đóng, không thể hủy");
-      } else {
-        toast.error("Error canceling bet");
-      }
     } finally {
       setLoading(false);
     }

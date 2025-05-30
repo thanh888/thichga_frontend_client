@@ -51,12 +51,9 @@ export default function GameDetailPage() {
       const response = await getRoomById(room_id);
       if (response.status === 200 || response.status === 201) {
         setBetRoom(response.data);
-      } else {
-        toast.error("Failed to fetch room information");
       }
     } catch (error) {
       console.log(error);
-      toast.error("Error fetching room details");
     } finally {
       setLoading(false);
     }
@@ -73,12 +70,9 @@ export default function GameDetailPage() {
         setIsClosed(checkIsClosed);
         if (checkSession) await checkSession();
         setIsReloadRoom(true);
-      } else {
-        toast.error("Failed to check room status");
       }
     } catch (error) {
       console.log(error);
-      toast.error("Error checking room status");
     } finally {
       setLoading(false);
     }

@@ -7,6 +7,7 @@ import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
 import {
   convertDateTime,
   ConvertMoneyVND,
+  numberThousandFload,
 } from "@/utils/function-convert.util";
 import {
   Box,
@@ -37,6 +38,7 @@ import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interfac
 import { paginateBetHistoryByUserIDApi } from "@/services/bet-history.api";
 import { BetResultEnum } from "@/utils/enum/bet-result.enum";
 import { UserContext } from "@/contexts/user-context";
+import { StatusSessionEnum } from "@/utils/enum/status-session.enum";
 
 const listResultHistory = [
   { value: BetResultEnum.WIN, label: "Thắng" },
@@ -68,7 +70,7 @@ const columns: Column[] = [
   { id: "selectedTeam", label: "Đội chọn", minWidth: 120, align: "left" },
   {
     id: "userProfit",
-    label: "Lợi nhuận",
+    label: "Tiền thắng",
     minWidth: 120,
     align: "left",
   },
@@ -428,7 +430,17 @@ export default function UserBetHistories({
                         <Typography
                           variant="caption"
                           bgcolor={
-                            (row?.userProfit ?? 0) >= 0 ? "#38A169" : "#C53030"
+                            row.userResult &&
+                            [
+                              BetResultEnum.WIN,
+                              BetResultEnum.DRAW,
+                              BetResultEnum.CANCEL,
+                              BetResultEnum.REFUDNED,
+                            ].includes(row.userResult)
+                              ? "#38A169"
+                              : row.userResult === BetResultEnum.LOSE
+                              ? "#C53030"
+                              : "#A0AEC0"
                           }
                           sx={{
                             p: 1,
@@ -437,7 +449,18 @@ export default function UserBetHistories({
                             fontSize: 14,
                           }}
                         >
-                          {ConvertMoneyVND(row?.userProfit ?? 0)}
+                          {row.userResult &&
+                          [
+                            BetResultEnum.WIN,
+                            BetResultEnum.DRAW,
+                            BetResultEnum.CANCEL,
+                            BetResultEnum.REFUDNED,
+                          ].includes(row.userResult)
+                            ? "+" + numberThousandFload(row?.userProfit ?? 0)
+                            : row.userResult &&
+                              [BetResultEnum.LOSE].includes(row.userResult)
+                            ? "-" + numberThousandFload(row?.money ?? 0)
+                            : "Đang chờ"}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ color: "#FFFFFF" }}>
@@ -455,12 +478,14 @@ export default function UserBetHistories({
                                 ? "#C53030"
                                 : row?.userResult === BetResultEnum.DRAW
                                 ? "#718096"
-                                : "#ECC94B",
+                                : "#A0AEC0",
                           }}
                         >
-                          {listResultHistory.find(
-                            (item: any) => item.value === row?.userResult
-                          )?.label || "Đang chờ"}
+                          {row.userResult
+                            ? listResultHistory.find(
+                                (item: any) => item.value === row?.userResult
+                              )?.label
+                            : "Đang chờ"}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ color: "#FFFFFF" }}>
@@ -473,12 +498,17 @@ export default function UserBetHistories({
                             fontSize: 14,
                             textWrap: "nowrap",
                             bgcolor:
-                              row?.status === BetHistoryStatusEnum.MATCHED
+                              row?.status === BetHistoryStatusEnum.MATCHED ||
+                              row.statusSession === StatusSessionEnum.SETTLED ||
+                              row.userResult
                                 ? "#3182CE"
                                 : "#A0AEC0",
                           }}
                         >
-                          {row?.status === BetHistoryStatusEnum.MATCHED
+                          {row.statusSession === StatusSessionEnum.SETTLED ||
+                          row.userResult
+                            ? "Đã kết toán"
+                            : row?.status === BetHistoryStatusEnum.MATCHED
                             ? "Đã khớp"
                             : "Chưa khớp"}
                         </Typography>

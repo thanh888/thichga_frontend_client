@@ -6,7 +6,6 @@ import { TeamEnum } from "@/utils/enum/team.enum";
 import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
 import {
   convertDateTime,
-  ConvertMoneyVND,
   numberThousandFload,
 } from "@/utils/function-convert.util";
 import {
@@ -15,8 +14,6 @@ import {
   Card,
   CircularProgress,
   Divider,
-  SelectChangeEvent,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -38,12 +35,14 @@ import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interfac
 import { paginateBetHistoryByUserIDApi } from "@/services/bet-history.api";
 import { BetResultEnum } from "@/utils/enum/bet-result.enum";
 import { UserContext } from "@/contexts/user-context";
+import { StatusSessionEnum } from "@/utils/enum/status-session.enum";
 
 const listResultHistory = [
   { value: BetResultEnum.WIN, label: "Thắng" },
   { value: BetResultEnum.LOSE, label: "Thua" },
   { value: BetResultEnum.DRAW, label: "Hòa" },
   { value: BetResultEnum.CANCEL, label: "Hủy" },
+  { value: BetResultEnum.REFUDNED, label: "Hoàn tiền" },
 ];
 
 interface Column {
@@ -69,7 +68,7 @@ const columns: Column[] = [
   { id: "selectedTeam", label: "Đội chọn", minWidth: 120, align: "left" },
   {
     id: "userProfit",
-    label: "Lợi nhuận",
+    label: "Tiền thắng",
     minWidth: 120,
     align: "left",
   },
@@ -99,10 +98,7 @@ export default function UserBetExGameHistories({
   });
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [filter, setFilter] = useState<{ roomName: string; status: string }>({
-    roomName: "",
-    status: "",
-  });
+  const [filter, setFilter] = useState<string>("");
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [orderBy, setOrderBy] =
     useState<keyof BettingHistoryInterface>("createdAt");
@@ -120,11 +116,12 @@ export default function UserBetExGameHistories({
     try {
       const sortQuery =
         order === "asc" ? String(orderBy) : `-${String(orderBy)}`;
+
       const query = `limit=${rowsPerPage}&skip=${
         page + 1
-      }&search=${encodeURIComponent(filter.roomName)}&status=${
-        filter.status
-      }&type=${TypeBetRoomEnum.OTHER}&sort=${sortQuery}`;
+      }&search=${encodeURIComponent(filter)}&status=${filter}&type=${
+        TypeBetRoomEnum.OTHER
+      }&sort=${sortQuery}`;
       const response = await paginateBetHistoryByUserIDApi(user._id, query);
       if (response.status === 200 || response.status === 201) {
         setBets(response.data);
@@ -148,7 +145,7 @@ export default function UserBetExGameHistories({
     if (betHistoryDialogOpen && user) {
       fetchBets();
     }
-  }, [betHistoryDialogOpen, page, rowsPerPage, order, orderBy, user]);
+  }, [betHistoryDialogOpen, page, rowsPerPage, order, orderBy, user, filter]);
 
   const handleRequestSort = (property: keyof BettingHistoryInterface) => {
     const isAsc = orderBy === property && order === "asc";
@@ -157,13 +154,11 @@ export default function UserBetExGameHistories({
     setPage(0); // Reset to first page on sort
   };
 
-  const handleFilterChange = (
-    event:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<string>
-  ) => {
-    const { name, value } = event.target;
-    setFilter((prev) => ({ ...prev, [name]: value }));
+  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setFilter(value);
+    console.log(value);
+
     setPage(0);
   };
 
@@ -180,7 +175,7 @@ export default function UserBetExGameHistories({
 
   const handleCloseBetHistoryDialog = () => {
     setBetHistoryDialogOpen(false);
-    setFilter({ roomName: "", status: "" });
+    setFilter("");
     setPage(0);
     setBets({ docs: [], totalDocs: 0 });
   };
@@ -261,7 +256,7 @@ export default function UserBetExGameHistories({
             <TextField
               label="Tìm kiếm trận đấu"
               name="roomName"
-              value={filter.roomName}
+              value={filter}
               onChange={handleFilterChange}
               size="small"
               sx={{
@@ -392,7 +387,17 @@ export default function UserBetExGameHistories({
                         <Typography
                           variant="caption"
                           bgcolor={
-                            (row?.userProfit ?? 0) >= 0 ? "#38A169" : "#C53030"
+                            row.userResult &&
+                            [
+                              BetResultEnum.WIN,
+                              BetResultEnum.DRAW,
+                              BetResultEnum.CANCEL,
+                              BetResultEnum.REFUDNED,
+                            ].includes(row.userResult)
+                              ? "#38A169"
+                              : row.userResult === BetResultEnum.LOSE
+                              ? "#C53030"
+                              : "#A0AEC0"
                           }
                           sx={{
                             p: 1,
@@ -401,7 +406,18 @@ export default function UserBetExGameHistories({
                             fontSize: 14,
                           }}
                         >
-                          {numberThousandFload(row?.userProfit ?? 0)}
+                          {row.userResult &&
+                          [
+                            BetResultEnum.WIN,
+                            BetResultEnum.DRAW,
+                            BetResultEnum.CANCEL,
+                            BetResultEnum.REFUDNED,
+                          ].includes(row.userResult)
+                            ? "+" + numberThousandFload(row?.userProfit ?? 0)
+                            : row.userResult &&
+                              [BetResultEnum.LOSE].includes(row.userResult)
+                            ? "-" + numberThousandFload(row?.money ?? 0)
+                            : "Đang chờ"}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ color: "#FFFFFF" }}>
@@ -419,12 +435,14 @@ export default function UserBetExGameHistories({
                                 ? "#C53030"
                                 : row?.userResult === BetResultEnum.DRAW
                                 ? "#718096"
-                                : "#ECC94B",
+                                : "#A0AEC0",
                           }}
                         >
-                          {listResultHistory.find(
-                            (item: any) => item.value === row?.userResult
-                          )?.label || "Đang chờ"}
+                          {row.userResult
+                            ? listResultHistory.find(
+                                (item: any) => item.value === row?.userResult
+                              )?.label
+                            : "Đang chờ"}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ color: "#FFFFFF" }}>
@@ -437,12 +455,15 @@ export default function UserBetExGameHistories({
                             fontSize: 14,
                             textWrap: "nowrap",
                             bgcolor:
-                              row?.status === BetHistoryStatusEnum.MATCHED
+                              row?.status === BetHistoryStatusEnum.MATCHED ||
+                              row.statusSession === StatusSessionEnum.SETTLED
                                 ? "#3182CE"
                                 : "#A0AEC0",
                           }}
                         >
-                          {row?.status === BetHistoryStatusEnum.MATCHED
+                          {row.statusSession === StatusSessionEnum.SETTLED
+                            ? "Đã kết toán"
+                            : row?.status === BetHistoryStatusEnum.MATCHED
                             ? "Đã khớp"
                             : "Chưa khớp"}
                         </Typography>
