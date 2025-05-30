@@ -28,8 +28,6 @@ export default function Homepage() {
 
   const userContext = useContext(UserContext);
 
-  const checkSession = userContext?.checkSession;
-
   const handleRedirectGame = async () => {
     try {
       const respone = await getRoomIsOpenedApi();
@@ -63,12 +61,6 @@ export default function Homepage() {
       router.push("/login");
     }
   };
-
-  useEffect(() => {
-    if (checkSession) {
-      checkSession();
-    }
-  }, []);
 
   return (
     <Container

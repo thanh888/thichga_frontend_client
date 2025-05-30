@@ -1,46 +1,31 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
+import { UserContext } from "@/contexts/user-context";
 import { useRouter } from "next/navigation";
-import { UserContext, UserProvider } from "@/contexts/user-context";
-import { AuthGuard } from "@/components/auth/auth-guard";
 
-export default function ClientLayout({
-  children,
-}: {
-  readonly children: React.ReactNode;
-}) {
-  // const router = useRouter();
-  // const userContext = useContext(UserContext);
-  // const user = userContext?.user;
-  // const isLoading = userContext?.isLoading;
-  // const error = userContext?.error;
+import { ReactNode } from "react";
 
-  // const [isChecking, setIsChecking] = useState(true);
-  // const [hasRedirected, setHasRedirected] = useState(false);
+interface GameLayoutProps {
+  children: ReactNode;
+}
 
-  // useEffect(() => {
-  //   if (isLoading || hasRedirected) return;
+export default function GameLayout({ children }: GameLayoutProps) {
+  const user = useContext(UserContext)?.user;
+  const checkSession = useContext(UserContext)?.checkSession;
+  const router = useRouter();
 
-  //   // Nếu có lỗi hoặc chưa đăng nhập
-  //   if (error || !user) {
-  //     setHasRedirected(true);
-  //     router.push("/login");
-  //   } else {
-  //     setIsChecking(false);
-  //   }
-  // }, [isLoading, user, error, hasRedirected, router]);
+  useEffect(() => {
+    if (!user && checkSession) {
+      checkSession(); // Gọi để re-check session từ cookie hoặc localStorage
+    }
+  }, []);
 
-  // if (isLoading || isChecking) {
-  //   return (
-  //     <div
-  //       className="absolute top-[50%] left-[40%] "
-  //       style={{ backgroundColor: "white", color: "black" }}
-  //     >
-  //       Đang tải...
-  //     </div>
-  //   );
-  // }
+  useEffect(() => {
+    if (user === null) {
+      router.replace("/login");
+    }
+  }, [user]);
 
-  return <AuthGuard>{children}</AuthGuard>;
+  return <>{children}</>;
 }

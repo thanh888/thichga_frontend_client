@@ -61,7 +61,8 @@ const LoginPage: React.FC = () => {
           await checkSession(); // Call checkSession to update user state
         }
         toast.success("Đăng nhập thành công");
-        router.replace("/");
+        // router.replace("/");
+        window.location.href = "/";
       } else if (
         res?.response?.data?.message === "Username or password is incorrect"
       ) {

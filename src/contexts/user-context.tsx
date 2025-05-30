@@ -5,10 +5,10 @@ import { getAccoutUserApi } from "@/services/auth/auth.api";
 import { UserInterface } from "@/utils/interfaces/user.interface";
 
 export interface UserContextValue {
-  user: UserInterface;
+  user: UserInterface | null;
   error: string | null;
   isLoading: boolean;
-  checkSession?: () => Promise<void>;
+  checkSession: () => Promise<void>;
 }
 
 export const UserContext = React.createContext<UserContextValue | undefined>(
@@ -23,7 +23,7 @@ export function UserProvider({
   children,
 }: Readonly<UserProviderProps>): React.JSX.Element {
   const [state, setState] = React.useState<{
-    user: any;
+    user: UserInterface | null;
     error: string | null;
     isLoading: boolean;
   }>({
@@ -37,39 +37,31 @@ export function UserProvider({
       const response = await getAccoutUserApi();
 
       if (response.status === 200 || response.status === 201) {
-        setState((prev) => ({
-          ...prev,
-          user: response.data ?? null,
+        setState({
+          user: response.data,
           error: null,
           isLoading: false,
-        }));
+        });
       } else {
-        setState((prev) => ({
-          ...prev,
+        setState({
           user: null,
           error: "Something went wrong",
           isLoading: false,
-        }));
-        return;
+        });
       }
-    } catch (err) {
-      console.log(err);
-      setState((prev) => ({
-        ...prev,
+    } catch (err: any) {
+      console.log("Error checking session:", err?.message || err);
+      setState({
         user: null,
         error: "Something went wrong",
         isLoading: false,
-      }));
+      });
     }
   }, []);
 
   React.useEffect(() => {
-    checkSession().catch((err: unknown) => {
-      console.log(err);
-      // noop
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Expected
-  }, []);
+    checkSession().catch(console.error);
+  }, [checkSession]);
 
   const contextValue = React.useMemo(
     () => ({ ...state, checkSession }),
