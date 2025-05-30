@@ -18,7 +18,6 @@ import Marquee from "react-fast-marquee";
 import { toast } from "react-toastify";
 import Grid from "@mui/material/Grid";
 import { UserContext } from "@/contexts/user-context";
-import { useUser } from "@/hooks/use-user";
 
 export default function Homepage() {
   const router = useRouter();
@@ -29,7 +28,7 @@ export default function Homepage() {
 
   const userContext = useContext(UserContext);
 
-  const { checkSession } = useUser();
+  const checkSession = userContext?.checkSession;
 
   const handleRedirectGame = async () => {
     try {
