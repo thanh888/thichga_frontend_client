@@ -130,9 +130,7 @@ export default function GameDetailPage() {
               pb: { xs: "60px", sm: "70px" },
               px: { xs: 1, sm: 2 },
               bgcolor: "#101828",
-              display: {
-                sx: "block",
-              },
+              position: "fixed",
             }}
           >
             <Grid container spacing={{ xs: 1, sm: 2 }}>

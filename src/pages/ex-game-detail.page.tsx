@@ -131,6 +131,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
           maxHeight: "calc(100vh)", // Subtract header height
           overflow: "hidden", // Enable vertical scrolling if needed
           pt: "64px",
+          position: "fixed",
         }}
       >
         <Grid container spacing={2}>
