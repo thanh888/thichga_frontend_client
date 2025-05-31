@@ -38,7 +38,7 @@ const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
 }) => (
   <Box
     sx={{
-      height: { xs: "200px", sm: "300px" },
+      height: { xs: "180px", sm: "300px" },
       overflowY: "auto",
       "&::-webkit-scrollbar": { bgcolor: "black", width: "8px" },
       "&::-webkit-scrollbar-thumb": { bgcolor: "#888", borderRadius: "4px" },
@@ -191,7 +191,8 @@ const BetList: React.FC<{
               sx={{
                 fontSize: { xs: 10, sm: 11 },
                 width: "100%",
-                color: bet?.selectedTeam === TeamEnum.RED ? "red" : "#0265ff",
+                color:
+                  bet?.selectedTeam === TeamEnum.RED ? "#ff3601" : "#0265ff",
                 textAlign: "center",
               }}
             >

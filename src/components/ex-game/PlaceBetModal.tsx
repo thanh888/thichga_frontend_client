@@ -261,7 +261,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
         </Box>
         <form onSubmit={handleSubmit}>
           {errors.user && (
-            <Typography sx={{ color: "red", mb: 1, fontSize: 14 }}>
+            <Typography sx={{ color: "#ff3601", mb: 1, fontSize: 14 }}>
               {errors.user}
             </Typography>
           )}
@@ -312,7 +312,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
             </Button>
           </Box>
           {errors.team && (
-            <Typography sx={{ color: "red", mb: 1, fontSize: 14 }}>
+            <Typography sx={{ color: "#ff3601", mb: 1, fontSize: 14 }}>
               {errors.team}
             </Typography>
           )}
@@ -350,7 +350,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
                 ))}
               </Select>
               {errors.lost && (
-                <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+                <Typography sx={{ color: "#ff3601", mt: 1, fontSize: 14 }}>
                   {errors.lost}
                 </Typography>
               )}
@@ -389,7 +389,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
                 ))}
               </Select>
               {errors.win && (
-                <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+                <Typography sx={{ color: "#ff3601", mt: 1, fontSize: 14 }}>
                   {errors.win}
                 </Typography>
               )}
@@ -433,7 +433,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
               <option value="10000">10M</option>
             </datalist>
             {errors.money && (
-              <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+              <Typography sx={{ color: "#ff3601", mt: 1, fontSize: 14 }}>
                 {errors.money}
               </Typography>
             )}

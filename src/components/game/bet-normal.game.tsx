@@ -111,7 +111,8 @@ const OptionList: React.FC<{
               sx={{
                 fontSize: { xs: 10, sm: 11 },
                 width: "100%",
-                color: bet?.selectedTeam === TeamEnum.RED ? "red" : "#0265ff",
+                color:
+                  bet?.selectedTeam === TeamEnum.RED ? "#ff3601" : "#0265ff",
                 textAlign: "center",
               }}
             >

@@ -212,7 +212,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
         </Box>
         <form onSubmit={handleSubmit}>
           {errors.user && (
-            <Typography sx={{ color: "red", mb: 2, fontSize: 14 }}>
+            <Typography sx={{ color: "#ff3601", mb: 2, fontSize: 14 }}>
               {errors.user}
             </Typography>
           )}
@@ -263,7 +263,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
             </Button>
           </Box>
           {errors.team && (
-            <Typography sx={{ color: "red", mb: 2, fontSize: 14 }}>
+            <Typography sx={{ color: "#ff3601", mb: 2, fontSize: 14 }}>
               {errors.team}
             </Typography>
           )}
@@ -300,7 +300,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
                 ))}
               </Select>
               {errors.lost && (
-                <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+                <Typography sx={{ color: "#ff3601", mt: 1, fontSize: 14 }}>
                   {errors.lost}
                 </Typography>
               )}
@@ -337,7 +337,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
                 ))}
               </Select>
               {errors.win && (
-                <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+                <Typography sx={{ color: "#ff3601", mt: 1, fontSize: 14 }}>
                   {errors.win}
                 </Typography>
               )}
@@ -381,7 +381,7 @@ const WagerModal: React.FC<WagerModalProps> = ({
               <option value="10000">10M</option>
             </datalist>
             {errors.betAmount && (
-              <Typography sx={{ color: "red", mt: 1, fontSize: 14 }}>
+              <Typography sx={{ color: "#ff3601", mt: 1, fontSize: 14 }}>
                 {errors.betAmount}
               </Typography>
             )}

@@ -116,6 +116,15 @@ export default function ExGameDetailPage(): React.JSX.Element {
     setIsClosed(false);
   };
 
+  useEffect(() => {
+    if (isClosed) {
+      const timer = setTimeout(() => {
+        setIsClosed(false);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isClosed]);
+
   return (
     <Box sx={{ bgcolor: "black", minHeight: "100vh", overflow: "hidden" }}>
       <HeaderExGame
@@ -209,40 +218,14 @@ export default function ExGameDetailPage(): React.JSX.Element {
         <DialogTitle
           sx={{
             textAlign: "center",
-            fontSize: "1.5rem",
+            fontSize: "1.2rem",
             fontWeight: 600,
             color: "#d7b500",
-            pt: 3,
+            py: 3,
           }}
         >
-          Phòng cược kết thúc
+          Kết thúc
         </DialogTitle>
-        <DialogContent sx={{ textAlign: "center", px: 4, py: 2 }}>
-          {/* <Typography sx={{ color: "#E0E0E0", fontSize: "1rem" }}>
-            Phòng cược hiện tại đã đóng. Vui lòng rời khỏi và quay lại sau
-          </Typography> */}
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
-          <Button
-            onClick={() => {
-              handleCloseDialog();
-            }}
-            variant="contained"
-            sx={{
-              backgroundColor: "#3B82F6",
-              color: "#FFFFFF",
-              textTransform: "none",
-              fontWeight: 500,
-              borderRadius: "8px",
-              px: 4,
-              "&:hover": {
-                backgroundColor: "#2563EB",
-              },
-            }}
-          >
-            OK
-          </Button>
-        </DialogActions>
       </Dialog>
     </Box>
   );

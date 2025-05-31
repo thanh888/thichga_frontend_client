@@ -104,7 +104,7 @@ const LiveStreamContainer: React.FC<BetContainerProps> = ({
             fontSize={{ xs: 14, sm: 20 }}
             variant="h6"
             sx={{
-              color: "red",
+              color: "#ff3601",
               fontWeight: 600,
               textShadow: "1px 1px 1px #ccc",
             }}

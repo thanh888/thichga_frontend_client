@@ -74,7 +74,9 @@ export default function Homepage() {
         alignItems="center"
         sx={{ marginBottom: { xs: 1, sm: 2 } }}
       >
-        <CampaignOutlined sx={{ fontSize: { xs: 16, sm: 20 }, color: "red" }} />
+        <CampaignOutlined
+          sx={{ fontSize: { xs: 16, sm: 20 }, color: "#ff3601" }}
+        />
         <Marquee style={{ whiteSpace: "nowrap", flex: 1 }}>
           <Typography
             variant="body2"

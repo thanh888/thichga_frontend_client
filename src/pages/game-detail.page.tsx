@@ -40,7 +40,7 @@ export default function GameDetailPage() {
   const [isReloadBetting, setIsReloadBetting] = useState<boolean>(true);
   const [isReloadRoom, setIsReloadRoom] = useState<boolean>(true);
   const [isClosed, setIsClosed] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const socket = useSocket();
 
@@ -57,6 +57,15 @@ export default function GameDetailPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isClosed) {
+      const timer = setTimeout(() => {
+        setIsClosed(false);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isClosed]);
 
   const checkRoomClosed = async () => {
     try {
@@ -206,34 +215,14 @@ export default function GameDetailPage() {
             <DialogTitle
               sx={{
                 textAlign: "center",
-                fontSize: "1.5rem",
+                fontSize: "1.2rem",
                 fontWeight: 600,
                 color: "#d7b500",
-                pt: 3,
+                py: 3,
               }}
             >
-              Phòng cược đã đóng
+              Kết thúc
             </DialogTitle>
-            <DialogContent
-              sx={{ textAlign: "center", px: 4, py: 2 }}
-            ></DialogContent>
-            <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
-              <Button
-                onClick={handleCloseDialog}
-                variant="contained"
-                sx={{
-                  backgroundColor: "#3B82F6",
-                  color: "#FFFFFF",
-                  textTransform: "none",
-                  fontWeight: 500,
-                  borderRadius: "8px",
-                  px: 4,
-                  "&:hover": { backgroundColor: "#2563EB" },
-                }}
-              >
-                OK
-              </Button>
-            </DialogActions>
           </Dialog>
         </>
       )}
