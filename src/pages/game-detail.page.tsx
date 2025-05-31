@@ -120,112 +120,106 @@ export default function GameDetailPage() {
         minHeight: "100vh",
       }}
     >
-      {loading ? (
-        <LoadingSpinner />
-      ) : (
-        <>
-          <GameHeader
-            isCommentOpen={isCommentOpen}
-            setIsCommentOpen={setIsCommentOpen}
-            isBetOpen={isBetOpen}
-            setIsBetOpen={setIsBetOpen}
-            isReload={isReload}
-            setIsReload={setIsReload}
-          />
-          <Box
-            sx={{
-              width: "100%",
-              pt: { xs: "70px", sm: "96px" },
-              pb: { xs: "60px", sm: "70px" },
-              px: { xs: 1, sm: 2 },
-              bgcolor: "#101828",
-              position: "fixed",
-            }}
+      <GameHeader
+        isCommentOpen={isCommentOpen}
+        setIsCommentOpen={setIsCommentOpen}
+        isBetOpen={isBetOpen}
+        setIsBetOpen={setIsBetOpen}
+        isReload={isReload}
+        setIsReload={setIsReload}
+      />
+      <Box
+        sx={{
+          width: "100%",
+          pt: { xs: "70px", sm: "96px" },
+          pb: { xs: "60px", sm: "70px" },
+          px: { xs: 1, sm: 2 },
+          bgcolor: "#101828",
+          position: "fixed",
+        }}
+      >
+        <Grid container spacing={{ xs: 1, sm: 2 }}>
+          <Grid
+            size={{ xs: 12, md: 3.5, lg: 3, xl: 2.5 }}
+            sx={{ display: { xs: "none", md: "block" } }}
           >
-            <Grid container spacing={{ xs: 1, sm: 2 }}>
-              <Grid
-                size={{ xs: 12, md: 3.5, lg: 3, xl: 2.5 }}
-                sx={{ display: { xs: "none", md: "block" } }}
-              >
-                {betRoom?.latestSessionID &&
-                  betRoom.typeRoom === TypeBetRoomEnum.SOLO && (
-                    <BetInfo
-                      sessionID={betRoom.latestSessionID}
-                      isBetOpen={isBetOpen}
-                      setIsBetOpen={setIsBetOpen}
-                      betRoom={betRoom}
-                      isReloadBetting={isReloadBetting}
-                      setIsReloadBetting={setIsReloadBetting}
-                      setUserBetTotal={setUserBetTotal}
-                    />
-                  )}
-                {betRoom?.latestSessionID &&
-                  betRoom.typeRoom === TypeBetRoomEnum.NORMAL && (
-                    <BetNormal
-                      sessionID={betRoom.latestSessionID}
-                      isBetOpen={isBetOpen}
-                      setIsBetOpen={setIsBetOpen}
-                      betRoom={betRoom}
-                      isReloadBetting={isReloadBetting}
-                      setIsReloadBetting={setIsReloadBetting}
-                      setUserBetTotal={setUserBetTotal}
-                    />
-                  )}
-              </Grid>
-              <Grid size={{ xs: 12, md: 5, lg: 6, xl: 7 }}>
-                {betRoom?.urlType && betRoom?.urlLive && (
-                  <LiveStream betRoom={betRoom} />
-                )}
-              </Grid>
-              <Grid
-                size={{ xs: 12, md: 3.5, lg: 3, xl: 2.5 }}
-                sx={{ display: "block" }}
-              >
-                {betRoom?.latestSessionID &&
-                  betRoom.typeRoom === TypeBetRoomEnum.SOLO && (
-                    <BetControls
-                      setIsReloadBetting={setIsReloadBetting}
-                      sessionID={betRoom.latestSessionID}
-                      betRoom={betRoom}
-                    />
-                  )}
-                <CommentComponent
-                  isCommentOpen={isCommentOpen}
-                  setIsCommentOpen={setIsCommentOpen}
+            {betRoom?.latestSessionID &&
+              betRoom.typeRoom === TypeBetRoomEnum.SOLO && (
+                <BetInfo
+                  sessionID={betRoom.latestSessionID}
+                  isBetOpen={isBetOpen}
+                  setIsBetOpen={setIsBetOpen}
+                  betRoom={betRoom}
+                  isReloadBetting={isReloadBetting}
+                  setIsReloadBetting={setIsReloadBetting}
+                  setUserBetTotal={setUserBetTotal}
+                />
+              )}
+            {betRoom?.latestSessionID &&
+              betRoom.typeRoom === TypeBetRoomEnum.NORMAL && (
+                <BetNormal
+                  sessionID={betRoom.latestSessionID}
+                  isBetOpen={isBetOpen}
+                  setIsBetOpen={setIsBetOpen}
+                  betRoom={betRoom}
+                  isReloadBetting={isReloadBetting}
+                  setIsReloadBetting={setIsReloadBetting}
+                  setUserBetTotal={setUserBetTotal}
+                />
+              )}
+          </Grid>
+          <Grid size={{ xs: 12, md: 5, lg: 6, xl: 7 }}>
+            {betRoom?.urlType && betRoom?.urlLive && (
+              <LiveStream betRoom={betRoom} />
+            )}
+          </Grid>
+          <Grid
+            size={{ xs: 12, md: 3.5, lg: 3, xl: 2.5 }}
+            sx={{ display: "block" }}
+          >
+            {betRoom?.latestSessionID &&
+              betRoom.typeRoom === TypeBetRoomEnum.SOLO && (
+                <BetControls
+                  setIsReloadBetting={setIsReloadBetting}
+                  sessionID={betRoom.latestSessionID}
                   betRoom={betRoom}
                 />
-              </Grid>
-            </Grid>
-          </Box>
-          <GameFooter userBetTotal={userBetTotal} />
-          <Dialog
-            open={isClosed}
-            onClose={handleCloseDialog}
-            maxWidth="xs"
-            fullWidth
-            sx={{
-              "& .MuiDialog-paper": {
-                borderRadius: "12px",
-                backgroundColor: "#1E2A44",
-                color: "#FFFFFF",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-              },
-            }}
-          >
-            <DialogTitle
-              sx={{
-                textAlign: "center",
-                fontSize: "1.2rem",
-                fontWeight: 600,
-                color: "#d7b500",
-                py: 3,
-              }}
-            >
-              Kết thúc
-            </DialogTitle>
-          </Dialog>
-        </>
-      )}
+              )}
+            <CommentComponent
+              isCommentOpen={isCommentOpen}
+              setIsCommentOpen={setIsCommentOpen}
+              betRoom={betRoom}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+      <GameFooter userBetTotal={userBetTotal} />
+      <Dialog
+        open={isClosed}
+        onClose={handleCloseDialog}
+        maxWidth="xs"
+        fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            borderRadius: "12px",
+            backgroundColor: "#1E2A44",
+            color: "#FFFFFF",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            textAlign: "center",
+            fontSize: "1.2rem",
+            fontWeight: 600,
+            color: "#d7b500",
+            py: 3,
+          }}
+        >
+          Kết thúc
+        </DialogTitle>
+      </Dialog>
     </div>
   );
 }

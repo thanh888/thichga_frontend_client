@@ -20,6 +20,11 @@ export const createBetHistoryApi = async (formData: any) => {
   return res;
 };
 
+export const createBetHistorySoloApi = async (formData: any) => {
+  const res = await axiosCustomize.post(`/bet-history/game-solo`, formData);
+  return res;
+};
+
 export const updateMatchedBetHistoryApi = async (id: string, formData: any) => {
   const res = await axiosCustomize.put(`/bet-history/${id}/matched`, formData);
   return res;

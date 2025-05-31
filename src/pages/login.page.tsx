@@ -43,7 +43,8 @@ const LoginPage: React.FC = () => {
 
   React.useEffect(() => {
     if (user) {
-      router.push("/"); // Redirect đến dashboard nếu đã đăng nhập
+      window.location.href = "/";
+      // Redirect đến dashboard nếu đã đăng nhập
     }
   }, [user, router]);
 

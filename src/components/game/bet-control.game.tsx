@@ -18,7 +18,7 @@ import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { toast } from "react-toastify";
-import { createBetHistoryApi } from "@/services/bet-history.api";
+import { createBetHistorySoloApi } from "@/services/bet-history.api";
 import { useSocket } from "@/socket";
 import { sampleMoneys } from "@/utils/function-convert.util";
 import { UserContext } from "@/contexts/user-context";
@@ -83,7 +83,7 @@ export default function BetControls({
 
     try {
       setLoading(true);
-      const response = await createBetHistoryApi(newData);
+      const response = await createBetHistorySoloApi(newData);
       if (response.status === 200 || response.status === 201) {
         toast.success("Đặt cược thành công");
         setIsReloadBetting(true);
