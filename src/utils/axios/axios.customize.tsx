@@ -50,6 +50,8 @@ instance.interceptors.response.use(
       refreshTokenPromise = instance.post("/auth/refresh-token");
       try {
         const { data } = await refreshTokenPromise;
+        console.log("=====>: ", data);
+
         instance.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${data.accessToken}`;

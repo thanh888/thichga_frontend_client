@@ -31,13 +31,12 @@ export default function GameDetailPage() {
   const params = useParams();
   const roomID = params?.id.toString();
   const userContext = useContext(UserContext);
-  const user = userContext?.user;
   const checkSession = userContext?.checkSession;
   const [isCommentOpen, setIsCommentOpen] = useState<boolean>(false);
   const [isBetOpen, setIsBetOpen] = useState<boolean>(true);
   const [betRoom, setBetRoom] = useState<BettingRoomInterface>();
   const [userBetTotal, setUserBetTotal] = useState<number>(0);
-  const [isReload, setIsReload] = useState<boolean>(true);
+  const [isReload, setIsReload] = useState<number>(0);
   const [isReloadBetting, setIsReloadBetting] = useState<boolean>(true);
   const [isReloadRoom, setIsReloadRoom] = useState<boolean>(true);
   const [isClosed, setIsClosed] = useState<boolean>(false);
@@ -89,7 +88,7 @@ export default function GameDetailPage() {
     if (!socket || !roomID) return;
     socket.on("update-room", async () => {
       await checkRoomClosed();
-      setIsReload(true);
+      setIsReload((prev) => prev + 1);
       setIsReloadBetting(true);
     });
     socket.on("bet-history", (msg) => {
@@ -131,6 +130,9 @@ export default function GameDetailPage() {
               pb: { xs: "60px", sm: "70px" },
               px: { xs: 1, sm: 2 },
               bgcolor: "#101828",
+              display: {
+                sx: "block",
+              },
             }}
           >
             <Grid container spacing={{ xs: 1, sm: 2 }}>
@@ -214,11 +216,9 @@ export default function GameDetailPage() {
             >
               Phòng cược đã đóng
             </DialogTitle>
-            <DialogContent sx={{ textAlign: "center", px: 4, py: 2 }}>
-              <Typography sx={{ color: "#E0E0E0", fontSize: "1rem" }}>
-                Phòng cược hiện tại đã đóng. Vui lòng rời khỏi và quay lại sau
-              </Typography>
-            </DialogContent>
+            <DialogContent
+              sx={{ textAlign: "center", px: 4, py: 2 }}
+            ></DialogContent>
             <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
               <Button
                 onClick={handleCloseDialog}

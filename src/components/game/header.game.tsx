@@ -35,8 +35,8 @@ interface GameHeaderProps {
   setIsCommentOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isBetOpen: boolean;
   setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isReload: boolean;
-  setIsReload: React.Dispatch<React.SetStateAction<boolean>>;
+  isReload: number;
+  setIsReload: React.Dispatch<React.SetStateAction<number>>;
 }
 
 enum BetType {
@@ -118,10 +118,7 @@ export default function GameHeader({
   };
 
   useEffect(() => {
-    if (isReload) {
-      getListRooms();
-      setIsReload(false);
-    }
+    getListRooms();
   }, [isReload]);
 
   const handleOpenRoomDialog = () => {

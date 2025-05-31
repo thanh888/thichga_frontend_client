@@ -312,7 +312,6 @@ const BetInfo: React.FC<BetInfoProps> = ({
       return;
     }
     try {
-      setLoading(true);
       const response = await getHistoriesBySession(betRoom.latestSessionID);
       if (response.status === 200 || response.status === 201) {
         setBetHistories(response.data);
@@ -329,8 +328,6 @@ const BetInfo: React.FC<BetInfoProps> = ({
       }
     } catch (error) {
       console.log("Error fetching bet histories:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -362,108 +359,36 @@ const BetInfo: React.FC<BetInfoProps> = ({
 
   return (
     <>
-      {loading ? (
-        <LoadingSpinner />
-      ) : (
-        <>
-          {!isMobile && (
-            <AnimatePresence initial={false}>
-              {isBetOpen && (
-                <motion.div
-                  variants={slideVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                >
-                  <Box
-                    sx={{
-                      width: "100%",
-                      backgroundColor: "#212529",
-                      position: "relative",
-                      borderRadius: 2,
-                    }}
-                  >
-                    <CloseIcon
-                      sx={{
-                        fontSize: 24,
-                        position: "absolute",
-                        top: -8,
-                        right: -8,
-                        backgroundColor: "white",
-                        borderRadius: "50%",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => setIsBetOpen(false)}
-                    />
-                    <BetList
-                      title="Số lượt cược đang chờ: 1 (Meron)"
-                      color="#ff4242"
-                      betHistories={betHistories?.filter(
-                        (item) => item.selectedTeam === TeamEnum.RED
-                      )}
-                      setIsReloadBetting={setIsReloadBetting}
-                      sessionID={sessionID}
-                      setAcceptDialogOpen={setAcceptDialogOpen}
-                      setSelectedBet={setSelectedBet}
-                      betRoom={betRoom}
-                    />
-                    <Box sx={{ height: "5px", mx: 2 }} />
-                    <BetList
-                      title="Số lượt cược đang chờ: 1 (Gà Xanh)"
-                      color="#0265ff"
-                      betHistories={betHistories?.filter(
-                        (item) => item.selectedTeam === TeamEnum.BLUE
-                      )}
-                      setIsReloadBetting={setIsReloadBetting}
-                      sessionID={sessionID}
-                      setAcceptDialogOpen={setAcceptDialogOpen}
-                      setSelectedBet={setSelectedBet}
-                      betRoom={betRoom}
-                    />
-                  </Box>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          )}
-          {isMobile && (
-            <Dialog
-              open={!isBetOpen}
-              disableEscapeKeyDown
-              fullWidth
-              PaperProps={{
-                sx: {
-                  position: "fixed",
-                  bottom: 0,
-                  m: 0,
-                  bgcolor: "#212529",
-                  borderTopLeftRadius: 8,
-                  borderTopRightRadius: 8,
-                  maxHeight: "50vh",
-                  width: "100%",
-                  boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.3)",
-                },
-              }}
-              BackdropProps={{ sx: { backgroundColor: "transparent" } }}
-              sx={{
-                pointerEvents: "none",
-                "& .MuiDialog-paper": { pointerEvents: "auto" },
-              }}
+      {!isMobile && (
+        <AnimatePresence initial={false}>
+          {isBetOpen && (
+            <motion.div
+              variants={slideVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <DialogContent sx={{ p: { xs: 1, sm: 2 }, position: "relative" }}>
-                <IconButton
-                  onClick={() => setIsBetOpen(!isBetOpen)}
+              <Box
+                sx={{
+                  width: "100%",
+                  backgroundColor: "#212529",
+                  position: "relative",
+                  borderRadius: 2,
+                }}
+              >
+                <CloseIcon
                   sx={{
+                    fontSize: 24,
                     position: "absolute",
-                    top: 8,
-                    right: 8,
-                    color: "white",
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                    top: -8,
+                    right: -8,
+                    backgroundColor: "white",
+                    borderRadius: "50%",
+                    cursor: "pointer",
                   }}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
+                  onClick={() => setIsBetOpen(false)}
+                />
                 <BetList
                   title="Số lượt cược đang chờ: 1 (Meron)"
                   color="#ff4242"
@@ -489,19 +414,85 @@ const BetInfo: React.FC<BetInfoProps> = ({
                   setSelectedBet={setSelectedBet}
                   betRoom={betRoom}
                 />
-              </DialogContent>
-            </Dialog>
+              </Box>
+            </motion.div>
           )}
-          <AcceptSolo
-            acceptDialogOpen={acceptDialogOpen}
-            setAcceptDialogOpen={setAcceptDialogOpen}
-            setSelectedBet={setSelectedBet}
-            setIsReloadBetting={setIsReloadBetting}
-            selectedBet={selectedBet}
-            betRoom={betRoom}
-          />
-        </>
+        </AnimatePresence>
       )}
+      {isMobile && (
+        <Dialog
+          open={!isBetOpen}
+          disableEscapeKeyDown
+          fullWidth
+          PaperProps={{
+            sx: {
+              position: "fixed",
+              bottom: 0,
+              m: 0,
+              bgcolor: "#212529",
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
+              maxHeight: "100%",
+              width: "100%",
+              boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.3)",
+            },
+          }}
+          BackdropProps={{ sx: { backgroundColor: "transparent" } }}
+          sx={{
+            pointerEvents: "none",
+            "& .MuiDialog-paper": { pointerEvents: "auto" },
+          }}
+        >
+          <DialogContent sx={{ p: { xs: 1, sm: 2 }, position: "relative" }}>
+            <IconButton
+              onClick={() => setIsBetOpen(!isBetOpen)}
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                color: "white",
+                bgcolor: "rgba(255,255,255,0.2)",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+            <BetList
+              title="Số lượt cược đang chờ: 1 (Meron)"
+              color="#ff4242"
+              betHistories={betHistories?.filter(
+                (item) => item.selectedTeam === TeamEnum.RED
+              )}
+              setIsReloadBetting={setIsReloadBetting}
+              sessionID={sessionID}
+              setAcceptDialogOpen={setAcceptDialogOpen}
+              setSelectedBet={setSelectedBet}
+              betRoom={betRoom}
+            />
+            <Box sx={{ height: "5px", mx: 2 }} />
+            <BetList
+              title="Số lượt cược đang chờ: 1 (Gà Xanh)"
+              color="#0265ff"
+              betHistories={betHistories?.filter(
+                (item) => item.selectedTeam === TeamEnum.BLUE
+              )}
+              setIsReloadBetting={setIsReloadBetting}
+              sessionID={sessionID}
+              setAcceptDialogOpen={setAcceptDialogOpen}
+              setSelectedBet={setSelectedBet}
+              betRoom={betRoom}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+      <AcceptSolo
+        acceptDialogOpen={acceptDialogOpen}
+        setAcceptDialogOpen={setAcceptDialogOpen}
+        setSelectedBet={setSelectedBet}
+        setIsReloadBetting={setIsReloadBetting}
+        selectedBet={selectedBet}
+        betRoom={betRoom}
+      />
     </>
   );
 };

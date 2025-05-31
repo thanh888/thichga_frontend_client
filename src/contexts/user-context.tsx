@@ -3,6 +3,7 @@
 import * as React from "react";
 import { getAccoutUserApi } from "@/services/auth/auth.api";
 import { UserInterface } from "@/utils/interfaces/user.interface";
+import { useRouter } from "next/navigation";
 
 export interface UserContextValue {
   user: UserInterface;
@@ -32,6 +33,8 @@ export function UserProvider({
     isLoading: true,
   });
 
+  const router = useRouter();
+
   const checkSession = React.useCallback(async (): Promise<void> => {
     try {
       const response = await getAccoutUserApi();
@@ -60,6 +63,7 @@ export function UserProvider({
         error: "Something went wrong",
         isLoading: false,
       }));
+      router.replace("/login");
     }
   }, []);
 
