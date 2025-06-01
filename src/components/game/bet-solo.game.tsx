@@ -77,12 +77,17 @@ const BetList: React.FC<{
   const user = userContext?.user;
   const checkSession = userContext?.checkSession;
 
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingCancel, setLoadingCancel] = useState<boolean>(false);
+
   const socket = useSocket();
 
   const handleCancelBet = async (bet: BettingHistoryInterface) => {
     if (!bet._id) {
       return;
     }
+    // setLoadingCancel(true);
+
     try {
       const response = await UpdateDeleteBetHistoryApi(bet?._id, {
         betSessionID: sessionID,
@@ -105,6 +110,8 @@ const BetList: React.FC<{
       if (error?.response?.data?.message === "Betting is disable") {
         toast.warn("Phiên cược đã đóng, không thể hủy");
       }
+    } finally {
+      setLoadingCancel(false);
     }
   };
 
@@ -204,6 +211,7 @@ const BetList: React.FC<{
                 variant="contained"
                 size="small"
                 onClick={() => handleCancelBet(bet)}
+                disabled={loadingCancel}
                 sx={{
                   fontSize: { xs: 9, sm: 10 },
                   width: { xs: "40px", sm: "50px" },

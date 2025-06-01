@@ -26,8 +26,6 @@ export default function Homepage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const userContext = useContext(UserContext);
-
   const handleRedirectGame = async () => {
     try {
       const respone = await getRoomIsOpenedApi();

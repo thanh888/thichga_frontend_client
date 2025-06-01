@@ -145,8 +145,7 @@ const RegisterPage: React.FC = () => {
           variant="outlined"
           color="primary"
           sx={{ py: 1.5 }}
-          component={Link}
-          href="/login"
+          onClick={() => router.replace("/login")}
         >
           Đăng nhập
         </Button>

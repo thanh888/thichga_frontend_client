@@ -42,7 +42,7 @@ export default function RootLayout({
                   backgroundColor: "white", // Match your app's background
                   color: "black", // Match your app's text color
                   width: "300px",
-                  margin: "16px",
+                  marginTop: "16px",
                   borderRadius: "10px",
                   paddingTop: "0",
                   paddingBottom: "0",

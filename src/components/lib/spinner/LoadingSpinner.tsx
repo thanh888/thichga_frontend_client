@@ -6,12 +6,13 @@ export const LoadingSpinner: React.FC = () => (
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "100vh",
-      minHeight: { xs: "200px", sm: "300px" },
+      height: "100%",
+      width: "100%",
+      // minHeight: { xs: "200px", sm: "300px" },
       bgcolor: "#212529",
-      borderRadius: 2,
+      // borderRadius: 2,
     }}
   >
-    <CircularProgress sx={{ color: "#ffeb3b" }} />
+    <CircularProgress size={24} sx={{ color: "#ffeb3b" }} />
   </Box>
 );

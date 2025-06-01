@@ -75,7 +75,7 @@ export default function GameFooter({
             >
               {numberThousandFload(user?.money?.toString() || "0")}{" "}
               <Link
-                href="/"
+                href="/account"
                 style={{
                   marginRight: "8px",
                   color: "#ffeb3b",

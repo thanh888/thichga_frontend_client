@@ -63,7 +63,6 @@ export function UserProvider({
         error: "Something went wrong",
         isLoading: false,
       }));
-      router.replace("/login");
     }
   }, []);
 

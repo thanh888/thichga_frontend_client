@@ -45,6 +45,7 @@ const listResultHistory = [
   { value: BetResultEnum.LOSE, label: "Thua" },
   { value: BetResultEnum.DRAW, label: "Hòa" },
   { value: BetResultEnum.CANCEL, label: "Hủy" },
+  { value: BetResultEnum.REFUDNED, label: "Hoàn tiền" },
 ];
 
 interface Column {
