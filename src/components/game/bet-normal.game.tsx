@@ -116,7 +116,7 @@ const OptionList: React.FC<{
                 textAlign: "center",
               }}
             >
-              {bet?.selectedTeam === TeamEnum.RED ? "Gà đỏ" : "Gà xanh"}
+              {bet?.selectedTeam === TeamEnum.RED ? "Meron" : "Wala"}
             </Typography>
             <Button
               variant="contained"
@@ -251,7 +251,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
                       onClick={() => setIsBetOpen(false)}
                     />
                     <OptionList
-                      title="Số lượt cược đang chờ: (Gà đỏ)"
+                      title="Số lượt cược đang chờ: (Meron)"
                       color="#ff4242"
                       betOptions={betOptions?.filter(
                         (item) => item.selectedTeam === TeamEnum.RED
@@ -261,7 +261,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
                     />
                     <Box sx={{ height: "5px", mx: 2 }} />
                     <OptionList
-                      title="Số lượt cược đang chờ: (Gà Xanh)"
+                      title="Số lượt cược đang chờ: (Wala)"
                       color="#0265ff"
                       betOptions={betOptions?.filter(
                         (item) => item.selectedTeam === TeamEnum.BLUE
@@ -313,7 +313,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
                   <CloseIcon fontSize="small" />
                 </IconButton>
                 <OptionList
-                  title="Số lượt cược đang chờ: (Gà đỏ)"
+                  title="Số lượt cược đang chờ: (Meron)"
                   color="#ff4242"
                   betOptions={betOptions?.filter(
                     (item) => item.selectedTeam === TeamEnum.RED
@@ -323,7 +323,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
                 />
                 <Box sx={{ height: "5px", mx: 2 }} />
                 <OptionList
-                  title="Số lượt cược đang chờ: (Gà Xanh)"
+                  title="Số lượt cược đang chờ: (Wala)"
                   color="#0265ff"
                   betOptions={betOptions?.filter(
                     (item) => item.selectedTeam === TeamEnum.BLUE

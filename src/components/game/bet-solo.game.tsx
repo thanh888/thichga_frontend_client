@@ -412,7 +412,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
                 />
                 <Box sx={{ height: "5px", mx: 2 }} />
                 <BetList
-                  title="Số lượt cược đang chờ: 1 (Gà Xanh)"
+                  title="Số lượt cược đang chờ: 1 (Wala)"
                   color="#0265ff"
                   betHistories={betHistories?.filter(
                     (item) => item.selectedTeam === TeamEnum.BLUE
@@ -480,7 +480,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
             />
             <Box sx={{ height: "5px", mx: 2 }} />
             <BetList
-              title="Số lượt cược đang chờ: 1 (Gà Xanh)"
+              title="Số lượt cược đang chờ: 1 (Wala)"
               color="#0265ff"
               betHistories={betHistories?.filter(
                 (item) => item.selectedTeam === TeamEnum.BLUE
