@@ -16,14 +16,14 @@ export default function SupportPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: "800px", mx: "auto", my: 10, p: 3 }}>
+    <Box sx={{ maxWidth: "800px", mx: "auto", my: 10, p: 3, bgcolor: "white" }}>
       {/* Hình ảnh minh họa */}
       <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
         <Box
           component="img"
-          src="https://thichga.com/User/assets/photos/support-photo.png"
+          src="images/support.jpg"
           alt="Support 24/7"
-          sx={{ maxWidth: "100%", height: "auto" }}
+          sx={{ maxWidth: "80%", height: "auto" }}
         />
       </Box>
       <Grid container spacing={2}>

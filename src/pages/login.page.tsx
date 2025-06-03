@@ -25,16 +25,34 @@ const LoginPage: React.FC = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
 
   const userContext = useContext(UserContext);
+  const user = userContext?.user;
+  const checkSession = userContext?.checkSession;
 
-  const user = userContext?.user; // Kiểm tra trạng thái đăng nhập
-
-  const checkSession = userContext?.checkSession; // Access checkSession from UserContext
+  const validateUsername = (username: string): boolean => {
+    const usernameRegex = /^[a-zA-Z0-9]{6,32}$/;
+    if (!username) {
+      setUsernameError("Tên đăng nhập không được để trống");
+      return false;
+    }
+    // if (!usernameRegex.test(username)) {
+    //   setUsernameError(
+    //     "Tên đăng nhập phải từ 6-32 ký tự, chỉ chứa chữ cái và số"
+    //   );
+    //   return false;
+    // }
+    setUsernameError("");
+    return true;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (name === "username") {
+      validateUsername(value);
+    }
   };
 
   const handleClickShowPassword = () => {
@@ -44,7 +62,6 @@ const LoginPage: React.FC = () => {
   React.useEffect(() => {
     if (user) {
       window.location.href = "/";
-      // Redirect đến dashboard nếu đã đăng nhập
     }
   }, [user, router]);
 
@@ -53,16 +70,21 @@ const LoginPage: React.FC = () => {
       toast.error("Tài khoản hoặc mật khẩu không được bỏ trống");
       return;
     }
+
+    if (!validateUsername(formData.username)) {
+      toast.error(usernameError);
+      return;
+    }
+
     try {
       const res = await signInApi(formData);
 
       if (res.status === 200 || res.status === 201) {
         localStorage.setItem("account", res.data.accessToken);
         if (checkSession) {
-          await checkSession(); // Call checkSession to update user state
+          await checkSession();
         }
         toast.success("Đăng nhập thành công");
-        // router.replace("/");
         window.location.href = "/";
       } else if (
         res?.response?.data?.message === "Username or password is incorrect"
@@ -85,7 +107,7 @@ const LoginPage: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "calc(100vh)", // Trừ chiều cao của AppBar
+        minHeight: "calc(100vh)",
         backgroundColor: "#f5f5f5",
         p: 3,
       }}
@@ -103,7 +125,7 @@ const LoginPage: React.FC = () => {
         <Typography
           variant="h4"
           gutterBottom
-          sx={{ fontWeight: "bold", color: "#2196f3" }} // Màu xanh cho tiêu đề
+          sx={{ fontWeight: "bold", color: "#2196f3" }}
         >
           ĐĂNG NHẬP
         </Typography>
@@ -111,7 +133,6 @@ const LoginPage: React.FC = () => {
           Hãy đăng nhập để tiếp tục nhé!
         </Typography>
 
-        {/* Form đăng nhập */}
         <TextField
           fullWidth
           label="Tên đăng nhập"
@@ -120,6 +141,8 @@ const LoginPage: React.FC = () => {
           onChange={handleChange}
           variant="outlined"
           sx={{ mb: 2 }}
+          error={!!usernameError}
+          helperText={usernameError}
         />
         <TextField
           fullWidth

@@ -29,16 +29,18 @@ export default function BankInfoForm() {
   const [isLoadingBanks, setIsLoadingBanks] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    accountName: user?.bank?.accountName ?? "",
-    accountNumber: user?.bank?.accountNumber ?? "",
-    bankName: user?.bank?.bankName ?? "",
-    branch: user?.bank?.branch ?? "",
+    accountName: "",
+    accountNumber: "",
+    bankName: "",
+    branch: "",
+    email: "",
   });
   const [errors, setErrors] = useState({
     accountName: "",
     accountNumber: "",
     bankName: "",
     branch: "",
+    email: "",
   });
 
   const getBanks = async () => {
@@ -58,6 +60,13 @@ export default function BankInfoForm() {
 
   useEffect(() => {
     getBanks();
+    setFormData({
+      accountName: user?.bank?.accountName ?? "",
+      accountNumber: user?.bank?.accountNumber ?? "",
+      bankName: user?.bank?.bankName ?? "",
+      branch: user?.bank?.branch ?? "",
+      email: user?.email ?? "",
+    });
   }, []);
 
   const validateForm = () => {
@@ -67,6 +76,7 @@ export default function BankInfoForm() {
       accountNumber: "",
       bankName: "",
       branch: "",
+      email: "",
     };
 
     // Account name validation
@@ -87,6 +97,12 @@ export default function BankInfoForm() {
     // Bank name validation
     if (!formData.bankName) {
       newErrors.bankName = "Vui lòng chọn ngân hàng";
+      isValid = false;
+    }
+
+    // Bank email validation
+    if (!formData.email) {
+      newErrors.email = "Email là bắt buộc";
       isValid = false;
     }
 
@@ -111,11 +127,23 @@ export default function BankInfoForm() {
 
     try {
       if (!user._id) {
-        alert("Không tìm thấy thông tin người dùng");
+        toast.warning("Không tìm thấy thông tin người dùng");
         setIsSubmitting(false);
         return;
       }
-      const response = await changeBankApi(user._id, formData);
+
+      const newFormData = {
+        bank: {
+          accountName: formData.accountName,
+          accountNumber: formData.accountNumber,
+          bankName: formData.bankName,
+          branch: formData.branch,
+          email: "",
+        },
+        fullname: formData.accountName,
+        email: formData.email,
+      };
+      const response = await changeBankApi(user._id, newFormData);
 
       if (response.status === 200 || response.status === 201) {
         toast.success("Cập nhật thông tin ngân hàng thành công");
@@ -168,6 +196,32 @@ export default function BankInfoForm() {
         error={!!errors.accountName}
         helperText={errors.accountName}
         aria-label="Họ và tên"
+        sx={{
+          mb: { xs: 1, sm: 2 },
+          fontSize: { xs: "0.75rem", sm: "0.875rem" },
+        }}
+        InputProps={{
+          sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
+        }}
+      />
+      <Typography
+        variant="body1"
+        mb={1}
+        fontSize={{ xs: "0.875rem", sm: "1rem" }}
+      >
+        Email
+      </Typography>
+      <TextField
+        fullWidth
+        variant="outlined"
+        placeholder="Email"
+        type="email"
+        name="email"
+        value={formData?.email}
+        onChange={handleInputChange}
+        error={!!errors.email}
+        helperText={errors.email}
+        aria-label="Email"
         sx={{
           mb: { xs: 1, sm: 2 },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },

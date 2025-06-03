@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import {
   Box,
@@ -23,10 +24,48 @@ const RegisterPage: React.FC = () => {
     phone: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const validateUsername = (username: string): boolean => {
+    const usernameRegex = /^[a-zA-Z0-9]{6,32}$/;
+    if (!username) {
+      setUsernameError("Tên đăng nhập không được để trống");
+      return false;
+    }
+    if (!usernameRegex.test(username)) {
+      setUsernameError(
+        "Tên đăng nhập phải từ 6-32 ký tự, chỉ chứa chữ cái và số"
+      );
+      return false;
+    }
+    setUsernameError("");
+    return true;
+  };
+
+  const validatePassword = (password: string): boolean => {
+    if (!password) {
+      setPasswordError("Mật khẩu không được để trống");
+      return false;
+    }
+    if (password.length < 6) {
+      setPasswordError("Mật khẩu ít nhất 6 ký tự");
+      return false;
+    }
+
+    setPasswordError("");
+    return true;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (name === "username") {
+      validateUsername(value);
+    }
+    if (name === "password") {
+      validatePassword(value);
+    }
   };
 
   const handleClickShowPassword = () => {
@@ -38,6 +77,15 @@ const RegisterPage: React.FC = () => {
       toast.warning("Vui lòng nhập đầy đủ thông tin");
       return;
     }
+
+    if (
+      !validateUsername(formData.username) ||
+      !validatePassword(formData.password)
+    ) {
+      toast.error("Vui lòng kiểm tra lại thông tin nhập vào");
+      return;
+    }
+
     try {
       const response = await signUpApi(formData);
       if (response.status === 200 || response.status === 201) {
@@ -46,16 +94,12 @@ const RegisterPage: React.FC = () => {
       }
     } catch (error: any) {
       console.log(error);
-
-      if (error.response?.data?.message === "Username or Email is existed") {
-        toast.error("Tên người dùng đã tồn tại");
+      if (error.response?.data?.message === "Username or phone is existing") {
+        toast.error("Tên người dùng hoặc sđt đã tồn tại");
       } else {
         toast.error("Đã xảy ra lỗi, vui lòng thử lại");
       }
     }
-
-    console.log("Form submitted:", formData);
-    // Thêm logic gửi API để đăng ký tại đây
   };
 
   return (
@@ -64,26 +108,25 @@ const RegisterPage: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "calc(100vh)", // Trừ chiều cao của AppBar
-        backgroundColor: "#e3f2fd", // Màu nền xanh nhạt giống hình ảnh
+        minHeight: "calc(100vh)",
+        backgroundColor: "#e3f2fd",
         p: 3,
       }}
     >
       <Box
         sx={{
           width: "100%",
-          maxWidth: 500, // Chiều rộng giống LoginPage
+          maxWidth: 500,
           p: 4,
           backgroundColor: "#fff",
           borderRadius: 2,
-          border: "1px solid #2196f3", // Viền xanh giống hình ảnh
+          border: "1px solid #2196f3",
         }}
       >
-        {/* Tiêu đề */}
         <Typography
           variant="h4"
           gutterBottom
-          sx={{ fontWeight: "bold", color: "#2196f3" }} // Màu xanh cho tiêu đề
+          sx={{ fontWeight: "bold", color: "#2196f3" }}
         >
           ĐĂNG KÝ
         </Typography>
@@ -91,7 +134,6 @@ const RegisterPage: React.FC = () => {
           Hãy đăng ký để tiếp tục nhé!
         </Typography>
 
-        {/* Form đăng ký */}
         <TextField
           fullWidth
           label="Tên đăng nhập"
@@ -99,19 +141,22 @@ const RegisterPage: React.FC = () => {
           value={formData.username}
           onChange={handleChange}
           variant="outlined"
-          inputProps={{ maxLength: 9 }} // Giới hạn 9 ký tự
           sx={{ mb: 3 }}
+          error={!!usernameError}
+          helperText={usernameError}
+          inputProps={{ maxLength: 32 }}
         />
         <TextField
           fullWidth
-          label="Mật khẩu (độ dài từ 6-20 ký tự)"
+          label="Mật khẩu"
           name="password"
           type={showPassword ? "text" : "password"}
           value={formData.password}
           onChange={handleChange}
           variant="outlined"
-          inputProps={{ minLength: 6, maxLength: 20 }} // Giới hạn độ dài mật khẩu
           sx={{ mb: 3 }}
+          error={!!passwordError}
+          helperText={passwordError}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -130,6 +175,7 @@ const RegisterPage: React.FC = () => {
           onChange={handleChange}
           variant="outlined"
           type="tel"
+          sx={{ mb: 3 }}
         />
         <Button
           fullWidth
@@ -145,7 +191,8 @@ const RegisterPage: React.FC = () => {
           variant="outlined"
           color="primary"
           sx={{ py: 1.5 }}
-          onClick={() => router.replace("/login")}
+          component={Link}
+          href="/login"
         >
           Đăng nhập
         </Button>

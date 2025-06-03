@@ -359,14 +359,14 @@ export default function GameHeader({
           },
         }}
       >
-        <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <DialogContent sx={{ p: { xs: 2, sm: 3 }, bgcolor: "white" }}>
           <Box sx={{ maxWidth: "800px", mx: "auto", my: 2 }}>
             <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
               <Box
                 component="img"
-                src="https://thichga.com/User/assets/photos/support-photo.png"
+                src="/images/support.jpg"
                 alt="Support 24/7"
-                sx={{ maxWidth: "100%", height: "auto" }}
+                sx={{ maxWidth: "50%", height: "auto" }}
               />
             </Box>
             <Grid container spacing={2}>

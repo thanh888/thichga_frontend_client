@@ -74,7 +74,7 @@ export default function UserAccount() {
               >
                 Họ và tên:
                 <Typography variant="caption">
-                  {user?.username ?? "Chưa có"}
+                  {user?.fullname ?? "Chưa cập nhật"}
                 </Typography>
               </Typography>
               <Typography
@@ -89,7 +89,7 @@ export default function UserAccount() {
               >
                 Số điện thoại:
                 <Typography variant="caption">
-                  {user?.phone ?? "Chưa có"}
+                  {user?.phone ?? "Chưa cập nhật"}
                 </Typography>
               </Typography>
               <Typography
@@ -103,7 +103,7 @@ export default function UserAccount() {
               >
                 Email:
                 <Typography variant="caption">
-                  {user?.email ?? "Chưa có"}
+                  {user?.email ?? "Chưa cập nhật"}
                 </Typography>
               </Typography>
             </Box>
@@ -131,7 +131,7 @@ export default function UserAccount() {
                 Thời gian đăng ký:
                 <Typography variant="caption">
                   {convertDateTime(user?.createdAt?.toString() ?? "") ??
-                    "Chưa có"}
+                    "Chưa cập nhật"}
                 </Typography>
               </Typography>
               <Typography

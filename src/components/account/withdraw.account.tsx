@@ -95,8 +95,8 @@ export default function WithdrawComponent() {
     }
 
     try {
-      if (!user?._id) {
-        alert("Không tìm thấy thông tin người dùng");
+      if (!user?._id || !user.bank?.accountNumber) {
+        toast.warning("Hãy thêm thông tin ngân hàng");
         setIsSubmitting(false);
         return;
       }
