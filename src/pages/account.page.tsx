@@ -19,10 +19,7 @@ import DepositComponent from "@/components/account/deposit.account";
 import WithdrawComponent from "@/components/account/withdraw.account";
 import DepositHistoryComponent from "@/components/account/history_deposit.account";
 import WithdrawHistoryComponent from "@/components/account/history_withdraw.account";
-import {
-  ConvertMoneyVND,
-  numberThousandFload,
-} from "@/utils/function-convert.util";
+import { numberThousandFload } from "@/utils/function-convert.util";
 import { useRouter } from "next/navigation";
 import { UserContext } from "@/contexts/user-context";
 import { useContext } from "react";

@@ -1,28 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Carousel } from "react-bootstrap";
 import { useMediaQuery, useTheme } from "@mui/material";
+import { SettingContext } from "@/contexts/setting-context";
 
-const items = [
-  {
-    id: 1,
-    title: "Banner 1",
-    body: "",
-    imageUrl: "images/banner5.png",
-  },
-  {
-    id: 2,
-    title: "Banner 2",
-    body: "",
-    imageUrl: "images/banner3.png",
-  },
-];
+const items = ["images/banner5.png", "images/banner3.png"];
 
 export default function BannerComponent() {
   const [index, setIndex] = useState(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
+  const settingContext = useContext(SettingContext);
+
+  const setting = settingContext?.setting;
 
   const handleSelect = (selectedIndex: number) => setIndex(selectedIndex);
 
@@ -39,8 +31,8 @@ export default function BannerComponent() {
         margin: isMobile ? "10px 0" : isTablet ? "15px 0" : "20px 0",
       }}
     >
-      {items.map((item) => (
-        <Carousel.Item key={item.id} interval={4000}>
+      {(setting?.banner ?? items).map((item, index) => (
+        <Carousel.Item key={+index} interval={4000}>
           <div
             style={{
               width: "100%",
@@ -50,8 +42,12 @@ export default function BannerComponent() {
             }}
           >
             <img
-              src={item.imageUrl}
-              alt={item.title}
+              src={
+                setting?.banner
+                  ? process.env.NEXT_PUBLIC_BASE_API_URL + "/" + item
+                  : item
+              }
+              alt={item + index}
               style={{
                 width: "100%",
                 height: "100%",

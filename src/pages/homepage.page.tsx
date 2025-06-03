@@ -13,11 +13,14 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Marquee from "react-fast-marquee";
 import { toast } from "react-toastify";
 import Grid from "@mui/material/Grid";
-import { UserContext } from "@/contexts/user-context";
+import { getGameNewApi } from "@/services/game.api";
+import { GameInterface } from "@/utils/interfaces/game.interface";
+import { StatusGame } from "@/utils/enum/status-game.enum";
+import { TypGameEnum } from "@/utils/enum/type-game.enum";
 
 export default function Homepage() {
   const router = useRouter();
@@ -26,16 +29,29 @@ export default function Homepage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const handleRedirectGame = async () => {
+  const handleRedirectGame = async (typegame: string) => {
     try {
-      const respone = await getRoomIsOpenedApi();
-      if (
-        (respone.status === 200 || respone.status === 201) &&
-        respone.data._id
-      ) {
-        router.push(`/game/${respone.data._id}`);
-      } else {
-        toast.warning("Không có trận đấu nào được mở");
+      if (typegame === TypGameEnum.GA_CUA) {
+        const respone = await getRoomIsOpenedApi();
+        if (
+          (respone.status === 200 || respone.status === 201) &&
+          respone.data._id
+        ) {
+          router.push(`/game/${respone.data._id}`);
+        } else {
+          toast.warning("Không có trận đấu nào được mở");
+        }
+      }
+      if (typegame === TypGameEnum.GA_DON) {
+        const respone = await getRoomIsOpenedApi();
+        if (
+          (respone.status === 200 || respone.status === 201) &&
+          respone.data._id
+        ) {
+          router.push(`/ex-game`);
+        } else {
+          toast.warning("Không có trận đấu nào được mở");
+        }
       }
     } catch (error) {
       console.log(error);
@@ -59,6 +75,23 @@ export default function Homepage() {
       router.push("/login");
     }
   };
+
+  const [games, setGames] = useState<GameInterface[]>([]);
+
+  const getGamesNew = async () => {
+    try {
+      const response = await getGameNewApi();
+      if (response.status === 200 || response.status === 201) {
+        setGames(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getGamesNew();
+  }, []);
 
   return (
     <Container
@@ -89,140 +122,155 @@ export default function Homepage() {
       </Stack>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
-          <Grid size={6}>
-            <Link href="#" onClick={handleRedirectGame} passHref>
-              <Box
-                sx={{
-                  width: "100%",
-                  height: { xs: "200px", sm: "300px", md: "300px" },
-                  position: "relative",
-                  borderRadius: { xs: 1, sm: 2 },
-                  overflow: "hidden",
-                  "&::before": {
-                    content: "''",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundImage: "url('/images/bg-home-menu.jpg')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    opacity: 0.3,
-                    transition: "opacity 0.3s",
-                    zIndex: 0,
-                  },
-                  "&:hover::before": {
-                    opacity: 0.5,
-                  },
-                  cursor: "pointer",
+          {games?.map((item, index) => (
+            <Grid size={{ xs: 12, sm: 6 }} key={+index}>
+              <Link
+                href={"#"}
+                onClick={
+                  item.status === StatusGame.COMING_SOON
+                    ? (e) => e.preventDefault()
+                    : () => handleRedirectGame(item?.typeGame)
+                }
+                passHref
+                style={{
+                  textDecoration: "none",
+                  color: "black",
+                  pointerEvents:
+                    item.status === StatusGame.COMING_SOON ? "none" : "auto", // Disable pointer events for coming soon
                 }}
               >
-                <Stack
-                  direction="column"
-                  spacing={{ xs: 1, sm: 2 }}
-                  justifyContent="center"
-                  alignItems="center"
+                <Box
                   sx={{
                     height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    boxShadow: 3,
                     position: "relative",
-                    zIndex: 1,
-                  }}
-                >
-                  <img
-                    alt="logo"
-                    src="/images/game.png"
-                    width={isMobile ? 150 : 200}
-                    height={isMobile ? 150 : 200}
-                  />
-                  <Typography
-                    variant="h6"
-                    color="primary"
-                    fontWeight={600}
-                    align="center"
-                    display="flex"
-                    sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
-                  >
-                    <img
-                      alt="logo"
-                      src="/images/game.png"
-                      width={isMobile ? 20 : 28}
-                      height={isMobile ? 20 : 28}
-                      style={{ objectFit: "cover" }}
-                    />
-                    Đá Gà
-                  </Typography>
-                </Stack>
-              </Box>
-            </Link>
-          </Grid>
-          <Grid size={6}>
-            <Link href="#" onClick={handleRedirectOtherGame} passHref>
-              <Box
-                sx={{
-                  width: "100%",
-                  height: { xs: "200px", sm: "300px", md: "300px" },
-                  position: "relative",
-                  borderRadius: { xs: 1, sm: 2 },
-                  overflow: "hidden",
-                  "&::before": {
-                    content: "''",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
+                    borderRadius: { xs: 1, sm: 2 },
+                    overflow: "hidden",
+                    cursor:
+                      item.status === StatusGame.COMING_SOON
+                        ? "default"
+                        : "pointer",
                     width: "100%",
-                    height: "100%",
-                    backgroundImage: "url('/images/bg-home-menu.jpg')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    opacity: 0.3,
-                    transition: "opacity 0.3s",
-                    zIndex: 0,
-                  },
-                  "&:hover::before": {
-                    opacity: 0.5,
-                  },
-                  cursor: "pointer",
-                }}
-              >
-                <Stack
-                  direction="column"
-                  spacing={{ xs: 1, sm: 2 }}
-                  justifyContent="center"
-                  alignItems="center"
-                  sx={{
-                    height: "100%",
-                    position: "relative",
-                    zIndex: 1,
+                    "&::before": {
+                      content: "''",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      backgroundImage: "url('/images/bg-home-menu.jpg')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      opacity:
+                        item.status === StatusGame.COMING_SOON ? 0.5 : 0.3, // Slightly higher opacity for coming soon
+                      transition: "opacity 0.3s",
+                      zIndex: 0,
+                    },
+                    "&:hover::before": {
+                      opacity:
+                        item.status === StatusGame.COMING_SOON ? 0.5 : 0.5, // Maintain opacity on hover for coming soon
+                    },
                   }}
                 >
-                  <img
-                    alt="logo"
-                    src="/images/game.png"
-                    width={isMobile ? 150 : 200}
-                    height={isMobile ? 150 : 200}
-                  />
-                  <Typography
-                    variant="h6"
-                    color="primary"
-                    fontWeight={600}
-                    align="center"
-                    display="flex"
-                    sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
+                  {/* Coming Soon Badge */}
+                  {item.status === StatusGame.COMING_SOON && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        backgroundColor: "#ff9800", // Orange for visibility
+                        color: "white",
+                        padding: "4px 8px",
+                        borderRadius: "12px",
+                        fontSize: { xs: "0.7rem", sm: "0.8rem" },
+                        fontWeight: 600,
+                        zIndex: 2,
+                      }}
+                    >
+                      Sắp ra mắt
+                    </Box>
+                  )}
+                  <Stack
+                    direction={{ xs: "row", sm: "column" }}
+                    spacing={2}
+                    alignItems="center"
+                    justifyContent={{ xs: "start", sm: "center" }}
+                    sx={{
+                      flexGrow: 1,
+                      position: "relative",
+                      zIndex: 1,
+                      textAlign: "center",
+                      px: 2,
+                      py: 2,
+                      // Dim content for coming soon to emphasize it's not active
+                      opacity: item.status === StatusGame.COMING_SOON ? 0.7 : 1,
+                    }}
                   >
                     <img
-                      alt="logo"
-                      src="/images/game.png"
-                      width={isMobile ? 20 : 28}
-                      height={isMobile ? 20 : 28}
-                      style={{ objectFit: "cover" }}
+                      alt={item.name}
+                      src={
+                        item.image
+                          ? `${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.image}`
+                          : "/images/game.png"
+                      }
+                      style={{
+                        objectFit: "cover",
+                        width: isMobile ? "48px" : "200px",
+                        height: isMobile ? "48px" : "200px",
+                      }}
                     />
-                    Gà đòn
-                  </Typography>
-                </Stack>
-              </Box>
-            </Link>
-          </Grid>
+                    <Stack
+                      direction="column"
+                      alignItems={{ xs: "flex-start", sm: "center" }}
+                      justifyContent="center"
+                      spacing={{ xs: 0, sm: 1 }}
+                    >
+                      <Stack
+                        direction="row"
+                        spacing={{ xs: 0, sm: 1 }}
+                        alignItems="center"
+                      >
+                        {!isMobile && (
+                          <img
+                            alt="logo"
+                            src={
+                              item.image
+                                ? `${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.image}`
+                                : "/images/game.png"
+                            }
+                            width={isMobile ? 20 : 28}
+                            height={isMobile ? 20 : 28}
+                          />
+                        )}
+                        <Typography
+                          variant="h6"
+                          fontWeight={600}
+                          sx={{
+                            fontSize: { xs: "1rem", sm: "1.25rem" },
+                            color: "#1a5899",
+                          }}
+                        >
+                          {item?.name}
+                        </Typography>
+                      </Stack>
+                      <Typography
+                        variant="caption"
+                        color="#515155"
+                        fontWeight={600}
+                        sx={{ fontSize: { xs: "0.8rem", sm: "0.8rem" } }}
+                      >
+                        {item?.description}
+                      </Typography>
+                    </Stack>
+                  </Stack>
+                </Box>
+              </Link>
+            </Grid>
+          ))}
         </Grid>
       </Box>
 

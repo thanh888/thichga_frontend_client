@@ -2,7 +2,9 @@ import AccountPage from "@/pages/account.page";
 import { Container } from "@mui/material";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {};
+export const metadata: Metadata = {
+  title: "Tài khoản",
+};
 
 export default function AccountLayout() {
   return (
