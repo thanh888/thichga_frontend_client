@@ -47,8 +47,8 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
   const handleAcceptBet = async () => {
     if (!selectedOption || !user) return;
 
-    if (Number(money) < 50000) {
-      toast.warning("Số tiền phải lớn hơn 50k");
+    if (Number(money) < 50) {
+      toast.warning("Số tiền phải lớn hơn 50");
       return;
     }
 

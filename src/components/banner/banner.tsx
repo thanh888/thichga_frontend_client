@@ -6,17 +6,15 @@ import { useMediaQuery, useTheme } from "@mui/material";
 const items = [
   {
     id: 1,
-    title: "Photography",
-    body: "Bootstrap Carousel Example",
-    imageUrl:
-      "https://thichga.com/public-static-file-uploaded/images/09a2bfc6-2d59-4542-9ad1-6353f8b711ad.png",
+    title: "Banner 1",
+    body: "",
+    imageUrl: "images/banner5.png",
   },
   {
     id: 2,
-    title: "City Views",
-    body: "Bootstrap Carousel Example",
-    imageUrl:
-      "https://thichga.com/public-static-file-uploaded/images/949a53c5-9957-41c0-a764-baf39148c1e9.png",
+    title: "Banner 2",
+    body: "",
+    imageUrl: "images/banner3.png",
   },
 ];
 
