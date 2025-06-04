@@ -22,6 +22,7 @@ import {
 import { toast } from "react-toastify";
 import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface";
 import { UserContext } from "@/contexts/user-context";
+import { useRouter } from "next/navigation";
 
 interface AcceptBetDialogProps {
   open: boolean;
@@ -40,12 +41,17 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
 }) => {
   const userContext = useContext(UserContext);
   const user = userContext?.user;
+  const router = useRouter();
 
   const checkSession = userContext?.checkSession;
   const [money, setMoney] = useState<string>("100");
 
   const handleAcceptBet = async () => {
-    if (!selectedOption || !user) return;
+    if (!selectedOption || !user) {
+      toast.warning("Đăng nhập để cược");
+      router.push("/login");
+      return;
+    }
 
     if (Number(money) < 50) {
       toast.warning("Số tiền phải lớn hơn 50");

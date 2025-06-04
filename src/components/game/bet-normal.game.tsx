@@ -147,10 +147,10 @@ const OptionList: React.FC<{
 interface BetInfoProps {
   sessionID: string;
   isBetOpen: boolean;
-  betRoom: any;
-  isReloadBetting: boolean;
   setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsReloadBetting: React.Dispatch<React.SetStateAction<boolean>>;
+  betRoom: any;
+  isReloadBetting: number;
+  setIsReloadBetting: React.Dispatch<React.SetStateAction<number>>;
   setUserBetTotal: React.Dispatch<React.SetStateAction<number>>;
 }
 
@@ -204,10 +204,7 @@ const BetNormal: React.FC<BetInfoProps> = ({
   }, [socket, betRoom?._id]);
 
   useEffect(() => {
-    if (isReloadBetting) {
-      getBetOptions();
-      setIsReloadBetting(false);
-    }
+    getBetOptions();
   }, [isReloadBetting]);
 
   useEffect(() => {

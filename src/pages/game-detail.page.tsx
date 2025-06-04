@@ -9,22 +9,11 @@ import { getListRoomsOpening, getRoomById } from "@/services/room.api";
 import { useSocket } from "@/socket";
 import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
-import {
-  Box,
-  Grid,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-} from "@mui/material";
-import { useParams, useRouter } from "next/navigation";
+import { Box, Grid, Dialog, DialogTitle } from "@mui/material";
+import { useParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import CommentComponent from "@/components/game/comment.game";
 import { UserContext } from "@/contexts/user-context";
-import { LoadingSpinner } from "@/components/lib/spinner/LoadingSpinner";
-import { toast } from "react-toastify";
 
 // GameDetailPage.tsx
 export default function GameDetailPage() {
@@ -36,25 +25,23 @@ export default function GameDetailPage() {
   const [isBetOpen, setIsBetOpen] = useState<boolean>(true);
   const [betRoom, setBetRoom] = useState<BettingRoomInterface>();
   const [userBetTotal, setUserBetTotal] = useState<number>(0);
+
   const [isReload, setIsReload] = useState<number>(0);
-  const [isReloadBetting, setIsReloadBetting] = useState<boolean>(true);
-  const [isReloadRoom, setIsReloadRoom] = useState<boolean>(true);
+
+  const [isReloadBetting, setIsReloadBetting] = useState<number>(0);
+
   const [isClosed, setIsClosed] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const socket = useSocket();
 
   const getBetRoomInfo = async (room_id: string) => {
     try {
-      setLoading(true);
       const response = await getRoomById(room_id);
       if (response.status === 200 || response.status === 201) {
         setBetRoom(response.data);
       }
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -69,39 +56,35 @@ export default function GameDetailPage() {
 
   const checkRoomClosed = async () => {
     try {
-      setLoading(true);
       const response = await getListRoomsOpening();
       if (response.status === 200 || response.status === 201) {
         const checkIsClosed = !response?.data?.some(
           (item: BettingRoomInterface) => item._id === roomID
         );
+
         setIsClosed(checkIsClosed);
-        if (checkSession) await checkSession();
-        setIsReloadRoom(true);
+        await checkSession?.();
       }
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (roomID && isReloadRoom) {
+    if (roomID) {
       getBetRoomInfo(roomID);
-      setIsReloadRoom(false);
     }
-  }, [roomID, isReloadRoom]);
+  }, [roomID, isReload]);
 
   useEffect(() => {
     if (!socket || !roomID) return;
     socket.on("update-room", async () => {
-      await checkRoomClosed();
       setIsReload((prev) => prev + 1);
-      setIsReloadBetting(true);
+      setIsReloadBetting((prev) => prev + 1);
+      await checkRoomClosed();
     });
     socket.on("bet-history", (msg) => {
-      if (msg.roomID === roomID) setIsReloadBetting(true);
+      if (msg.roomID === roomID) setIsReloadBetting((prev) => prev + 1);
     });
     return () => {
       socket.off("update-room");

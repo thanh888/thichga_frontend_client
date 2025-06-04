@@ -11,6 +11,7 @@ import {
 import {
   numberThousand,
   numberThousandFload,
+  numberThousandFloadBigMoney,
 } from "@/utils/function-convert.util";
 import Link from "next/link";
 import { UserContext } from "@/contexts/user-context";
@@ -107,7 +108,7 @@ export default function GameFooter({
             color="white"
             fontSize={{ xs: 14, sm: 18 }}
           >
-            Cược: {userBetTotal ?? 0}
+            Cược: {numberThousandFloadBigMoney(userBetTotal ?? 0)}
           </Typography>
         </Box>
       </Toolbar>

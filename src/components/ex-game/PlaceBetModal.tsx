@@ -80,7 +80,9 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
     } = {};
 
     if (!user?._id) {
-      newErrors.user = "Bạn cần đăng nhập để đặt cược.";
+      toast.warning("Đăng nhập để cược");
+      router.push("/login");
+      return;
     }
     if (!selectedTeam) {
       newErrors.team = "Vui lòng chọn một đội.";
@@ -107,6 +109,7 @@ const PlaceBetModal: React.FC<PlaceBetModalProps> = ({
     }
 
     if (!user?._id) {
+      toast.warning("Đăng nhập để cược");
       router.push("/login");
       return;
     }

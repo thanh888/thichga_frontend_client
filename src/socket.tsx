@@ -9,16 +9,16 @@ export const useSocket = () => {
   useEffect(() => {
     // Đảm bảo chỉ gọi ở client
     const accessToken =
-      typeof window !== "undefined" ? localStorage.getItem("account") : null;
-    if (!accessToken) return;
+      typeof window !== "undefined" ? localStorage.getItem("account") : "";
+    // if (!accessToken) return;
 
     const socket = io(SOCKET_URL, {
       transports: ["websocket"],
       extraHeaders: {
-        Authorization: accessToken,
+        Authorization: accessToken ?? "",
       },
       auth: {
-        token: accessToken,
+        token: accessToken ?? "",
       },
     });
 

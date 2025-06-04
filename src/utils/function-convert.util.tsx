@@ -15,6 +15,32 @@ export const numberThousandFload = (value: string | number) => {
   });
 };
 
+export const numberThousandFloadBigMoney = (value: string | number) => {
+  const floatValue = parseFloat(value.toString());
+  if (isNaN(floatValue)) return "0,00";
+
+  let shortValue = floatValue;
+  let suffix = "";
+
+  if (floatValue >= 1_000_000_000) {
+    shortValue = floatValue / 1_000_000_000;
+    suffix = "B";
+  } else if (floatValue >= 1_000_000) {
+    shortValue = floatValue / 1_000_000;
+    suffix = "M";
+  } else if (floatValue >= 1_000) {
+    shortValue = floatValue / 1_000;
+    suffix = "K";
+  }
+
+  return (
+    shortValue.toLocaleString("de-DE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }) + suffix
+  );
+};
+
 export const calculateMoneyBet = (win: number, lost: number, money: number) => {
   const result = ((Number(money) * Number(lost)) / Number(win)).toFixed(2);
 

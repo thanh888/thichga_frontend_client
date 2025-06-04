@@ -32,6 +32,10 @@ import { useSocket } from "@/socket";
 import AcceptSolo from "../lib/dialogs/confirm-solo";
 import { UserContext } from "@/contexts/user-context";
 import { LoadingSpinner } from "../lib/spinner/LoadingSpinner";
+import {
+  numberThousandFload,
+  numberThousandFloadBigMoney,
+} from "@/utils/function-convert.util";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -58,7 +62,7 @@ const BetList: React.FC<{
   title: string;
   color: string;
   betHistories: any[];
-  setIsReloadBetting: Dispatch<SetStateAction<boolean>>;
+  setIsReloadBetting: Dispatch<SetStateAction<number>>;
   sessionID: string;
   setAcceptDialogOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedBet: Dispatch<SetStateAction<BettingHistoryInterface | null>>;
@@ -77,7 +81,6 @@ const BetList: React.FC<{
   const user = userContext?.user;
   const checkSession = userContext?.checkSession;
 
-  const [loading, setLoading] = useState<boolean>(false);
   const [loadingCancel, setLoadingCancel] = useState<boolean>(false);
 
   const socket = useSocket();
@@ -86,7 +89,6 @@ const BetList: React.FC<{
     if (!bet._id) {
       return;
     }
-    // setLoadingCancel(true);
 
     try {
       const response = await UpdateDeleteBetHistoryApi(bet?._id, {
@@ -104,7 +106,7 @@ const BetList: React.FC<{
           await checkSession();
         }
       }
-      setIsReloadBetting(true);
+      setIsReloadBetting((prev) => prev + 1);
     } catch (error: any) {
       console.log(error);
       if (error?.response?.data?.message === "Betting is disable") {
@@ -147,9 +149,11 @@ const BetList: React.FC<{
           fontWeight={600}
           fontSize={{ xs: 10, sm: 11 }}
         >
-          {betHistories
-            ?.map((item) => item.money)
-            .reduce((prev, next) => prev + next, 0)}
+          {numberThousandFloadBigMoney(
+            betHistories
+              ?.map((item) => item.money)
+              .reduce((prev, next) => prev + next, 0)
+          )}
         </Typography>
       </Typography>
       <ScrollContainer>
@@ -281,8 +285,8 @@ interface BetInfoProps {
   isBetOpen: boolean;
   setIsBetOpen: React.Dispatch<React.SetStateAction<boolean>>;
   betRoom: any;
-  isReloadBetting: boolean;
-  setIsReloadBetting: React.Dispatch<React.SetStateAction<boolean>>;
+  isReloadBetting: number;
+  setIsReloadBetting: React.Dispatch<React.SetStateAction<number>>;
   setUserBetTotal: React.Dispatch<React.SetStateAction<number>>;
 }
 
@@ -316,7 +320,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
   const socket = useSocket();
 
   const getBetHistories = async () => {
-    if (!user || !betRoom?.latestSessionID) {
+    if (!betRoom?.latestSessionID) {
       console.warn("User or latestSessionID is missing");
       return;
     }
@@ -324,6 +328,9 @@ const BetInfo: React.FC<BetInfoProps> = ({
       const response = await getHistoriesBySession(betRoom.latestSessionID);
       if (response.status === 200 || response.status === 201) {
         setBetHistories(response.data);
+        if (!user?._id) {
+          return;
+        }
         const userTotalBet = response?.data
           ?.filter(
             (item: BettingHistoryInterface) => item.creatorID._id === user._id
@@ -350,7 +357,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
     const handler = async (msg: any) => {
       if (msg.roomID === betRoom._id) {
         await getBetHistories();
-        setIsReloadBetting(false);
+        setIsReloadBetting((prev) => prev + 1);
       }
     };
     socket.on("bet-history", handler);
@@ -360,10 +367,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
   }, [socket, betRoom?._id, user]);
 
   useEffect(() => {
-    if (isReloadBetting) {
-      getBetHistories();
-      setIsReloadBetting(false);
-    }
+    getBetHistories();
   }, [isReloadBetting]);
 
   return (

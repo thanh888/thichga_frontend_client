@@ -19,6 +19,7 @@ import { updateMatchedBetHistoryApi } from "@/services/bet-history.api";
 import { toast } from "react-toastify";
 import { useSocket } from "@/socket";
 import { UserContext } from "@/contexts/user-context";
+import { useRouter } from "next/navigation";
 
 interface AcceptBetDialogProps {
   acceptDialogOpen: boolean;
@@ -26,7 +27,7 @@ interface AcceptBetDialogProps {
   betRoom: BettingRoomInterface;
   setAcceptDialogOpen: (acceptDialogOpen: boolean) => void;
   setSelectedBet: (bet: BettingHistoryInterface | null) => void;
-  setIsReloadBetting: (reload: boolean) => void;
+  setIsReloadBetting: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
@@ -43,6 +44,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
   const checkSession = userContext?.checkSession;
 
   const socket = useSocket();
+  const router = useRouter();
 
   const handleClose = () => {
     setAcceptDialogOpen(false);
@@ -50,7 +52,11 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
   };
 
   const handleAcceptBet = async () => {
-    if (!selectedBet || !user) return;
+    if (!selectedBet || !user) {
+      toast.warning("Đăng nhập để cược");
+      router.push("/login");
+      return;
+    }
 
     const newData = {
       betSessionID: betRoom.latestSessionID,
@@ -80,7 +86,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
         toast.success("Khớp kèo thành công");
         setAcceptDialogOpen(false);
         setSelectedBet(null);
-        setIsReloadBetting(true);
+        setIsReloadBetting((prev: number) => prev + 1);
         if (socket) {
           if (checkSession) {
             checkSession();

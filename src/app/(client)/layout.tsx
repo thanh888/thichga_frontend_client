@@ -33,7 +33,6 @@ export default function ClientLayout({
     if (!user || !socket) return; // Tránh lỗi khi user hoặc socket chưa sẵn sàng
 
     socket.on("deposit-money", (msg) => {
-      console.log(msg);
       if (msg?.data?.userID === user._id && checkSession) {
         checkSession();
         const title = "Thông báo nạp tiền";

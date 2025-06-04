@@ -71,7 +71,9 @@ const WagerModal: React.FC<WagerModalProps> = ({
     } = {};
 
     if (!user?._id) {
-      newErrors.user = "Bạn cần đăng nhập để tạo kèo.";
+      toast.warning("Đăng nhập để tạo kèo");
+      router.push("/login");
+      return;
     }
     if (!selectedTeam) {
       newErrors.team = "Vui lòng chọn một đội.";

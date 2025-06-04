@@ -98,8 +98,6 @@ export default function ExGameDetailPage(): React.JSX.Element {
     });
 
     socket.on("bet-history", (msg) => {
-      console.log("room: ", msg.roomID === roomID);
-
       if (msg.roomID === roomID) {
         setBettingVerion((prev) => prev + 1);
       }
@@ -140,7 +138,7 @@ export default function ExGameDetailPage(): React.JSX.Element {
           maxHeight: "calc(100vh)", // Subtract header height
           overflow: "hidden", // Enable vertical scrolling if needed
           pt: "64px",
-          position: "fixed",
+          // position: "fixed",
         }}
       >
         <Grid container spacing={2}>

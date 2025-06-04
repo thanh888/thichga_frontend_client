@@ -29,6 +29,7 @@ import { getListRoomsOpening } from "@/services/room.api";
 import { SettingContext } from "@/contexts/setting-context";
 import UserBetHistories from "./user-bet-history.game";
 import { UserContext } from "@/contexts/user-context";
+import { toast } from "react-toastify";
 
 interface GameHeaderProps {
   isCommentOpen: boolean;
@@ -139,7 +140,7 @@ export default function GameHeader({
 
   const handleOpenBetHistoryDialog = () => {
     if (!user?._id) {
-      alert("Vui lòng đăng nhập để xem lịch sử cược.");
+      toast.warning("Bạn chưa đăng nhập");
       return;
     }
     setBetHistoryDialogOpen(true);

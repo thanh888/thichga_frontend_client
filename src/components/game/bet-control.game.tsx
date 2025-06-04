@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   CardContent,
   Grid,
@@ -22,9 +22,10 @@ import { createBetHistorySoloApi } from "@/services/bet-history.api";
 import { useSocket } from "@/socket";
 import { sampleMoneys } from "@/utils/function-convert.util";
 import { UserContext } from "@/contexts/user-context";
+import { useRouter } from "next/navigation";
 
 interface Props {
-  setIsReloadBetting: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsReloadBetting: React.Dispatch<React.SetStateAction<number>>;
   sessionID: string;
   betRoom: BettingRoomInterface;
 }
@@ -47,6 +48,8 @@ export default function BetControls({
   const [loading, setLoading] = useState<boolean>(false);
   const socket = useSocket();
 
+  const router = useRouter();
+
   const handleSelect = (event: SelectChangeEvent) => {
     const { name, value } = event.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -65,8 +68,9 @@ export default function BetControls({
       toast.warning("Vui lòng điền số tiền cược lớn hơn 0");
       return;
     }
-    if (!user || Number(formData.money) > Number(user.money)) {
-      toast.warning("Tài khoản không đủ");
+    if (!user) {
+      toast.warning("Đăng nhập để cược");
+      router.push("/login");
       return;
     }
 
@@ -86,7 +90,7 @@ export default function BetControls({
       const response = await createBetHistorySoloApi(newData);
       if (response.status === 200 || response.status === 201) {
         toast.success("Đặt cược thành công");
-        setIsReloadBetting(true);
+        setIsReloadBetting((prev) => prev + 1);
         if (socket) {
           if (checkSession) await checkSession();
           socket.emit("bet-history", { roomID: betRoom._id });
