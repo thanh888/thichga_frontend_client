@@ -33,14 +33,12 @@ export default function BankInfoForm() {
     accountNumber: "",
     bankName: "",
     branch: "",
-    email: "",
   });
   const [errors, setErrors] = useState({
     accountName: "",
     accountNumber: "",
     bankName: "",
     branch: "",
-    email: "",
   });
 
   const getBanks = async () => {
@@ -65,7 +63,6 @@ export default function BankInfoForm() {
       accountNumber: user?.bank?.accountNumber ?? "",
       bankName: user?.bank?.bankName ?? "",
       branch: user?.bank?.branch ?? "",
-      email: user?.email ?? "",
     });
   }, []);
 
@@ -76,7 +73,6 @@ export default function BankInfoForm() {
       accountNumber: "",
       bankName: "",
       branch: "",
-      email: "",
     };
 
     // Account name validation
@@ -97,12 +93,6 @@ export default function BankInfoForm() {
     // Bank name validation
     if (!formData.bankName) {
       newErrors.bankName = "Vui lòng chọn ngân hàng";
-      isValid = false;
-    }
-
-    // Bank email validation
-    if (!formData.email) {
-      newErrors.email = "Email là bắt buộc";
       isValid = false;
     }
 
@@ -138,10 +128,8 @@ export default function BankInfoForm() {
           accountNumber: formData.accountNumber,
           bankName: formData.bankName,
           branch: formData.branch,
-          email: "",
         },
         fullname: formData.accountName,
-        email: formData.email,
       };
       const response = await changeBankApi(user._id, newFormData);
 
@@ -204,32 +192,7 @@ export default function BankInfoForm() {
           sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
         }}
       />
-      <Typography
-        variant="body1"
-        mb={1}
-        fontSize={{ xs: "0.875rem", sm: "1rem" }}
-      >
-        Email
-      </Typography>
-      <TextField
-        fullWidth
-        variant="outlined"
-        placeholder="Email"
-        type="email"
-        name="email"
-        value={formData?.email}
-        onChange={handleInputChange}
-        error={!!errors.email}
-        helperText={errors.email}
-        aria-label="Email"
-        sx={{
-          mb: { xs: 1, sm: 2 },
-          fontSize: { xs: "0.75rem", sm: "0.875rem" },
-        }}
-        InputProps={{
-          sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
-        }}
-      />
+
       <Typography
         variant="body1"
         mb={1}
@@ -297,7 +260,7 @@ export default function BankInfoForm() {
             value={bank.code}
             sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
           >
-            {bank.name}
+            {bank.shortName}
           </MenuItem>
         ))}
       </Select>

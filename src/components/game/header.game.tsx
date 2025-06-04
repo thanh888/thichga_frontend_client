@@ -257,12 +257,6 @@ export default function GameHeader({
             }}
           >
             <HeaderIconButton
-              icon={MarkUnreadChatAltOutlined}
-              label="Bình luận"
-              onClick={() => setIsCommentOpen(!isCommentOpen)}
-              backcl="#FBCF00"
-            />
-            <HeaderIconButton
               icon={HistoryOutlined}
               label="LS Cược"
               onClick={handleOpenBetHistoryDialog}

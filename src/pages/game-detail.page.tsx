@@ -168,11 +168,11 @@ export default function GameDetailPage() {
                   betRoom={betRoom}
                 />
               )}
-            <CommentComponent
+            {/* <CommentComponent
               isCommentOpen={isCommentOpen}
               setIsCommentOpen={setIsCommentOpen}
               betRoom={betRoom}
-            />
+            /> */}
           </Grid>
         </Grid>
       </Box>

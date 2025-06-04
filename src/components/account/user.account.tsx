@@ -92,20 +92,6 @@ export default function UserAccount() {
                   {user?.phone ?? "Chưa cập nhật"}
                 </Typography>
               </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  width: "100%",
-                  justifyContent: "space-between",
-                  display: "flex",
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                }}
-              >
-                Email:
-                <Typography variant="caption">
-                  {user?.email ?? "Chưa cập nhật"}
-                </Typography>
-              </Typography>
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
@@ -148,18 +134,6 @@ export default function UserAccount() {
                 <Typography variant="caption">
                   {convertDateTime(user?.last_login_at?.toString() ?? "")}
                 </Typography>
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  width: "100%",
-                  justifyContent: "space-between",
-                  display: "flex",
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                }}
-              >
-                IP lần đăng nhập cuối:
-                <Typography variant="caption">{user?.ipv6}</Typography>
               </Typography>
             </Box>
           </Grid>

@@ -216,34 +216,28 @@ const AccountPage: React.FC = () => {
             {...a11yProps(0)}
           />
           <Tab
-            label="Nạp tiền thủ công"
+            label="Nạp tiền"
             iconPosition="start"
             icon={<AddCardOutlinedIcon />}
             {...a11yProps(1)}
           />
           <Tab
-            label="Nạp tiền tự động"
-            iconPosition="start"
-            icon={<AddCardOutlinedIcon />}
-            {...a11yProps(2)}
-          />
-          <Tab
             label="Rút tiền"
             iconPosition="start"
             icon={<CurrencyExchangeOutlinedIcon />}
-            {...a11yProps(3)}
+            {...a11yProps(2)}
           />
           <Tab
             label="Lịch sử nạp tiền"
             iconPosition="start"
             icon={<ChecklistOutlinedIcon />}
-            {...a11yProps(4)}
+            {...a11yProps(3)}
           />
           <Tab
             label="Lịch sử rút tiền"
             iconPosition="start"
             icon={<ChecklistOutlinedIcon />}
-            {...a11yProps(5)}
+            {...a11yProps(4)}
           />
         </Tabs>
 
@@ -256,15 +250,12 @@ const AccountPage: React.FC = () => {
             <DepositComponent />
           </TabPanel>
           <TabPanel value={value} index={2}>
-            <DepositAutoComponent />
-          </TabPanel>
-          <TabPanel value={value} index={3}>
             <WithdrawComponent />
           </TabPanel>
-          <TabPanel value={value} index={4}>
+          <TabPanel value={value} index={3}>
             <DepositHistoryComponent />
           </TabPanel>
-          <TabPanel value={value} index={5}>
+          <TabPanel value={value} index={4}>
             <WithdrawHistoryComponent />
           </TabPanel>
         </Box>

@@ -17,6 +17,7 @@
     "@mui/material-nextjs": "^7.0.2",
     "axios": "^1.9.0",
     "bootstrap": "^5.3.5",
+    "copy-to-clipboard": "^3.3.3",
     "flowbite": "^3.1.2",
     "framer-motion": "^12.7.4",
     "next": "15.3.1",
