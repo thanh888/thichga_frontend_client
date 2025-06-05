@@ -18,9 +18,9 @@ import { BettingOptionInterface } from "@/utils/interfaces/bet-option.interface"
 import { TeamEnum } from "@/utils/enum/team.enum";
 import { useSocket } from "@/socket";
 import { getOptionsBySession } from "@/services/bet-option.api";
-import AcceptNormal from "../lib/dialogs/confirm-normal";
+import AcceptNormal from "../../lib/dialogs/confirm-normal";
 import { toast } from "react-toastify";
-import { LoadingSpinner } from "../lib/spinner/LoadingSpinner";
+import { LoadingSpinner } from "../spinner/LoadingSpinner";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,

@@ -29,9 +29,9 @@ import { TeamEnum } from "@/utils/enum/team.enum";
 import { BetHistoryStatusEnum } from "@/utils/enum/bet-history-status.enum";
 import { toast } from "react-toastify";
 import { useSocket } from "@/socket";
-import AcceptSolo from "../lib/dialogs/confirm-solo";
+import AcceptSolo from "../../lib/dialogs/confirm-solo";
 import { UserContext } from "@/contexts/user-context";
-import { LoadingSpinner } from "../lib/spinner/LoadingSpinner";
+import { LoadingSpinner } from "../spinner/LoadingSpinner";
 import {
   numberThousandFload,
   numberThousandFloadBigMoney,

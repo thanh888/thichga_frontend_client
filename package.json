@@ -20,6 +20,7 @@
     "copy-to-clipboard": "^3.3.3",
     "flowbite": "^3.1.2",
     "framer-motion": "^12.7.4",
+    "hls.js": "^1.6.5",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",

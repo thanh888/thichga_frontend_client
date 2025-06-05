@@ -2,6 +2,8 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { UrlTypeEnum } from "@/utils/enum/url-type.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
+import HlsPlayer from "@/lib/video-player";
+import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
 
 interface LiveStreamProps {
   betRoom: BettingRoomInterface;
@@ -71,7 +73,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ betRoom }) => {
           height: 0,
         }}
       >
-        {betRoom.urlType === "iframe" && betRoom.urlLive ? (
+        {betRoom.urlType === UrlTypeEnum.IFRAME && betRoom.urlLive && (
           <iframe
             src={betRoom.urlLive}
             title="Video player"
@@ -87,20 +89,9 @@ const LiveStream: React.FC<LiveStreamProps> = ({ betRoom }) => {
               height: "100%",
             }}
           ></iframe>
-        ) : (
-          // <HlsPlayer
-          //   src={sourceUrl}
-          //   autoPlay={false}
-          //   controls
-          //   width="100%"
-          //   height="100%"
-          //   style={{
-          //     position: "absolute",
-          //     top: 0,
-          //     left: 0,
-          //   }}
-          // />
-          <></>
+        )}
+        {betRoom.urlType === UrlTypeEnum.M3U8 && betRoom.urlLive && (
+          <HlsPlayer src={betRoom.urlLive} width="100%" height="100%" />
         )}
       </Box>
     </Box>

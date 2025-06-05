@@ -1,7 +1,7 @@
 "use client";
 import FooterComponent from "@/components/footer/footer";
 import HeaderComponent from "@/components/header/header";
-import NotificationRealtime from "@/components/lib/dialogs/notification-realtime";
+import NotificationRealtime from "@/lib/dialogs/notification-realtime";
 import { UserContext, UserProvider } from "@/contexts/user-context";
 import { useSocket } from "@/socket";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
