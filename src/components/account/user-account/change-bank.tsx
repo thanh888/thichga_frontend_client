@@ -17,8 +17,6 @@ import { toast } from "react-toastify";
 import { BankInteface } from "@/utils/interfaces/bank.interface";
 import { getBanks, TypeBankAuto } from "@/utils/bank";
 
-// Define interface for bank data from VietQR API
-
 export default function BankInfoForm() {
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +34,9 @@ export default function BankInfoForm() {
     branch: "",
   });
 
+  // Kiểm tra xem form có nên bị vô hiệu hóa hay không
+  const isFormDisabled = !!user?.bank?.code;
+
   useEffect(() => {
     setFormData({
       accountName: user?.bank?.accountName ?? "",
@@ -44,7 +45,7 @@ export default function BankInfoForm() {
       branch: user?.bank?.branch ?? "",
       code: user?.bank?.code ?? "",
     });
-  }, []);
+  }, [user]);
 
   const validateForm = () => {
     let isValid = true;
@@ -55,13 +56,11 @@ export default function BankInfoForm() {
       branch: "",
     };
 
-    // Account name validation
     if (!formData?.accountName?.trim()) {
       newErrors.accountName = "Họ và tên là bắt buộc";
       isValid = false;
     }
 
-    // Account number validation
     if (!formData?.accountNumber?.trim()) {
       newErrors.accountNumber = "Số tài khoản là bắt buộc";
       isValid = false;
@@ -70,13 +69,11 @@ export default function BankInfoForm() {
       isValid = false;
     }
 
-    // Bank name validation
     if (!formData.bankName) {
       newErrors.bankName = "Vui lòng chọn ngân hàng";
       isValid = false;
     }
 
-    // Branch validation
     if (!formData?.branch?.trim()) {
       newErrors.branch = "Chi nhánh ngân hàng là bắt buộc";
       isValid = false;
@@ -106,15 +103,12 @@ export default function BankInfoForm() {
         setIsSubmitting(false);
         return;
       }
-      const selectedBank = getBanks.find(
-        (item: TypeBankAuto) => item.code === formData.code
-      );
 
       const newFormData = {
         bank: {
           accountName: formData.accountName,
           accountNumber: formData.accountNumber,
-          bankName: selectedBank ? selectedBank.shortName : "",
+          bankName: formData.bankName,
           branch: formData.branch,
           code: formData.code,
         },
@@ -173,6 +167,7 @@ export default function BankInfoForm() {
         error={!!errors.accountName}
         helperText={errors.accountName}
         aria-label="Họ và tên"
+        disabled={isFormDisabled} // Vô hiệu hóa khi user?.bank?.code tồn tại
         sx={{
           mb: { xs: 1, sm: 2 },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
@@ -201,6 +196,7 @@ export default function BankInfoForm() {
         helperText={errors.accountNumber}
         aria-label="Số tài khoản"
         inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+        disabled={isFormDisabled} // Vô hiệu hóa khi user?.bank?.code tồn tại
         sx={{
           mb: { xs: 1, sm: 2 },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
@@ -225,6 +221,7 @@ export default function BankInfoForm() {
         name="code"
         error={!!errors.bankName}
         aria-label="Chọn ngân hàng"
+        disabled={isFormDisabled} // Vô hiệu hóa khi user?.bank?.code tồn tại
         sx={{
           mb: { xs: 1, sm: 2 },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
@@ -281,6 +278,7 @@ export default function BankInfoForm() {
         error={!!errors.branch}
         helperText={errors.branch}
         aria-label="Chi nhánh ngân hàng"
+        disabled={isFormDisabled} // Vô hiệu hóa khi user?.bank?.code tồn tại
         sx={{
           mb: { xs: 1, sm: "2px" },
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
@@ -289,25 +287,27 @@ export default function BankInfoForm() {
           sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
         }}
       />
-      <Box display="flex" justifyContent="center" mt={{ xs: 2, sm: 3 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          type="submit"
-          disabled={isSubmitting}
-          sx={{
-            width: "100%",
-            fontSize: { xs: "0.75rem", sm: "0.875rem" },
-            py: { xs: 0.75, sm: 1 },
-          }}
-        >
-          {isSubmitting ? (
-            <CircularProgress size={20} color="inherit" />
-          ) : (
-            "Cập nhật"
-          )}
-        </Button>
-      </Box>
+      {!isFormDisabled && ( // Chỉ hiển thị nút "Cập nhật" nếu form không bị vô hiệu hóa
+        <Box display="flex" justifyContent="center" mt={{ xs: 2, sm: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            disabled={isSubmitting}
+            sx={{
+              width: "100%",
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              py: { xs: 0.75, sm: 1 },
+            }}
+          >
+            {isSubmitting ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Cập nhật"
+            )}
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }

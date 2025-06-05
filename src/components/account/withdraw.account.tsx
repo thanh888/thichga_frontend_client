@@ -68,7 +68,7 @@ export default function WithdrawComponent() {
       if (numericValue <= 0) {
         newErrors.money = "Số tiền phải lớn hơn 0";
         isValid = false;
-      } else if (numericValue < 20) {
+      } else if (numericValue < 200) {
         newErrors.money = "Số tiền tối thiểu là 200.000VND";
         isValid = false;
       } else if (numericValue > 200000) {
