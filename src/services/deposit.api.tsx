@@ -10,6 +10,16 @@ export const createDepositApi = async (formData: any) => {
   }
 };
 
+export const createDepositAutoApi = async (formData: any) => {
+  try {
+    const res = await axiosCustomize.post(`/deposit-history/auto`, formData);
+    return res;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 export const paginateDepositApi = async (query: string) => {
   try {
     const res = await axiosCustomize.get(`/deposit-history/paginate?${query}`);

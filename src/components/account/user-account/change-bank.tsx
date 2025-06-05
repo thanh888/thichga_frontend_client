@@ -14,25 +14,20 @@ import axios from "axios";
 import { useUser } from "@/hooks/use-user";
 import { changeBankApi } from "@/services/user.api";
 import { toast } from "react-toastify";
+import { BankInteface } from "@/utils/interfaces/bank.interface";
+import { getBanks, TypeBankAuto } from "@/utils/bank";
 
 // Define interface for bank data from VietQR API
-interface Bank {
-  code: string;
-  name: string;
-  shortName?: string;
-  bin?: string;
-}
 
 export default function BankInfoForm() {
   const { user } = useUser();
-  const [banks, setBanks] = useState<Bank[]>([]);
-  const [isLoadingBanks, setIsLoadingBanks] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BankInteface>({
     accountName: "",
     accountNumber: "",
     bankName: "",
     branch: "",
+    code: "",
   });
   const [errors, setErrors] = useState({
     accountName: "",
@@ -41,28 +36,13 @@ export default function BankInfoForm() {
     branch: "",
   });
 
-  const getBanks = async () => {
-    setIsLoadingBanks(true);
-    try {
-      const response = await axios.get<{ data: Bank[] }>(
-        "https://api.vietqr.io/v2/banks"
-      );
-      setBanks(response.data.data);
-    } catch (error) {
-      console.log("Error fetching banks:", error);
-      alert("Không thể tải danh sách ngân hàng, vui lòng thử lại");
-    } finally {
-      setIsLoadingBanks(false);
-    }
-  };
-
   useEffect(() => {
-    getBanks();
     setFormData({
       accountName: user?.bank?.accountName ?? "",
       accountNumber: user?.bank?.accountNumber ?? "",
       bankName: user?.bank?.bankName ?? "",
       branch: user?.bank?.branch ?? "",
+      code: user?.bank?.code ?? "",
     });
   }, []);
 
@@ -76,13 +56,13 @@ export default function BankInfoForm() {
     };
 
     // Account name validation
-    if (!formData.accountName.trim()) {
+    if (!formData?.accountName?.trim()) {
       newErrors.accountName = "Họ và tên là bắt buộc";
       isValid = false;
     }
 
     // Account number validation
-    if (!formData.accountNumber.trim()) {
+    if (!formData?.accountNumber?.trim()) {
       newErrors.accountNumber = "Số tài khoản là bắt buộc";
       isValid = false;
     } else if (!/^\d+$/.test(formData.accountNumber)) {
@@ -97,7 +77,7 @@ export default function BankInfoForm() {
     }
 
     // Branch validation
-    if (!formData.branch.trim()) {
+    if (!formData?.branch?.trim()) {
       newErrors.branch = "Chi nhánh ngân hàng là bắt buộc";
       isValid = false;
     }
@@ -109,6 +89,11 @@ export default function BankInfoForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    const selectedBank = getBanks.find(
+      (item: TypeBankAuto) => item.code === formData.code
+    );
+    formData.bankName = selectedBank ? selectedBank.shortName : "";
 
     if (!validateForm()) {
       setIsSubmitting(false);
@@ -150,7 +135,7 @@ export default function BankInfoForm() {
           | HTMLTextAreaElement
           | { name?: string; value: unknown }
         >
-      | SelectChangeEvent<string>
+      | SelectChangeEvent<string | number>
   ) => {
     const { name, value } = e.target;
     if (name) {
@@ -229,13 +214,12 @@ export default function BankInfoForm() {
       </Typography>
       <Select
         fullWidth
-        value={formData?.bankName}
+        value={formData?.code}
         onChange={handleInputChange}
         displayEmpty
         variant="outlined"
-        name="bankName"
+        name="code"
         error={!!errors.bankName}
-        disabled={isLoadingBanks}
         aria-label="Chọn ngân hàng"
         sx={{
           mb: { xs: 1, sm: 2 },
@@ -252,9 +236,9 @@ export default function BankInfoForm() {
           disabled
           sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
         >
-          {isLoadingBanks ? "Đang tải ngân hàng..." : "-- Chọn ngân hàng --"}
+          {"-- Chọn ngân hàng --"}
         </MenuItem>
-        {banks.map((bank) => (
+        {getBanks.map((bank: TypeBankAuto) => (
           <MenuItem
             key={bank.code}
             value={bank.code}
@@ -306,7 +290,7 @@ export default function BankInfoForm() {
           variant="contained"
           color="primary"
           type="submit"
-          disabled={isSubmitting || isLoadingBanks}
+          disabled={isSubmitting}
           sx={{
             width: "100%",
             fontSize: { xs: "0.75rem", sm: "0.875rem" },

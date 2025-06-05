@@ -14,6 +14,8 @@ import { createWithdrawApi } from "@/services/withdraw.api";
 import { toast } from "react-toastify";
 import { numberThousand, sampleMoneys } from "@/utils/function-convert.util";
 import { UserContext } from "@/contexts/user-context";
+import { useSocket } from "@/socket";
+import { WithdrawStatusEnum } from "@/utils/enum/withdraw-status.enum";
 
 export default function WithdrawComponent() {
   const theme = useTheme();
@@ -84,6 +86,7 @@ export default function WithdrawComponent() {
     setErrors(newErrors);
     return isValid;
   };
+  const socket = useSocket();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,8 +116,15 @@ export default function WithdrawComponent() {
         setMoney("");
         setPin("");
         setErrors({ money: "", pin: "" });
-        if (checkSession) {
-          checkSession();
+        checkSession?.();
+        if (socket) {
+          socket.emit("withdraw-money", {
+            status: WithdrawStatusEnum.PENDING,
+            userID: user._id.toString(),
+            money: money,
+          });
+
+          socket.off("withdraw-money");
         }
       } else if (response?.response?.data?.message === "Pin is incorrect") {
         toast.warning("Mã pin không chính xác");

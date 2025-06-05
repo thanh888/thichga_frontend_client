@@ -19,6 +19,8 @@ import { toast } from "react-toastify";
 import { UserContext } from "@/contexts/user-context";
 import { SettingContext } from "@/contexts/setting-context";
 import { ContentCopyOutlined } from "@mui/icons-material";
+import { useSocket } from "@/socket";
+import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
 
 export default function DepositManualComponent() {
   const theme = useTheme();
@@ -34,6 +36,8 @@ export default function DepositManualComponent() {
   const [money, setMoney] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const socket = useSocket();
 
   const handleSelectIndex = (index: number) => {
     setSelectedIndex(index);
@@ -101,8 +105,9 @@ export default function DepositManualComponent() {
         selectedIndex === 0 ? DepositMethod.BANK : DepositMethod.MOMO;
       const response = (await createDepositApi({
         userID: user._id.toString(),
-        money: parseInt(money, 10),
+        money: parseFloat(money),
         method,
+        status: DepositStatusEnum.PENDING,
         bank: user.bank,
       })) as any;
 
@@ -110,6 +115,15 @@ export default function DepositManualComponent() {
         toast.success("Yêu cầu thành công, vui lòng đợi xác nhận");
         setMoney("");
         setError("");
+        if (socket) {
+          socket.emit("deposit-money", {
+            status: DepositStatusEnum.PENDING,
+            userID: user._id.toString(),
+            money: money,
+          });
+
+          socket.off("deposit-money");
+        }
       }
     } catch (error: any) {
       console.log("Error depositing money:", error);

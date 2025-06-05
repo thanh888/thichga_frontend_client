@@ -10,10 +10,11 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { numberThousand, sampleMoneys } from "@/utils/function-convert.util";
-import { createDepositApi } from "@/services/deposit.api";
+import { createDepositAutoApi } from "@/services/deposit.api";
 import { DepositMethod } from "@/utils/enum/deposit-method.enum";
 import { toast } from "react-toastify";
 import { UserContext } from "@/contexts/user-context";
+import { useRouter } from "next/router";
 
 export default function DepositAutoComponent() {
   const theme = useTheme();
@@ -89,7 +90,7 @@ export default function DepositAutoComponent() {
 
       const method =
         selectedIndex === 0 ? DepositMethod.BANK : DepositMethod.MOMO;
-      const response = (await createDepositApi({
+      const response = (await createDepositAutoApi({
         userID: user._id.toString(),
         money: parseInt(money, 10),
         method,
@@ -97,9 +98,9 @@ export default function DepositAutoComponent() {
       })) as any;
 
       if (response.status === 200 || response.status === 201) {
-        toast.success("Yêu cầu thành công, vui lòng đợi xác nhận");
         setMoney("");
         setError("");
+        window.open(response?.data?.data?.redirectUrl, "_blank");
       }
     } catch (error: any) {
       console.log("Error depositing money:", error);

@@ -33,7 +33,11 @@ export default function ClientLayout({
     if (!user || !socket) return; // Tránh lỗi khi user hoặc socket chưa sẵn sàng
 
     socket.on("deposit-money", (msg) => {
-      if (msg?.data?.userID === user._id && checkSession) {
+      if (
+        msg?.data?.userID === user._id &&
+        checkSession &&
+        msg?.data?.status !== DepositStatusEnum.PENDING
+      ) {
         checkSession();
         const title = "Thông báo nạp tiền";
         const content = `Yêu cầu nạp ${numberThousandFload(
@@ -44,7 +48,11 @@ export default function ClientLayout({
     });
 
     socket.on("withdraw-money", (msg) => {
-      if (msg?.data?.userID === user._id && checkSession) {
+      if (
+        msg?.data?.userID === user._id &&
+        checkSession &&
+        msg?.data?.status !== DepositStatusEnum.PENDING
+      ) {
         const title = "Thông báo rút tiền";
         const content = `Yêu cầu rút ${numberThousandFload(
           msg?.data?.money ?? 0
