@@ -66,8 +66,11 @@ export default function DepositManualComponent() {
       if (numericValue <= 0) {
         errorMessage = "Số tiền phải lớn hơn 0";
         isValid = false;
-      } else if (numericValue < 50) {
-        errorMessage = "Số tiền tối thiểu là 50";
+      } else if (numericValue < 20) {
+        errorMessage = "Số tiền tối thiểu là 20.000VND";
+        isValid = false;
+      } else if (numericValue > 200000) {
+        errorMessage = "Số tiền tối đa là 200.000.000VND";
         isValid = false;
       }
     }

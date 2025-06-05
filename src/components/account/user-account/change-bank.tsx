@@ -106,13 +106,17 @@ export default function BankInfoForm() {
         setIsSubmitting(false);
         return;
       }
+      const selectedBank = getBanks.find(
+        (item: TypeBankAuto) => item.code === formData.code
+      );
 
       const newFormData = {
         bank: {
           accountName: formData.accountName,
           accountNumber: formData.accountNumber,
-          bankName: formData.bankName,
+          bankName: selectedBank ? selectedBank.shortName : "",
           branch: formData.branch,
+          code: formData.code,
         },
         fullname: formData.accountName,
       };
