@@ -14,7 +14,7 @@ import { createDepositAutoApi } from "@/services/deposit.api";
 import { DepositMethod } from "@/utils/enum/deposit-method.enum";
 import { toast } from "react-toastify";
 import { UserContext } from "@/contexts/user-context";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function DepositAutoComponent() {
   const theme = useTheme();
