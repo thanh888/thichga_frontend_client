@@ -101,7 +101,7 @@ export default function WithdrawComponent() {
     }
 
     try {
-      if (!user?._id || !user.bank?.accountNumber) {
+      if (!user?._id || !user.bank?.bankName) {
         toast.warning("Hãy thêm thông tin ngân hàng");
         setIsSubmitting(false);
         return;

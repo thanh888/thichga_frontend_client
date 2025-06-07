@@ -87,7 +87,7 @@ export default function BankInfoForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const selectedBank = getBanks.find(
+    const selectedBank = await getBanks.find(
       (item: TypeBankAuto) => item.code === formData.code
     );
     formData.bankName = selectedBank ? selectedBank.shortName : "";

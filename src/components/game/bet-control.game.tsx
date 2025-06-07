@@ -92,9 +92,9 @@ export default function BetControls({
         toast.success("Đặt cược thành công");
         setIsReloadBetting((prev) => prev + 1);
         if (socket) {
-          if (checkSession) await checkSession();
           socket.emit("bet-history", { roomID: betRoom._id });
         }
+        if (checkSession) await checkSession();
       }
     } catch (error: any) {
       if (error?.response?.data?.message === "Betting is disable") {

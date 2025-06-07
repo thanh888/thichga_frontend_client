@@ -26,6 +26,8 @@ export default function DepositAutoComponent() {
   const [error, setError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  const router = useRouter();
+
   const handleSelectIndex = (index: number) => {
     setSelectedIndex(index);
   };
@@ -103,7 +105,7 @@ export default function DepositAutoComponent() {
       if (response.status === 200 || response.status === 201) {
         setMoney("");
         setError("");
-        window.open(response?.data?.data?.redirectUrl, "_blank");
+        router.push(response?.data?.data?.redirectUrl);
       }
     } catch (error: any) {
       console.log("Error depositing money:", error);

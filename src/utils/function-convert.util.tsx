@@ -53,10 +53,6 @@ export const convertDateTime = (dateTime: string) => {
 
 export const sampleMoneys = [
   {
-    lable: "100K",
-    value: "100",
-  },
-  {
     lable: "200K",
     value: "200",
   },

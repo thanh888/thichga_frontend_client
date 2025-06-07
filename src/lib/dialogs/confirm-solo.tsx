@@ -52,7 +52,10 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
   };
 
   const handleAcceptBet = async () => {
-    if (!selectedBet || !user) {
+    if (!selectedBet) {
+      return;
+    }
+    if (!user) {
       toast.warning("Đăng nhập để cược");
       router.push("/login");
       return;
@@ -82,15 +85,13 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
         selectedBet?._id,
         newData
       );
+      setAcceptDialogOpen(false);
       if (response.status === 200 || response.status === 201) {
         toast.success("Khớp kèo thành công");
-        setAcceptDialogOpen(false);
         setSelectedBet(null);
         setIsReloadBetting((prev: number) => prev + 1);
+        checkSession?.();
         if (socket) {
-          if (checkSession) {
-            checkSession();
-          }
           socket.emit("bet-history", {
             roomID: betRoom._id,
           });
