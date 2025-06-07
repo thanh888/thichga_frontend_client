@@ -1,5 +1,6 @@
 export enum WithdrawStatusEnum {
-  PENDING = 'PENDING',
-  SUCCESS = 'SUCCESS',
-  REJECT = 'REJECT',
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  SUCCESS = "SUCCESS",
+  REJECT = "REJECT",
 }

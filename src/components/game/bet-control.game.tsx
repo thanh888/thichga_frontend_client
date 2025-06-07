@@ -99,7 +99,9 @@ export default function BetControls({
     } catch (error: any) {
       if (error?.response?.data?.message === "Betting is disable") {
         toast.warn("Phòng đã đóng cược");
-      } else {
+      } else if (error?.response?.data?.message === "Insufficient balance") {
+        toast.warn("Tiền cược không đủ");
+
         console.log(error);
       }
     } finally {

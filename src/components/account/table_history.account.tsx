@@ -14,11 +14,17 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import { convertDateTime, numberThousand } from "@/utils/function-convert.util";
+import {
+  convertDateTime,
+  convertDateTimeVN,
+  numberThousand,
+} from "@/utils/function-convert.util";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
 import { paginateDepositApi } from "@/services/deposit.api";
 import { paginateWithdrawApi } from "@/services/withdraw.api";
 import { UserContext } from "@/contexts/user-context";
+import { WithdrawStatusEnum } from "@/utils/enum/withdraw-status.enum";
+import { DepositModeEnum } from "@/utils/enum/deposit-mode.enum";
 
 // Define interface for transaction data
 interface Transaction {
@@ -28,8 +34,11 @@ interface Transaction {
   accountName?: string;
   accountNumber?: string;
   feedback?: string;
+  mode: string;
+  referenceCode: string;
   status: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 // Define interface for table columns
@@ -41,10 +50,11 @@ interface Column {
   format?: (value: string) => string;
 }
 
-const statusLabels: Record<DepositStatusEnum, string> = {
-  [DepositStatusEnum.PENDING]: "Chờ xử lý",
-  [DepositStatusEnum.SUCCESS]: "Thành công",
-  [DepositStatusEnum.REJECT]: "Đã từ chối",
+const statusLabels: Record<WithdrawStatusEnum, string> = {
+  [WithdrawStatusEnum.PENDING]: "Chờ xử lý",
+  [WithdrawStatusEnum.PROCESSING]: "Đang xử lý",
+  [WithdrawStatusEnum.SUCCESS]: "Thành công",
+  [WithdrawStatusEnum.REJECT]: "Đã từ chối",
 };
 
 const columns: Column[] = [
@@ -59,15 +69,23 @@ const columns: Column[] = [
   { id: "bankName", label: "Tên NH", minWidth: 100, align: "left" },
   { id: "accountName", label: "Tên TK", minWidth: 100, align: "left" },
   { id: "accountNumber", label: "Số TK", minWidth: 100, align: "left" },
-  { id: "feedback", label: "Chi tiết", minWidth: 150, align: "left" },
+  { id: "mode", label: "Hình thức", minWidth: 150, align: "left" },
   { id: "status", label: "Trạng thái", minWidth: 150, align: "left" },
   {
     id: "createdAt",
     label: "Thời gian",
     minWidth: 150,
     align: "left",
-    format: (value: string) => convertDateTime(value),
+    format: (value: string) => convertDateTimeVN(value),
   },
+  {
+    id: "updatedAt",
+    label: "Thời gian",
+    minWidth: 150,
+    align: "left",
+    format: (value: string) => convertDateTimeVN(value),
+  },
+  { id: "feedback", label: "Chi tiết", minWidth: 150, align: "left" },
 ];
 
 interface Props {
@@ -214,8 +232,29 @@ export default function HistoryTableComponent({
                 <TableCell>
                   {row?.userID?.bank?.accountNumber || "N/A"}
                 </TableCell>
+
                 <TableCell>
-                  {row?.userID?.bank?.feedback || row.feedback}
+                  <Typography
+                    variant="caption"
+                    bgcolor={
+                      (row.mode === DepositModeEnum.AUTO ||
+                        row.referenceCode) &&
+                      row.referenceCode
+                        ? "#1de9b6"
+                        : "#ffb300"
+                    }
+                    sx={{
+                      p: 1,
+                      borderRadius: 1,
+                      fontWeight: 500,
+                      fontSize: 16,
+                    }}
+                  >
+                    {(row.mode === DepositModeEnum.AUTO || row.referenceCode) &&
+                    row.referenceCode
+                      ? "Tự động"
+                      : "Thủ công"}
+                  </Typography>
                 </TableCell>
                 <TableCell>
                   <Typography
@@ -244,6 +283,13 @@ export default function HistoryTableComponent({
                     ?.format?.(row?.createdAt?.toString() ?? "") ||
                     convertDateTime(row?.createdAt?.toString() ?? "")}
                 </TableCell>
+                <TableCell>
+                  {columns
+                    .find((col) => col.id === "updatedAt")
+                    ?.format?.(row?.createdAt?.toString() ?? "") ||
+                    convertDateTime(row?.createdAt?.toString() ?? "")}
+                </TableCell>
+                <TableCell>{row?.feedback}</TableCell>
               </TableRow>
             ))}
           </TableBody>
