@@ -21,6 +21,7 @@ import { SettingContext } from "@/contexts/setting-context";
 import { ContentCopyOutlined } from "@mui/icons-material";
 import { useSocket } from "@/socket";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
+import { DepositModeEnum } from "@/utils/enum/deposit-mode.enum";
 
 export default function DepositManualComponent() {
   const theme = useTheme();
@@ -112,6 +113,7 @@ export default function DepositManualComponent() {
         method,
         status: DepositStatusEnum.PENDING,
         bank: user.bank,
+        mode: DepositModeEnum.MANUAL,
       })) as any;
 
       if (response.status === 200 || response.status === 201) {

@@ -101,9 +101,13 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
       console.log(error);
       if (error?.response?.data?.message === "Betting is disable") {
         toast.warning("Phòng đã đóng cược");
-      }
-
-      if (error?.response?.data?.message === "Bet history is already matched") {
+      } else if (
+        error?.response?.data?.message === "Bet history is already matched"
+      ) {
+        toast.warning("Cược này đã khớp, vui chọn cược khác");
+      } else if (
+        error?.response?.data?.message === "Bet has already been matched"
+      ) {
         toast.warning("Cược này đã khớp, vui chọn cược khác");
       }
     }

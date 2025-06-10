@@ -103,7 +103,7 @@ export default function UserBetHistories({
     roomName: "",
     status: "",
   });
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] =
     useState<keyof BettingHistoryInterface>("createdAt");
   const [tabValue, setTabValue] = useState<TypeBetRoomEnum>(

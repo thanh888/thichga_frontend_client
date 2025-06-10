@@ -15,6 +15,7 @@ import { DepositMethod } from "@/utils/enum/deposit-method.enum";
 import { toast } from "react-toastify";
 import { UserContext } from "@/contexts/user-context";
 import { useRouter } from "next/navigation";
+import { DepositModeEnum } from "@/utils/enum/deposit-mode.enum";
 
 export default function DepositAutoComponent() {
   const theme = useTheme();
@@ -95,11 +96,13 @@ export default function DepositAutoComponent() {
 
       const method =
         selectedIndex === 0 ? DepositMethod.BANK : DepositMethod.MOMO;
+
       const response = (await createDepositAutoApi({
         userID: user._id.toString(),
         money: parseInt(money, 10),
         method,
         bank: user.bank,
+        mode: DepositModeEnum.AUTO,
       })) as any;
 
       if (response.status === 200 || response.status === 201) {

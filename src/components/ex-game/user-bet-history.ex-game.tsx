@@ -99,7 +99,7 @@ export default function UserBetExGameHistories({
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [filter, setFilter] = useState<string>("");
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] =
     useState<keyof BettingHistoryInterface>("createdAt");
 
