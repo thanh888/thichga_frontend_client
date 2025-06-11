@@ -99,6 +99,10 @@ export default function WithdrawComponent() {
       setIsSubmitting(false);
       return;
     }
+    if (!user?.pin) {
+      toast.warning("Vui lòng cập nhật mã pin");
+      return;
+    }
 
     try {
       if (!user?._id || !user.bank?.bankName) {
@@ -121,7 +125,7 @@ export default function WithdrawComponent() {
         setErrors({ money: "", pin: "" });
         checkSession?.();
         if (socket) {
-          socket.emit("withdraw-money", {
+          socket.emit("request-withdraw", {
             status: WithdrawStatusEnum.PENDING,
             userID: user._id.toString(),
             money: money,
@@ -131,13 +135,16 @@ export default function WithdrawComponent() {
         }
       } else if (response?.response?.data?.message === "Pin is incorrect") {
         toast.warning("Mã pin không chính xác");
+      } else if (response?.response?.data?.message === "Not enough money") {
+        toast.warning("Tài khoản không đủ");
       } else toast.warning("Yêu cầu thất bạn, vui lòng thử lại sau");
     } catch (error: any) {
-      console.log("Error withdrawing money:", error);
-      console.log(error?.response?.data?.message);
+      console.log(error?.response?.data);
 
       if (error?.response?.data?.message === "Pin is incorrect") {
         toast.warning("Mã pin không chính xác");
+      } else if (error?.response?.data?.message === "Not enough money") {
+        toast.warning("Tài khoản không đủ");
       } else toast.warning("Yêu cầu thất bạn, vui lòng thử lại sau");
     } finally {
       setIsSubmitting(false);
@@ -259,6 +266,7 @@ export default function WithdrawComponent() {
           onChange={handlePinChange}
           error={!!errors.pin}
           helperText={errors.pin}
+          autoComplete="off"
           inputProps={{
             inputMode: "numeric",
             pattern: "[0-9]*",

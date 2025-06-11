@@ -121,13 +121,13 @@ export default function DepositManualComponent() {
         setMoney("");
         setError("");
         if (socket) {
-          socket.emit("deposit-money", {
+          socket.emit("request-deposit", {
             status: DepositStatusEnum.PENDING,
             userID: user._id.toString(),
             money: money,
           });
 
-          socket.off("deposit-money");
+          socket.off("request-deposit");
         }
       }
     } catch (error: any) {

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -16,9 +16,10 @@ import { changeBankApi } from "@/services/user.api";
 import { toast } from "react-toastify";
 import { BankInteface } from "@/utils/interfaces/bank.interface";
 import { getBanks, TypeBankAuto } from "@/utils/bank";
+import { SettingContext } from "@/contexts/setting-context";
 
 export default function BankInfoForm() {
-  const { user } = useUser();
+  const { user, checkSession } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<BankInteface>({
     accountName: "",
@@ -118,6 +119,7 @@ export default function BankInfoForm() {
 
       if (response.status === 200 || response.status === 201) {
         toast.success("Cập nhật thông tin ngân hàng thành công");
+        checkSession?.();
       }
     } catch (error: any) {
       console.log("Error updating bank info:", error);
