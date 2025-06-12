@@ -88,7 +88,11 @@ const AcceptNormal: React.FC<AcceptBetDialogProps> = ({
       console.log(error);
       if (error?.response?.data?.message === "Betting is disable") {
         toast.warning("Phòng đã đóng cược");
+      } else if (error?.response?.data?.message === "Insufficient balance") {
+        toast.warning("Số dư không đủ");
       }
+    } finally {
+      onClose();
     }
   };
 

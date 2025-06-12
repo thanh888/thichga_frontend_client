@@ -109,7 +109,11 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
         error?.response?.data?.message === "Bet has already been matched"
       ) {
         toast.warning("Cược này đã khớp, vui chọn cược khác");
+      } else if (error?.response?.data?.message === "Insufficient balance") {
+        toast.warning("Số dư không đủ");
       }
+    } finally {
+      setSelectedBet(null);
     }
   };
 
