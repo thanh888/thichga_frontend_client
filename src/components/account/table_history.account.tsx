@@ -17,7 +17,7 @@ import {
 import {
   convertDateTime,
   convertDateTimeVN,
-  numberThousand,
+  numberThousandFload,
 } from "@/utils/function-convert.util";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
 import { paginateDepositApi } from "@/services/deposit.api";
@@ -64,7 +64,7 @@ const columns: Column[] = [
     label: "Số tiền (VND)",
     minWidth: 120,
     align: "right",
-    format: (value: string) => numberThousand(value),
+    format: (value: string) => numberThousandFload(value),
   },
   { id: "bankName", label: "Tên NH", minWidth: 100, align: "left" },
   { id: "accountName", label: "Tên TK", minWidth: 100, align: "left" },
@@ -225,7 +225,7 @@ export default function HistoryTableComponent({
                   {columns
                     .find((col) => col.id === "money")
                     ?.format?.(row?.money?.toString() ?? "0") ||
-                    numberThousand(row?.money?.toString())}
+                    numberThousandFload(row?.money?.toString())}
                 </TableCell>
                 <TableCell>{row?.userID?.bank?.bankName || "N/A"}</TableCell>
                 <TableCell>{row?.userID?.bank?.accountName || "N/A"}</TableCell>

@@ -176,7 +176,7 @@ const BetOptionTable = ({
                   fontSize={18}
                   color="white"
                 >
-                  {numberThousand(option?.profitMissing) ?? 0}
+                  {numberThousandFload(option?.profitMissing) ?? 0}
                 </Typography>
               </Box>
             </Box>

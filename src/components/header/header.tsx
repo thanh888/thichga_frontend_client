@@ -20,10 +20,7 @@ import { getRoomIsOpenedApi } from "@/services/room.api";
 import { SignOutApi } from "@/services/auth/auth.api";
 import { UserContext } from "@/contexts/user-context";
 import { LogoutOutlined } from "@mui/icons-material";
-import {
-  numberThousand,
-  numberThousandFload,
-} from "@/utils/function-convert.util";
+import { numberThousandFload } from "@/utils/function-convert.util";
 
 function HeaderComponent() {
   const router = useRouter();

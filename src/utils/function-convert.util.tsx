@@ -9,7 +9,7 @@ export const numberThousand = (value: string) => {
 export const numberThousandFload = (value: string | number) => {
   const floatValue = parseFloat(value.toString());
   if (isNaN(floatValue)) return "0,00";
-  return floatValue.toLocaleString("de-DE", {
+  return floatValue.toLocaleString("us-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
