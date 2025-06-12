@@ -38,7 +38,7 @@ const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
 }) => (
   <Box
     sx={{
-      height: { xs: "20vh", sm: "300px" },
+      height: { xs: "20vh", lg: "300px" },
       overflowY: "auto",
       "&::-webkit-scrollbar": { bgcolor: "black", width: "8px" },
       "&::-webkit-scrollbar-thumb": { bgcolor: "#888", borderRadius: "4px" },
