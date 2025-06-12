@@ -114,6 +114,7 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
       }
     } finally {
       setSelectedBet(null);
+      setAcceptDialogOpen(false);
     }
   };
 

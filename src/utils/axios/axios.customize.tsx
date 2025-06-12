@@ -56,6 +56,7 @@ instance.interceptors.response.use(
         ] = `Bearer ${data.accessToken}`;
         originalRequest.headers["Authorization"] = `Bearer ${data.accessToken}`;
         refreshTokenInProgress = false;
+        localStorage.setItem("token", data.accessToken);
 
         return instance(originalRequest);
       } catch (refreshError) {
