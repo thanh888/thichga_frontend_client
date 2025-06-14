@@ -37,16 +37,9 @@ export default function ChangePasswordForm() {
     if (!formData.newPassword) {
       newErrors.newPassword = "Vui lòng nhập mật khẩu mới";
       isValid = false;
-    } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = "Mật khẩu mới phải có ít nhất 8 ký tự";
-      isValid = false;
-    } else if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-        formData.newPassword
-      )
-    ) {
-      newErrors.newPassword =
-        "Mật khẩu mới phải chứa chữ hoa, chữ thường, số và ký tự đặc biệt";
+    }
+    if (formData.newPassword.length < 6) {
+      newErrors.newPassword = "Mật khẩu ít nhất 6 ký tự";
       isValid = false;
     }
 

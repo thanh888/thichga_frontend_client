@@ -30,6 +30,7 @@ import {
   Tab,
   TablePagination,
   Alert,
+  IconButton,
 } from "@mui/material";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { BettingHistoryInterface } from "@/utils/interfaces/bet-history.interface";
@@ -37,6 +38,8 @@ import { paginateBetHistoryByUserIDApi } from "@/services/bet-history.api";
 import { BetResultEnum } from "@/utils/enum/bet-result.enum";
 import { UserContext } from "@/contexts/user-context";
 import { StatusSessionEnum } from "@/utils/enum/status-session.enum";
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const listResultHistory = [
   { value: BetResultEnum.WIN, label: "Thắng" },
@@ -103,6 +106,7 @@ export default function UserBetHistories({
     roomName: "",
     status: "",
   });
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [orderBy, setOrderBy] =
     useState<keyof BettingHistoryInterface>("createdAt");
@@ -124,7 +128,7 @@ export default function UserBetHistories({
         order === "asc" ? String(orderBy) : `-${String(orderBy)}`;
       const query = `limit=${rowsPerPage}&skip=${page + 1}&user_id=${
         user._id
-      }&search=${encodeURIComponent(filter.roomName)}&status=${
+      }&search=${encodeURIComponent(filter.roomName.toString())}&status=${
         filter.status
       }&type=${tabValue}&sort=${sortQuery}`;
       const response = await paginateBetHistoryByUserIDApi(user._id, query);
@@ -144,29 +148,52 @@ export default function UserBetHistories({
     }
   }, [user?._id, filter, page, rowsPerPage, order, orderBy, tabValue]);
 
-  // Debounce fetchBets to avoid excessive API calls
-
   useEffect(() => {
     if (betHistoryDialogOpen && user) {
       fetchBets();
     }
-  }, [betHistoryDialogOpen, page, rowsPerPage, order, orderBy, tabValue, user]);
+  }, [
+    betHistoryDialogOpen,
+    page,
+    rowsPerPage,
+    order,
+    orderBy,
+    tabValue,
+    user,
+    fetchBets,
+  ]);
+
+  const handleSearch = () => {
+    setFilter((prev) => ({ ...prev, roomName: searchTerm }));
+    setPage(0);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setFilter((prev) => ({ ...prev, roomName: "" }));
+    setPage(0);
+  };
+
+  const handleSearchInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setSearchTerm(event.target.value);
+    if (event.target.value === "") {
+      handleClearSearch();
+    }
+  };
+
+  const handleSearchKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const handleRequestSort = (property: keyof BettingHistoryInterface) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
     setPage(0); // Reset to first page on sort
-  };
-
-  const handleFilterChange = (
-    event:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<string>
-  ) => {
-    const { name, value } = event.target;
-    setFilter((prev) => ({ ...prev, [name]: value }));
-    setPage(0);
   };
 
   const handleChangePage = (_: unknown, newPage: number) => {
@@ -191,6 +218,7 @@ export default function UserBetHistories({
   const handleCloseBetHistoryDialog = () => {
     setBetHistoryDialogOpen(false);
     setFilter({ roomName: "", status: "" });
+    setSearchTerm("");
     setTabValue(TypeBetRoomEnum.SOLO);
     setPage(0);
     setBets({ docs: [], totalDocs: 0 });
@@ -295,30 +323,67 @@ export default function UserBetHistories({
               alignItems: "center",
             }}
           >
-            <TextField
-              label="Tìm kiếm trận đấu"
-              name="roomName"
-              value={filter.roomName}
-              onChange={handleFilterChange}
-              size="small"
+            <Box
               sx={{
+                display: "flex",
                 width: { xs: "100%", sm: "300px" },
-                "& .MuiInputBase-root": {
-                  bgcolor: "#4A5568",
-                  color: "#FFFFFF",
-                  borderRadius: "8px",
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#A0AEC0",
-                  "&.Mui-focused": { color: "#d7b500" },
-                },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#4A5568" },
-                  "&:hover fieldset": { borderColor: "#d7b500" },
-                  "&.Mui-focused fieldset": { borderColor: "#d7b500" },
-                },
+                alignItems: "center",
+                position: "relative",
               }}
-            />
+            >
+              <TextField
+                label="Tìm kiếm trận đấu"
+                value={searchTerm}
+                onChange={handleSearchInputChange}
+                onKeyPress={handleSearchKeyPress}
+                size="small"
+                sx={{
+                  flex: 1,
+                  "& .MuiInputBase-root": {
+                    bgcolor: "#4A5568",
+                    color: "#FFFFFF",
+                    borderRadius: "8px",
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#A0AEC0",
+                    "&.Mui-focused": { color: "#d7b500" },
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#4A5568" },
+                    "&:hover fieldset": { borderColor: "#d7b500" },
+                    "&.Mui-focused fieldset": { borderColor: "#d7b500" },
+                  },
+                }}
+                InputProps={{
+                  endAdornment: searchTerm && (
+                    <IconButton
+                      size="small"
+                      onClick={handleClearSearch}
+                      sx={{
+                        position: "absolute",
+                        right: 8,
+                        color: "#A0AEC0",
+                        "&:hover": { color: "#FFFFFF" },
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  ),
+                }}
+              />
+
+              <IconButton
+                onClick={handleSearch}
+                sx={{
+                  ml: 1,
+                  bgcolor: "#d7b500",
+                  color: "#1E2A44",
+                  "&:hover": { bgcolor: "#ECC94B" },
+                }}
+              >
+                <SearchIcon />
+              </IconButton>
+            </Box>
           </Box>
 
           {bets.docs.length === 0 && !isLoading && !error && (
@@ -329,7 +394,7 @@ export default function UserBetHistories({
             </Box>
           )}
 
-          {isLoading && (
+          {isLoading ? (
             <Card
               sx={{
                 p: 4,
@@ -341,185 +406,188 @@ export default function UserBetHistories({
             >
               <CircularProgress sx={{ color: "#d7b500" }} />
             </Card>
-          )}
-
-          {bets.docs.length > 0 && (
-            <Box sx={{ overflowX: "auto" }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column, index) => (
-                      <TableCell
-                        key={index}
-                        align={column.align}
+          ) : (
+            bets.docs.length > 0 && (
+              <Box sx={{ overflowX: "auto" }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      {columns.map((column, index) => (
+                        <TableCell
+                          key={index}
+                          align={column.align}
+                          sx={{
+                            minWidth: column.minWidth,
+                            color: "#d7b500",
+                            fontWeight: 600,
+                            bgcolor: "#1E2A44",
+                          }}
+                        >
+                          <TableSortLabel
+                            active={orderBy === column.id}
+                            direction={orderBy === column.id ? order : "asc"}
+                            onClick={() =>
+                              handleRequestSort(
+                                column.id as keyof BettingHistoryInterface
+                              )
+                            }
+                            sx={{
+                              color: "#d7b500",
+                              "&.Mui-active": { color: "#d7b500" },
+                              "&:hover": { color: "#FFFFFF" },
+                            }}
+                          >
+                            {column.label}
+                          </TableSortLabel>
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {bets.docs.map((row: BettingHistoryInterface) => (
+                      <TableRow
+                        hover
+                        key={row._id}
                         sx={{
-                          minWidth: column.minWidth,
-                          color: "#d7b500",
-                          fontWeight: 600,
-                          bgcolor: "#1E2A44",
+                          "&:hover": {
+                            bgcolor: "#3B4A68",
+                            transition: "background-color 0.2s",
+                          },
                         }}
                       >
-                        <TableSortLabel
-                          active={orderBy === column.id}
-                          direction={orderBy === column.id ? order : "asc"}
-                          onClick={() =>
-                            handleRequestSort(
-                              column.id as keyof BettingHistoryInterface
-                            )
-                          }
-                          sx={{
-                            color: "#d7b500",
-                            "&.Mui-active": { color: "#d7b500" },
-                            "&:hover": { color: "#FFFFFF" },
-                          }}
-                        >
-                          {column.label}
-                        </TableSortLabel>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {bets.docs.map((row: BettingHistoryInterface) => (
-                    <TableRow
-                      hover
-                      key={row._id}
-                      sx={{
-                        "&:hover": {
-                          bgcolor: "#3B4A68",
-                          transition: "background-color 0.2s",
-                        },
-                      }}
-                    >
-                      <TableCell sx={{ color: "#FFFFFF" }}>
-                        <Typography variant="subtitle2">{row?.code}</Typography>
-                      </TableCell>
-                      <TableCell sx={{ color: "#FFFFFF" }}>
-                        {row?.betSessionID?.betRoomID?.roomName ?? "N/A"}
-                      </TableCell>
-                      <TableCell align="right" sx={{ color: "#FFFFFF" }}>
-                        {columns
-                          .find((col) => col.id === "money")
-                          ?.format?.(row?.money) || "N/A"}
-                      </TableCell>
-                      <TableCell align="right" sx={{ color: "#FFFFFF" }}>
-                        {row?.win}:{row?.lost}
-                      </TableCell>
-                      <TableCell sx={{ color: "#FFFFFF" }}>
-                        <Typography
-                          variant="caption"
-                          bgcolor={
-                            row?.selectedTeam === TeamEnum.BLUE
-                              ? "#2B6CB0"
-                              : "#C53030"
-                          }
-                          sx={{
-                            p: 1,
-                            borderRadius: "6px",
-                            fontWeight: 500,
-                            fontSize: 14,
-                          }}
-                        >
-                          {row?.selectedTeam === TeamEnum.BLUE
-                            ? "Wala"
-                            : "Meron"}
-                        </Typography>
-                      </TableCell>
-                      <TableCell sx={{ color: "#FFFFFF" }}>
-                        <Typography
-                          variant="caption"
-                          bgcolor={
-                            row.userResult &&
+                        <TableCell sx={{ color: "#FFFFFF" }}>
+                          <Typography variant="subtitle2">
+                            {row?.code}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FFFFFF" }}>
+                          {row?.betSessionID?.betRoomID?.roomName ?? "N/A"}
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: "#FFFFFF" }}>
+                          {columns
+                            .find((col) => col.id === "money")
+                            ?.format?.(row?.money) || "N/A"}
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: "#FFFFFF" }}>
+                          {row?.win}:{row?.lost}
+                        </TableCell>
+                        <TableCell sx={{ color: "#FFFFFF" }}>
+                          <Typography
+                            variant="caption"
+                            bgcolor={
+                              row?.selectedTeam === TeamEnum.BLUE
+                                ? "#2B6CB0"
+                                : "#C53030"
+                            }
+                            sx={{
+                              p: 1,
+                              borderRadius: "6px",
+                              fontWeight: 500,
+                              fontSize: 14,
+                            }}
+                          >
+                            {row?.selectedTeam === TeamEnum.BLUE
+                              ? "Wala"
+                              : "Meron"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FFFFFF" }}>
+                          <Typography
+                            variant="caption"
+                            bgcolor={
+                              row.userResult &&
+                              [
+                                BetResultEnum.WIN,
+                                BetResultEnum.DRAW,
+                                BetResultEnum.CANCEL,
+                                BetResultEnum.REFUDNED,
+                              ].includes(row.userResult)
+                                ? "#38A169"
+                                : row.userResult === BetResultEnum.LOSE
+                                ? "#C53030"
+                                : "#A0AEC0"
+                            }
+                            sx={{
+                              p: 1,
+                              borderRadius: "6px",
+                              fontWeight: 500,
+                              fontSize: 14,
+                            }}
+                          >
+                            {row.userResult &&
                             [
                               BetResultEnum.WIN,
                               BetResultEnum.DRAW,
                               BetResultEnum.CANCEL,
                               BetResultEnum.REFUDNED,
                             ].includes(row.userResult)
-                              ? "#38A169"
-                              : row.userResult === BetResultEnum.LOSE
-                              ? "#C53030"
-                              : "#A0AEC0"
-                          }
-                          sx={{
-                            p: 1,
-                            borderRadius: "6px",
-                            fontWeight: 500,
-                            fontSize: 14,
-                          }}
-                        >
-                          {row.userResult &&
-                          [
-                            BetResultEnum.WIN,
-                            BetResultEnum.DRAW,
-                            BetResultEnum.CANCEL,
-                            BetResultEnum.REFUDNED,
-                          ].includes(row.userResult)
-                            ? "+" + numberThousandFload(row?.userProfit ?? 0)
-                            : row.userResult &&
-                              [BetResultEnum.LOSE].includes(row.userResult)
-                            ? "-" + numberThousandFload(row?.money ?? 0)
-                            : "Đang chờ"}
-                        </Typography>
-                      </TableCell>
-                      <TableCell sx={{ color: "#FFFFFF" }}>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            p: 1,
-                            borderRadius: "6px",
-                            fontWeight: 500,
-                            fontSize: 14,
-                            bgcolor:
-                              row?.userResult === BetResultEnum.WIN
-                                ? "#38A169"
-                                : row?.userResult === BetResultEnum.LOSE
-                                ? "#C53030"
-                                : row?.userResult === BetResultEnum.DRAW
-                                ? "#718096"
-                                : "#A0AEC0",
-                          }}
-                        >
-                          {row.userResult
-                            ? listResultHistory.find(
-                                (item: any) => item.value === row?.userResult
-                              )?.label
-                            : "Đang chờ"}
-                        </Typography>
-                      </TableCell>
-                      <TableCell sx={{ color: "#FFFFFF" }}>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            p: 1,
-                            borderRadius: "6px",
-                            fontWeight: 500,
-                            fontSize: 14,
-                            textWrap: "nowrap",
-                            bgcolor:
-                              row?.status === BetHistoryStatusEnum.MATCHED ||
-                              row.statusSession === StatusSessionEnum.SETTLED ||
-                              row.userResult
-                                ? "#3182CE"
-                                : "#A0AEC0",
-                          }}
-                        >
-                          {row.statusSession === StatusSessionEnum.SETTLED ||
-                          row.userResult
-                            ? "Đã kết toán"
-                            : row?.status === BetHistoryStatusEnum.MATCHED
-                            ? "Đã khớp"
-                            : "Chưa khớp"}
-                        </Typography>
-                      </TableCell>
-                      <TableCell sx={{ color: "#FFFFFF" }}>
-                        {convertDateTime(row?.createdAt?.toString() || "")}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
+                              ? "+" + numberThousandFload(row?.userProfit ?? 0)
+                              : row.userResult &&
+                                [BetResultEnum.LOSE].includes(row.userResult)
+                              ? "-" + numberThousandFload(row?.money ?? 0)
+                              : "Đang chờ"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FFFFFF" }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              p: 1,
+                              borderRadius: "6px",
+                              fontWeight: 500,
+                              fontSize: 14,
+                              bgcolor:
+                                row?.userResult === BetResultEnum.WIN
+                                  ? "#38A169"
+                                  : row?.userResult === BetResultEnum.LOSE
+                                  ? "#C53030"
+                                  : row?.userResult === BetResultEnum.DRAW
+                                  ? "#718096"
+                                  : "#A0AEC0",
+                            }}
+                          >
+                            {row.userResult
+                              ? listResultHistory.find(
+                                  (item: any) => item.value === row?.userResult
+                                )?.label
+                              : "Đang chờ"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FFFFFF" }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              p: 1,
+                              borderRadius: "6px",
+                              fontWeight: 500,
+                              fontSize: 14,
+                              textWrap: "nowrap",
+                              bgcolor:
+                                row?.status === BetHistoryStatusEnum.MATCHED ||
+                                row.statusSession ===
+                                  StatusSessionEnum.SETTLED ||
+                                row.userResult
+                                  ? "#3182CE"
+                                  : "#A0AEC0",
+                            }}
+                          >
+                            {row.statusSession === StatusSessionEnum.SETTLED ||
+                            row.userResult
+                              ? "Đã kết toán"
+                              : row?.status === BetHistoryStatusEnum.MATCHED
+                              ? "Đã khớp"
+                              : "Chưa khớp"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FFFFFF" }}>
+                          {convertDateTime(row?.createdAt?.toString() || "")}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Box>
+            )
           )}
           <Divider sx={{ borderColor: "#4A5568" }} />
           <TablePagination

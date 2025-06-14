@@ -5,10 +5,7 @@ import NotificationRealtime from "@/lib/dialogs/notification-realtime";
 import { UserContext, UserProvider } from "@/contexts/user-context";
 import { useSocket } from "@/socket";
 import { DepositStatusEnum } from "@/utils/enum/deposit-status.enum";
-import {
-  ConvertMoneyVND,
-  numberThousandFload,
-} from "@/utils/function-convert.util";
+import { numberThousandFload } from "@/utils/function-convert.util";
 import { useContext, useEffect, useState } from "react";
 
 export default function ClientLayout({
@@ -61,9 +58,19 @@ export default function ClientLayout({
       }
     });
 
+    socket.on("refresh-user", (msg) => {
+      console.log(msg.message + "===============");
+
+      if (msg.data.refreshUser) {
+        console.log(msg.message);
+        checkSession?.();
+      }
+    });
+
     return () => {
       socket.off("deposit-money");
       socket.off("withdraw-money");
+      socket.off("refresh-user");
     };
   }, [user, socket, checkSession]);
 
