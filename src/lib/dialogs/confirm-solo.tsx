@@ -89,7 +89,8 @@ const AcceptSolo: React.FC<AcceptBetDialogProps> = ({
       if (response.status === 200 || response.status === 201) {
         toast.success("Khớp kèo thành công");
         setSelectedBet(null);
-        setIsReloadBetting((prev: number) => prev + 1);
+        // Xóa dòng này để tránh gọi nhiều lần:
+        // setIsReloadBetting((prev: number) => prev + 1);
         checkSession?.();
         if (socket) {
           socket.emit("bet-history", {

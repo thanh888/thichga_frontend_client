@@ -90,7 +90,8 @@ export default function BetControls({
       const response = await createBetHistorySoloApi(newData);
       if (response.status === 200 || response.status === 201) {
         toast.success("Đặt cược thành công");
-        setIsReloadBetting((prev) => prev + 1);
+        // Xóa dòng này để tránh gọi nhiều lần:
+        // setIsReloadBetting((prev) => prev + 1);
         if (socket) {
           socket.emit("bet-history", { roomID: betRoom._id });
         }

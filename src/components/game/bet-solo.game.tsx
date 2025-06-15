@@ -32,6 +32,7 @@ import { useSocket } from "@/socket";
 import AcceptSolo from "../../lib/dialogs/confirm-solo";
 import { UserContext } from "@/contexts/user-context";
 import { numberThousandFloadBigMoney } from "@/utils/function-convert.util";
+import debounce from "lodash/debounce";
 
 const ScrollContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -350,15 +351,21 @@ const BetInfo: React.FC<BetInfoProps> = ({
 
   useEffect(() => {
     if (!socket || !betRoom?._id) return;
+    // Debounce reloadBetting khi nhận event
+    const debouncedReloadBetting = debounce(() => {
+      setIsReloadBetting((prev) => prev + 1);
+    }, 400);
+
     const handler = async (msg: any) => {
       if (msg.roomID === betRoom._id) {
         await getBetHistories();
-        setIsReloadBetting((prev) => prev + 1);
+        debouncedReloadBetting();
       }
     };
     socket.on("bet-history", handler);
     return () => {
       socket.off("bet-history", handler);
+      debouncedReloadBetting.cancel();
     };
   }, [socket, betRoom?._id, user]);
 

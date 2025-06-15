@@ -11,7 +11,8 @@ import { TypeBetRoomEnum } from "@/utils/enum/type-bet-room.enum";
 import { BettingRoomInterface } from "@/utils/interfaces/bet-room.interface";
 import { Box, Grid, Dialog, DialogTitle } from "@mui/material";
 import { useParams } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
+import debounce from "lodash/debounce";
 import CommentComponent from "@/components/game/comment.game";
 import { UserContext } from "@/contexts/user-context";
 
@@ -33,6 +34,13 @@ export default function GameDetailPage() {
   const [isClosed, setIsClosed] = useState<boolean>(false);
 
   const socket = useSocket();
+
+  // Debounce cập nhật isReloadBetting để tránh gọi quá nhiều lần
+  const debouncedReloadBetting = useRef(
+    debounce(() => {
+      setIsReloadBetting((prev) => prev + 1);
+    }, 400)
+  ).current;
 
   const getBetRoomInfo = async (room_id: string) => {
     try {
@@ -80,17 +88,18 @@ export default function GameDetailPage() {
     if (!socket || !roomID) return;
     socket.on("update-room", async () => {
       setIsReload((prev) => prev + 1);
-      setIsReloadBetting((prev) => prev + 1);
+      debouncedReloadBetting();
       await checkRoomClosed();
     });
     socket.on("bet-history", (msg) => {
-      if (msg.roomID === roomID) setIsReloadBetting((prev) => prev + 1);
+      if (msg.roomID === roomID) debouncedReloadBetting();
     });
     return () => {
       socket.off("update-room");
       socket.off("bet-history");
+      debouncedReloadBetting.cancel();
     };
-  }, [socket, roomID]);
+  }, [socket, roomID, debouncedReloadBetting]);
 
   const handleCloseDialog = () => setIsClosed(false);
 

@@ -58,10 +58,6 @@ function HeaderComponent() {
   };
 
   const handleRedirectGame = async () => {
-    if (!user?._id) {
-      router.push("/login");
-      return;
-    }
     try {
       const response = await getRoomIsOpenedApi();
       if (
